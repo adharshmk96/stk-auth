@@ -63,9 +63,11 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	}
 
 	response := RegisterResponse{
-		ID:       createdUser.ID.String(),
-		Username: createdUser.Username,
-		Email:    createdUser.Email,
+		ID:        createdUser.ID.String(),
+		Username:  createdUser.Username,
+		Email:     createdUser.Email,
+		CreatedAt: createdUser.CreatedAt,
+		UpdatedAt: createdUser.UpdatedAt,
 	}
 
 	ctx.Status(200).JSONResponse(response)
