@@ -1,0 +1,19 @@
+folderPath: "migrations"
+database: "sqlite3"
+
+postgresql:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "postgres"  
+
+sqlite3:
+  path: "migdb.db"
+
+mysql:
+  host: "localhost"
+  port: 3306
+  user: "mysql"
+  password: "mysql"
+  dbname: "mysql"
