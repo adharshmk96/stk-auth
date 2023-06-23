@@ -63,7 +63,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 
 	t.Run("retrieves user by id", func(t *testing.T) {
 		userStorage := sqlite.NewUserStorage()
-		retrivedUser, err := userStorage.GetUserByID(1)
+		retrivedUser, err := userStorage.GetUserByID(entities.UserID(userId))
 		assert.NoError(t, err)
 		assert.Equal(t, user, retrivedUser)
 	})

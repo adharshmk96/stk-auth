@@ -22,20 +22,22 @@ func NewUserStorage() entities.UserStore {
 	}
 }
 
-func (s *sqliteStorage) SaveUser(user *entities.User) (entities.UserID, error) {
+// TODO: Implement this
+func (s *sqliteStorage) SaveUser(user *entities.User) (*entities.User, error) {
 	query := "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"
 	result, err := s.conn.Exec(query, user.Username, user.Password, user.Email)
 	if err != nil {
-		return entities.UserID{}, err
+		return &entities.User{}, err
 	}
 	_, err = result.LastInsertId()
 	if err != nil {
-		return entities.UserID{}, err
+		return &entities.User{}, err
 	}
-	return entities.UserID{}, nil
+	return &entities.User{}, nil
 }
 
-func (s *sqliteStorage) GetUserByID(id int64) (*entities.User, error) {
+// TODO: Implement this
+func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.User, error) {
 	query := "SELECT id, username, password, email FROM users WHERE id = ?"
 	row := s.conn.QueryRow(query, id)
 	var user entities.User

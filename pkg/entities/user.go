@@ -13,16 +13,16 @@ type User struct {
 
 type UserService interface {
 	// Create a new user
-	RegisterUser(user *User) (UserID, error)
+	RegisterUser(user *User) (*User, error)
 	// Get a user by id
-	GetUserByID(id int64) (*User, error)
+	GetUserByID(id UserID) (*User, error)
 }
 
 type UserStore interface {
 	// Create a new user
-	SaveUser(user *User) (UserID, error)
+	SaveUser(user *User) (*User, error)
 	// Get a user by id
-	GetUserByID(id int64) (*User, error)
+	GetUserByID(id UserID) (*User, error)
 	// // Get a user by username
 	// GetUserByUsername(username string) (*User, error)
 	// // Get a user by email
