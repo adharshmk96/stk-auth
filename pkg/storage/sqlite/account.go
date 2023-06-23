@@ -15,7 +15,7 @@ const (
 	sqlitePath = "sqlite.db"
 )
 
-func NewUserStorage() entities.UserStore {
+func NewAccountStorage() entities.AccountStore {
 	connection := db.GetSqliteConnection(sqlitePath)
 	return &sqliteStorage{
 		conn: connection,
@@ -23,24 +23,24 @@ func NewUserStorage() entities.UserStore {
 }
 
 // TODO: Implement this
-func (s *sqliteStorage) SaveUser(user *entities.User) (*entities.User, error) {
-	query := "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"
-	result, err := s.conn.Exec(query, user.Username, user.Password, user.Email)
-	if err != nil {
-		return &entities.User{}, err
-	}
-	_, err = result.LastInsertId()
-	if err != nil {
-		return &entities.User{}, err
-	}
-	return &entities.User{}, nil
+func (s *sqliteStorage) SaveUser(user *entities.Account) error {
+	// query := "INSERT INTO users (username, password, email) VALUES (?, ?, ?)"
+	// result, err := s.conn.Exec(query, user.Username, user.Password, user.Email)
+	// if err != nil {
+	// 	return &entities.Account{}, err
+	// }
+	// _, err = result.LastInsertId()
+	// if err != nil {
+	// 	return &entities.Account{}, err
+	// }
+	return nil
 }
 
 // TODO: Implement this
-func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.User, error) {
+func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, error) {
 	query := "SELECT id, username, password, email FROM users WHERE id = ?"
 	row := s.conn.QueryRow(query, id)
-	var user entities.User
+	var user entities.Account
 	err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
 		return nil, err

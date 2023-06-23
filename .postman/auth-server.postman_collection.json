@@ -1,0 +1,68 @@
+{
+	"info": {
+		"_postman_id": "8d65f8a7-3d16-4c08-a374-9e9eca258a05",
+		"name": "auth-server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "8259072"
+	},
+	"item": [
+		{
+			"name": "register a user with correct info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify the response code",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Verify the response body",
+							"pm.test(\"Response body contains expected data\", function () {",
+							"    // Parse the response body as JSON",
+							"    var jsonData = pm.response.json();",
+							"",
+							"    // Verify the username",
+							"    pm.expect(jsonData.username).to.eql(\"user\");",
+							"",
+							"    // Verify the email",
+							"    pm.expect(jsonData.email).to.eql(\"user@email.com\");",
+							"",
+							"    // Verify the password",
+							"    pm.expect(jsonData.password).to.eql(\"pass1234\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user\",\n    \"email\": \"user@email.com\",\n    \"password\": \"pass1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/register",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

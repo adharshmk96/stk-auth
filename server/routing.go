@@ -8,10 +8,10 @@ import (
 )
 
 func setupRoutes(server *stk.Server) {
-	userStorage := sqlite.NewUserStorage()
-	userService := services.NewUserService(userStorage)
-	userHandler := handlers.NewUserHandler(userService)
+	userStorage := sqlite.NewAccountStorage()
+	userService := services.NewAccountService(userStorage)
+	userHandler := handlers.NewAccountHandler(userService)
 
-	server.Post("/auth/register", userHandler.RegisterUser)
-	server.Get("/auth/user/:id", userHandler.GetUserByID)
+	server.Post("/api/auth/register", userHandler.RegisterUser)
+	server.Get("/api/auth/user/:id", userHandler.GetUserByID)
 }

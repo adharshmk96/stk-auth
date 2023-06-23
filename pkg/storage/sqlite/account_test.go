@@ -37,7 +37,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 
 	userId := uuid.New()
 
-	user := &entities.User{
+	user := &entities.Account{
 		ID:       entities.UserID(userId),
 		Username: "test",
 		Password: "test",
@@ -45,11 +45,10 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 	}
 
 	t.Run("saves user in the database", func(t *testing.T) {
-		userStorage := sqlite.NewUserStorage()
+		userStorage := sqlite.NewAccountStorage()
 
-		id, err := userStorage.SaveUser(user)
+		err := userStorage.SaveUser(user)
 		assert.NoError(t, err)
-		assert.Equal(t, entities.UserID(userId), id)
 
 		res, err := conn.Exec("select * from users")
 		assert.NoError(t, err)
@@ -62,7 +61,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 	})
 
 	t.Run("retrieves user by id", func(t *testing.T) {
-		userStorage := sqlite.NewUserStorage()
+		userStorage := sqlite.NewAccountStorage()
 		retrivedUser, err := userStorage.GetUserByID(entities.UserID(userId))
 		assert.NoError(t, err)
 		assert.Equal(t, user, retrivedUser)
