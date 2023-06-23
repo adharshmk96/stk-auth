@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var port string
+
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
 	Use:   "serve",
@@ -19,5 +21,6 @@ var serveCmd = &cobra.Command{
 }
 
 func init() {
+	serveCmd.Flags().StringVarP(&port, "port", "p", "8080", "Port to listen on")
 	rootCmd.AddCommand(serveCmd)
 }
