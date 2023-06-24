@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 	"time"
 
@@ -18,38 +17,13 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func assertStructEqual(t *testing.T, expected, actual interface{}) {
-	expectedValue := reflect.ValueOf(expected)
-	actualValue := reflect.ValueOf(actual)
-
-	if expectedValue.Kind() != reflect.Struct || actualValue.Kind() != reflect.Struct {
-		t.Errorf("Expected and actual values must be structs")
-		return
-	}
-
-	numFields := expectedValue.NumField()
-
-	for i := 0; i < numFields; i++ {
-		expectedField := expectedValue.Field(i)
-		actualField := actualValue.Field(i)
-
-		if !reflect.DeepEqual(expectedField.Interface(), actualField.Interface()) {
-			t.Errorf("Field %s does not match. Expected: %v, Actual: %v",
-				expectedValue.Type().Field(i).Name,
-				expectedField.Interface(),
-				actualField.Interface(),
-			)
-		}
-	}
-}
-
 func TestRegisterUser(t *testing.T) {
 
 	uid := uuid.New()
 	userId := entities.UserID(uid)
 	username := "user"
 	email := "user@email.com"
-	password := "password"
+	password := "#Password1"
 	created := time.Now()
 	updated := time.Now()
 
@@ -153,7 +127,7 @@ func TestRegisterUser(t *testing.T) {
 		assert.Equal(t, 500, w.Code)
 	})
 
-	t.Run("user id won't be same even if passed in request", func(t *testing.T) {
+	t.Run("passing userid will fail the decoding.", func(t *testing.T) {
 		config := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
@@ -167,7 +141,29 @@ func TestRegisterUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("RegisterUser", mock.Anything).Return(userData, nil)
+		s.Post("/register", handler.RegisterUser)
+
+		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
+		assert.Equal(t, 500, w.Code)
+
+	})
+
+	t.Run("invalid email returns 400", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
 
@@ -176,18 +172,8 @@ func TestRegisterUser(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		service.AssertCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 200, w.Code)
-
-		var response handlers.UserResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
-
-		assert.NotEqual(t, newUserId, response.ID)
-		assert.Equal(t, expectedResponse.Username, response.Username)
-		assert.Equal(t, expectedResponse.Email, response.Email)
-		assert.EqualValues(t, expectedResponse.CreatedAt.Unix(), response.CreatedAt.Unix())
-		assert.EqualValues(t, expectedResponse.UpdatedAt.Unix(), response.UpdatedAt.Unix())
-
+		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
+		assert.Equal(t, 400, w.Code)
 	})
 }
 
