@@ -2,8 +2,6 @@ module github.com/adharshmk96/auth-server
 
 go 1.20
 
-replace github.com/adharshmk96/stk => /home/adharsh/projects/stk
-
 require (
 	github.com/adharshmk96/stk v0.2.2
 	github.com/google/uuid v1.3.0
