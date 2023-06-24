@@ -75,7 +75,7 @@ func ValidateUser(user *Account) map[string]string {
 
 		if user.Email != "" {
 			if err := validateEmail(user.Email); err != nil {
-				errorMessages["email"] = EmailMustBeValid + " not, " + user.Email
+				errorMessages["email"] = EmailMustBeValid
 			}
 		}
 	}
