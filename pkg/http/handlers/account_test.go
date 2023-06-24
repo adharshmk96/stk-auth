@@ -152,6 +152,43 @@ func TestRegisterUser(t *testing.T) {
 		service.AssertCalled(t, "RegisterUser", mock.Anything)
 		assert.Equal(t, 500, w.Code)
 	})
+
+	t.Run("user id won't be same even if passed in request", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		newUserId := uuid.NewString()
+
+		body := []byte(`{ "id": "` + newUserId + `", "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("RegisterUser", mock.Anything).Return(userData, nil)
+
+		s.Post("/register", handler.RegisterUser)
+
+		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		service.AssertCalled(t, "RegisterUser", mock.Anything)
+		assert.Equal(t, 200, w.Code)
+
+		var response handlers.UserResponse
+		json.Unmarshal(w.Body.Bytes(), &response)
+
+		assert.NotEqual(t, newUserId, response.ID)
+		assert.Equal(t, expectedResponse.Username, response.Username)
+		assert.Equal(t, expectedResponse.Email, response.Email)
+		assert.EqualValues(t, expectedResponse.CreatedAt.Unix(), response.CreatedAt.Unix())
+		assert.EqualValues(t, expectedResponse.UpdatedAt.Unix(), response.UpdatedAt.Unix())
+
+	})
 }
 
 func TestGetUserByID(t *testing.T) {

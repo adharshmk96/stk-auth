@@ -4,10 +4,13 @@ import (
 	"time"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/auth-server/pkg/infra"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/google/uuid"
 )
+
+var logger = infra.GetLogger()
 
 type accountService struct {
 	storage entities.AccountStore
@@ -22,6 +25,7 @@ func NewAccountService(storage entities.AccountStore) entities.AccountService {
 func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account, error) {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
+		logger.Error("error generating salt: ", err)
 		return nil, svrerr.ErrHasingPassword
 	}
 

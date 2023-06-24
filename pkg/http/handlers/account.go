@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
 )
 
@@ -26,6 +27,15 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	err := ctx.DecodeJSONBody(&user)
 	if err != nil {
 		handleUserError(err, ctx)
+		return
+	}
+
+	errorMessages := entities.ValidateUser(user)
+	if len(errorMessages) > 0 {
+		ctx.Status(400).JSONResponse(stk.Map{
+			"error":   svrerr.ErrInvalidData.Error(),
+			"details": errorMessages,
+		})
 		return
 	}
 
