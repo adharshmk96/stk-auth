@@ -23,6 +23,9 @@
 							"    // Parse the response body as JSON",
 							"    var jsonData = pm.response.json();",
 							"",
+							"    // Verify id is set",
+							"    pm.expect(jsonData.id).to.not.be.undefined",
+							"",
 							"    // Verify the username",
 							"    pm.expect(jsonData.username).to.eql(\"user\");",
 							"",
@@ -30,8 +33,102 @@
 							"    pm.expect(jsonData.email).to.eql(\"user@email.com\");",
 							"",
 							"    // Verify the password",
-							"    pm.expect(jsonData.password).to.eql(\"pass1234\");",
+							"    pm.expect(jsonData.password).to.be.undefined;",
+							"",
+							"    // Verify the presence of 'created_at' field",
+							"    pm.expect(jsonData.created_at).to.not.be.undefined;",
+							"",
+							"    // Verify the presence of 'updated_at' field",
+							"    pm.expect(jsonData.updated_at).to.not.be.undefined;",
 							"});",
+							"",
+							"// Extract the 'id' value from the response body",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Store the 'id' value in an environment variable",
+							"pm.environment.set('user_id', jsonData.id);",
+							"pm.environment.set('user_data', jsonData)",
+							"pm.environment.set('user_email', jsonData.email)",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function generateRandomEmail() {",
+							"    const randomString = Math.random().toString(36).substr(2, 5);",
+							"    const domain = \"gmail.com\";",
+							"",
+							"    return `testuser_${randomString}@${domain}`;",
+							"}",
+							"",
+							"function generateRandomUsername() {",
+							"  const username = Math.random().toString(36).substr(2, 8);",
+							"  return username;",
+							"}",
+							"",
+							"const randomUsername = generateRandomUsername();",
+							"const randomEmail = generateRandomEmail();",
+							"",
+							"pm.environment.set(\"random_user\", randomUsername)",
+							"pm.environment.set(\"random_email\", randomEmail)",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{random_user}}\",\n    \"email\": \"{{random_email}}\",\n    \"password\": \"pass1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/auth/register",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "duplicate registration",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Verify the response code",
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});",
+							"",
+							"// Verify the response body",
+							"pm.test(\"Response body contains expected data\", function () {",
+							"    // Parse the response body as JSON",
+							"    var jsonData = pm.response.json();",
+							"",
+							"    pm.expect(jsonData.error).to.eql(\"user_already_exists\")",
+							"",
+							"});",
+							"",
+							"",
 							""
 						],
 						"type": "text/javascript"
@@ -59,6 +156,26 @@
 						"api",
 						"auth",
 						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/auth/user/{{user_id}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"user",
+						"{{user_id}}"
 					]
 				}
 			},

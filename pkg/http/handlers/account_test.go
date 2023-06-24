@@ -246,7 +246,7 @@ func TestGetUserByID(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrNoAccountFound)
+		service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrAccountNotFound)
 
 		s.Get("/user/:id", handler.GetUserByID)
 

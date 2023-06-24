@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/infra"
@@ -22,7 +23,6 @@ func NewAccountStorage() entities.AccountStore {
 	}
 }
 
-// TODO: Implement this
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 	result, err := s.conn.Exec(
@@ -36,20 +36,27 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 		user.UpdatedAt,
 	)
 	if err != nil {
-		logger.Error("error inserting user into database: ", err)
-		return svrerr.ErrStoringAccount
+		return handleSaveError(err)
 	}
 
 	rows, err := result.RowsAffected()
-	if rows == 0 || err != nil {
-		logger.Error("error inserting user into database: ", err)
+	logger.Error("rows affected: " + string(rune(rows)))
+	if err != nil {
+		logger.Error("no rows affected: ", err)
 		return svrerr.ErrStoringAccount
 	}
 
 	return nil
 }
 
-// TODO: Implement this
+func handleSaveError(err error) error {
+	if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+		return svrerr.ErrAccountExists
+	}
+	logger.Error("error inserting user into database: ", err)
+	return svrerr.ErrStoringAccount
+}
+
 func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, error) {
 
 	row := s.conn.QueryRow(GET_USER_BY_ID, id.String())
@@ -67,13 +74,7 @@ func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, erro
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			logger.Error("record not found:", err)
-			return nil, svrerr.ErrNoAccountFound
-		}
-
-		logger.Error("error retrieving user from database: ", err)
-		return nil, err
+		return handleRetrieveErr(err)
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
@@ -83,4 +84,14 @@ func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, erro
 	}
 
 	return &user, nil
+}
+
+func handleRetrieveErr(err error) (*entities.Account, error) {
+	if err == sql.ErrNoRows {
+		logger.Error("record not found:", err)
+		return nil, svrerr.ErrAccountNotFound
+	}
+
+	logger.Error("error retrieving user from database: ", err)
+	return nil, svrerr.ErrRetrievingAccount
 }

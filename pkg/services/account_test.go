@@ -64,6 +64,19 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		assert.Nil(t, user)
 	})
 
+	t.Run("returns error if user exists", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrAccountExists)
+
+		// Test invalid registration
+		user, err := service.RegisterUser(userData)
+		assert.Error(t, err)
+		assert.EqualError(t, err, svrerr.ErrAccountExists.Error())
+		assert.Nil(t, user)
+	})
+
 }
 
 func TestAccountService_GetUserByID(t *testing.T) {
@@ -91,13 +104,13 @@ func TestAccountService_GetUserByID(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrNoAccountFound)
+		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrAccountNotFound)
 
 		retrievedUser, err := service.GetUserByID(entities.UserID(uuid.New()))
 
 		assert.Error(t, err)
 		assert.Nil(t, retrievedUser)
-		assert.EqualError(t, err, svrerr.ErrNoAccountFound.Error())
+		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
 	})
 
 	t.Run("returns err if storage failed", func(t *testing.T) {
@@ -112,4 +125,5 @@ func TestAccountService_GetUserByID(t *testing.T) {
 		assert.EqualError(t, err, svrerr.ErrRetrievingAccount.Error())
 		assert.Nil(t, user)
 	})
+
 }

@@ -31,7 +31,12 @@ func handleUserError(err error, ctx stk.Context) {
 			status = 400
 			message = err.Error()
 		}
-	case svrerr.ErrNoAccountFound:
+	case svrerr.ErrAccountExists:
+		{
+			status = 409
+			message = err.Error()
+		}
+	case svrerr.ErrAccountNotFound:
 		{
 			status = 404
 			message = err.Error()
@@ -52,6 +57,6 @@ func handleUserError(err error, ctx stk.Context) {
 	}
 
 	ctx.Status(status).JSONResponse(stk.Map{
-		"message": message,
+		"error": message,
 	})
 }
