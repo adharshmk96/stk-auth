@@ -12,6 +12,14 @@ func (u *UserID) String() string {
 	return uuid.UUID(*u).String()
 }
 
+func ParseUserId(id string) (UserID, error) {
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return UserID{}, ErrParsingUserID
+	}
+	return UserID(uid), nil
+}
+
 type Account struct {
 	ID        UserID `json:"id"`
 	Username  string `json:"username"`

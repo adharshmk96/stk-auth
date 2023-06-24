@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/services"
 	"github.com/adharshmk96/stk"
 )
 
@@ -21,48 +20,22 @@ func NewAccountHandler(userService entities.AccountService) AccountHandler {
 	}
 }
 
-func handleRegisterUserError(err error, ctx stk.Context) {
-	switch err {
-	case stk.ErrInvalidJSON:
-		{
-			ctx.Status(400).JSONResponse(stk.Map{
-				"message": err.Error(),
-			})
-		}
-	case services.ErrStoringAccount:
-		{
-			ctx.Status(500).JSONResponse(stk.Map{
-				"message": err.Error(),
-			})
-		}
-	// define default cases here
-	case services.ErrHasingPassword:
-		fallthrough
-	default:
-		{
-			ctx.Status(500).JSONResponse(stk.Map{
-				"message": stk.ErrInternalServer.Error(),
-			})
-		}
-	}
-}
-
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	var user *entities.Account
 
 	err := ctx.DecodeJSONBody(&user)
 	if err != nil {
-		handleRegisterUserError(err, ctx)
+		handleUserError(err, ctx)
 		return
 	}
 
 	createdUser, err := h.userService.RegisterUser(user)
 	if err != nil {
-		handleRegisterUserError(err, ctx)
+		handleUserError(err, ctx)
 		return
 	}
 
-	response := RegisterResponse{
+	response := UserResponse{
 		ID:        createdUser.ID.String(),
 		Username:  createdUser.Username,
 		Email:     createdUser.Email,
@@ -76,8 +49,25 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 func (h *accountHandler) GetUserByID(ctx stk.Context) {
 
 	id := ctx.GetParam("id")
+	userId, err := entities.ParseUserId(id)
+	if err != nil {
+		handleUserError(err, ctx)
+		return
+	}
 
-	ctx.Status(200).JSONResponse(stk.Map{
-		"message": "user id " + id,
-	})
+	retrievedUser, err := h.userService.GetUserByID(userId)
+	if err != nil {
+		handleUserError(err, ctx)
+		return
+	}
+
+	response := UserResponse{
+		ID:        retrievedUser.ID.String(),
+		Username:  retrievedUser.Username,
+		Email:     retrievedUser.Email,
+		CreatedAt: retrievedUser.CreatedAt,
+		UpdatedAt: retrievedUser.UpdatedAt,
+	}
+
+	ctx.Status(200).JSONResponse(response)
 }

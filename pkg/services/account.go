@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/google/uuid"
 )
@@ -21,7 +22,7 @@ func NewAccountService(storage entities.AccountStore) entities.AccountService {
 func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account, error) {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
-		return nil, ErrHasingPassword
+		return nil, svrerr.ErrHasingPassword
 	}
 
 	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
@@ -36,7 +37,7 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	user.Salt = hashedSalt
 
 	if err = u.storage.SaveUser(user); err != nil {
-		return nil, ErrStoringAccount
+		return nil, err
 	}
 
 	return user, nil

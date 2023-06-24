@@ -6,7 +6,7 @@ import (
 	"github.com/adharshmk96/auth-server/mocks"
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/services"
-	"github.com/adharshmk96/auth-server/pkg/storage/sqlite"
+	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,10 +22,11 @@ func TestNewUserService(t *testing.T) {
 
 func TestAccountService_RegisterUser(t *testing.T) {
 
+	user_password := "testpassword"
+
 	userData := &entities.Account{
-		ID:       entities.UserID(uuid.New()),
 		Username: "testuser",
-		Password: "testpassword",
+		Password: user_password,
 		Email:    "mail@email.com",
 	}
 
@@ -39,22 +40,30 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		user, err := service.RegisterUser(userData)
 		assert.NoError(t, err)
 		assert.Equal(t, userData, user)
+
+		assert.NotEmpty(t, user.ID)
+		// Test salt is generated
+		assert.NotEmpty(t, user.Salt)
+		// Test password is hashed
+		assert.NotEqual(t, user_password, userData.Password)
+		// Test timestamps are generated
+		assert.NotEmpty(t, user.CreatedAt)
+		assert.NotEmpty(t, user.UpdatedAt)
 	})
 
 	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("SaveUser", mock.Anything).Return(sqlite.ErrStoringAccount)
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrStoringAccount)
 
 		// Test invalid registration
 		user, err := service.RegisterUser(userData)
 		assert.Error(t, err)
-		assert.EqualError(t, err, sqlite.ErrStoringAccount.Error())
+		assert.EqualError(t, err, svrerr.ErrStoringAccount.Error())
 		assert.Nil(t, user)
 	})
 
-	// TODO: Test password hasing
 }
 
 func TestAccountService_GetUserByID(t *testing.T) {
@@ -82,25 +91,25 @@ func TestAccountService_GetUserByID(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(nil, sqlite.ErrNoAccountFound)
+		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrNoAccountFound)
 
 		retrievedUser, err := service.GetUserByID(entities.UserID(uuid.New()))
 
 		assert.Error(t, err)
 		assert.Nil(t, retrievedUser)
-		assert.EqualError(t, err, sqlite.ErrNoAccountFound.Error())
+		assert.EqualError(t, err, svrerr.ErrNoAccountFound.Error())
 	})
 
 	t.Run("returns err if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(nil, sqlite.ErrRetrievingAccount)
+		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrRetrievingAccount)
 
 		// Test invalid retrieval
 		user, err := service.GetUserByID(entities.UserID(uuid.New()))
 		assert.Error(t, err)
-		assert.EqualError(t, err, sqlite.ErrRetrievingAccount.Error())
+		assert.EqualError(t, err, svrerr.ErrRetrievingAccount.Error())
 		assert.Nil(t, user)
 	})
 }

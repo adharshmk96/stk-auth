@@ -9,7 +9,7 @@ postgresql:
   dbname: "postgres"  
 
 sqlite3:
-  path: "migdb.db"
+  path: "auth_database.db"
 
 mysql:
   host: "localhost"

@@ -1,8 +1,8 @@
-package services
+package svrerr
 
 import "errors"
 
 var (
-	ErrStoringAccount = errors.New("error_storing_user_data")
+	// Account service errors
 	ErrHasingPassword = errors.New("error_hashing_password")
 )
