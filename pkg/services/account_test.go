@@ -114,17 +114,13 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Username: user_name,
 			Password: user_password,
 		}
-		userSession, err := service.LoginUserSession(requestData)
+		userToken, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByUsername", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByEmail", mock.Anything)
 
 		assert.NoError(t, err)
-		assert.Equal(t, storedData.ID, userSession.UserID)
-		assert.NotEmpty(t, userSession.SessionID)
-		assert.NotEmpty(t, userSession.CreatedAt)
-		assert.NotEmpty(t, userSession.UpdatedAt)
-		assert.True(t, userSession.Valid)
+		assert.NotEmpty(t, userToken)
 	})
 
 	t.Run("returns session with userid if email and password are valid", func(t *testing.T) {
@@ -138,17 +134,13 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: user_password,
 		}
-		userSession, err := service.LoginUserSession(requestData)
+		userToken, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
 
 		assert.NoError(t, err)
-		assert.Equal(t, storedData.ID, userSession.UserID)
-		assert.NotEmpty(t, userSession.SessionID)
-		assert.NotEmpty(t, userSession.CreatedAt)
-		assert.NotEmpty(t, userSession.UpdatedAt)
-		assert.True(t, userSession.Valid)
+		assert.NotEmpty(t, userToken)
 	})
 
 	t.Run("returns error if password is incorrect", func(t *testing.T) {

@@ -4,8 +4,10 @@ import (
 	"time"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/auth-server/pkg/infra/config"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
@@ -34,7 +36,7 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	return user, nil
 }
 
-func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Session, error) {
+func (u *accountService) LoginUserSession(user *entities.Account) (string, error) {
 	var userRecord *entities.Account
 	var err error
 	if user.Email == "" {
@@ -44,18 +46,18 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	}
 	if err != nil {
 		if err == svrerr.ErrEntryNotFound {
-			return nil, svrerr.ErrInvalidCredentials
+			return "", svrerr.ErrInvalidCredentials
 		}
-		return nil, err
+		return "", err
 	}
 
 	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
 	if err != nil {
 		logger.Error("error verifying password: ", err)
-		return nil, err
+		return "", err
 	}
 	if !valid {
-		return nil, svrerr.ErrInvalidCredentials
+		return "", svrerr.ErrInvalidCredentials
 	}
 
 	newSessionId := uuid.New().String()
@@ -70,8 +72,21 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	}
 
 	if err = u.storage.SaveSession(session); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return session, nil
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, getClaims(session.SessionID, userRecord.ID.String()))
+	private_key, err := config.GetJWTPrivateKey()
+	if err != nil {
+		logger.Error("error getting private key: ", err)
+		return "", err
+	}
+
+	signedToken, err := token.SignedString(private_key)
+	if err != nil {
+		logger.Error("error signing token: ", err)
+		return "", err
+	}
+
+	return signedToken, nil
 }

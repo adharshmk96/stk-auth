@@ -64,24 +64,22 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	sessionData, err := h.userService.LoginUserSession(userLogin)
+	jwtToken, err := h.userService.LoginUserSession(userLogin)
 	if err != nil {
 		transport.HandleUserError(err, ctx)
 		return
 	}
 
-	response := &transport.LoginResponse{
-		UserID: sessionData.UserID.String(),
-	}
-
 	httpOnly := config.ServerMode == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.SessionCookieName,
-		Value:    sessionData.SessionID,
+		Value:    jwtToken,
 		HttpOnly: httpOnly,
 		Path:     "/",
 	}
 
 	ctx.SetCookie(cookie)
-	ctx.Status(200).JSONResponse(response)
+	ctx.Status(200).JSONResponse(stk.Map{
+		"message": "login successful",
+	})
 }
