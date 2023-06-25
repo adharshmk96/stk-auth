@@ -27,7 +27,7 @@ build:
 	@go build .	
 
 test:
-	@go test -v ./... -coverprofile=coverage.out
+	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 publish:
 	git push origin $(VERSION)

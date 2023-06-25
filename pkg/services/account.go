@@ -4,23 +4,10 @@ import (
 	"time"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/infra"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/google/uuid"
 )
-
-var logger = infra.GetLogger()
-
-type accountService struct {
-	storage entities.AccountStore
-}
-
-func NewAccountService(storage entities.AccountStore) entities.AccountService {
-	return &accountService{
-		storage: storage,
-	}
-}
 
 func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account, error) {
 	salt, err := utils.GenerateSalt()
@@ -31,12 +18,12 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 
 	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
 
-	current_timestamp := time.Now()
 	newUserId := uuid.New()
+	currentTimestamp := time.Now()
 
 	user.ID = entities.UserID(newUserId)
-	user.CreatedAt = current_timestamp
-	user.UpdatedAt = current_timestamp
+	user.CreatedAt = currentTimestamp
+	user.UpdatedAt = currentTimestamp
 	user.Password = hashedPassword
 	user.Salt = hashedSalt
 
@@ -47,10 +34,38 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	return user, nil
 }
 
-func (u *accountService) GetUserByID(id entities.UserID) (*entities.Account, error) {
-	user, err := u.storage.GetUserByID(id)
+func (u *accountService) LoginSessionUser(user *entities.Account) (*entities.Session, error) {
+	userRecord, err := u.storage.GetUserByEmail(user.Email)
 	if err != nil {
+		if err == svrerr.ErrEntryNotFound {
+			return nil, svrerr.ErrInvalidCredentials
+		}
 		return nil, err
 	}
-	return user, nil
+
+	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
+	if err != nil {
+		logger.Error("error verifying password: ", err)
+		return nil, err
+	}
+	if !valid {
+		return nil, svrerr.ErrInvalidCredentials
+	}
+
+	newSessionId := uuid.New().String()
+	currentTimestamp := time.Now()
+
+	session := &entities.Session{
+		UserID:    userRecord.ID,
+		SessionID: newSessionId,
+		CreatedAt: currentTimestamp,
+		UpdatedAt: currentTimestamp,
+		Valid:     true,
+	}
+
+	if err = u.storage.SaveSession(session); err != nil {
+		return nil, err
+	}
+
+	return session, nil
 }

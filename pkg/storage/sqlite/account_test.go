@@ -17,7 +17,7 @@ func setupDatabase() *sql.DB {
 	// this singleton pattern has a global effect. So it will make sure storage uses this instance.
 	conn := db.GetSqliteConnection(":memory:")
 
-	_, err := conn.Exec(`CREATE TABLE auth_user_accounts (
+	conn.Exec(`CREATE TABLE auth_user_accounts (
 		id TEXT PRIMARY KEY UNIQUE,
 		username TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
@@ -26,9 +26,16 @@ func setupDatabase() *sql.DB {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`)
-	if err != nil {
-		panic(err)
-	}
+
+	conn.Exec(`CREATE TABLE auth_user_sessions (
+		id integer NOT NULL,
+		user_id TEXT UNIQUE,
+		session_id varchar(40) NOT NULL UNIQUE,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		valid boolean DEFAULT TRUE,
+		PRIMARY KEY (id)
+	)`)
 
 	return conn
 }
@@ -43,23 +50,24 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 	setupDatabase()
 	defer tearDownDatabase()
 
-	userId := uuid.New()
+	userId := entities.UserID(uuid.New())
+	time_now := time.Now()
 
 	user := &entities.Account{
-		ID:        entities.UserID(userId),
+		ID:        userId,
 		Username:  "test",
 		Password:  "test",
 		Salt:      "salt",
 		Email:     "user@test.com",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time_now,
+		UpdatedAt: time_now,
 	}
 
 	userStorage := sqlite.NewAccountStorage()
 
-	t.Run("returns error when account is not found", func(t *testing.T) {
-		presaveUser, err := userStorage.GetUserByID(entities.UserID(userId))
-		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
+	t.Run("returns error when email is not found in empty db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByEmail(user.Email)
+		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
 		assert.Nil(t, presaveUser)
 	})
 
@@ -69,11 +77,10 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 
 	})
 
-	t.Run("retrieves user by id", func(t *testing.T) {
-		userStorage := sqlite.NewAccountStorage()
-		retrievedUser, err := userStorage.GetUserByID(entities.UserID(userId))
+	t.Run("retrieves user by email", func(t *testing.T) {
+		retrievedUser, err := userStorage.GetUserByEmail(user.Email)
 		assert.NoError(t, err)
-		assert.Equal(t, userId, userId)
+		assert.Equal(t, userId, retrievedUser.ID)
 		assert.Equal(t, user.Username, retrievedUser.Username)
 		assert.Equal(t, user.Password, retrievedUser.Password)
 		assert.Equal(t, user.Salt, retrievedUser.Salt)
@@ -82,11 +89,34 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
-	t.Run("returns error if user is not found", func(t *testing.T) {
-		userStorage := sqlite.NewAccountStorage()
-		user, err := userStorage.GetUserByID(entities.UserID(uuid.New()))
-		assert.Nil(t, user)
-		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
+	t.Run("returns error when id is not found in populated db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByEmail(user.Email + "xd")
+		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
+		assert.Nil(t, presaveUser)
 	})
+
+	session := &entities.Session{
+		UserID:    userId,
+		SessionID: "session",
+		CreatedAt: time_now,
+		UpdatedAt: time_now,
+		Valid:     true,
+	}
+
+	t.Run("saves user session to database", func(t *testing.T) {
+
+		err := userStorage.SaveSession(session)
+		assert.NoError(t, err)
+	})
+
+	t.Run("retrieves user session by session id", func(t *testing.T) {
+		session, err := userStorage.RetrieveSessionByID("session")
+		assert.NoError(t, err)
+		assert.Equal(t, userId, session.UserID)
+		assert.Equal(t, "session", session.SessionID)
+		assert.Equal(t, time_now.Unix(), session.CreatedAt.Unix())
+		assert.Equal(t, time_now.Unix(), session.UpdatedAt.Unix())
+		assert.Equal(t, true, session.Valid)
+	})
+
 }

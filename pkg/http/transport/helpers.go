@@ -1,4 +1,4 @@
-package handlers
+package transport
 
 import (
 	"time"
@@ -8,6 +8,12 @@ import (
 	"github.com/adharshmk96/stk"
 )
 
+type UserLogin struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type UserResponse struct {
 	ID        string    `json:"id"`
 	Username  string    `json:"username"`
@@ -16,7 +22,14 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func handleUserError(err error, ctx stk.Context) {
+type SessionResponse struct {
+	UserID    string    `json:"user_id"`
+	SessionID string    `json:"session_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func HandleUserError(err error, ctx stk.Context) {
 	var status int
 	var message string
 
@@ -31,17 +44,22 @@ func handleUserError(err error, ctx stk.Context) {
 			status = 400
 			message = err.Error()
 		}
-	case svrerr.ErrAccountExists:
+	case svrerr.ErrDuplicateEntry:
 		{
 			status = 409
 			message = err.Error()
 		}
-	case svrerr.ErrAccountNotFound:
+	case svrerr.ErrEntryNotFound:
 		{
 			status = 404
 			message = err.Error()
 		}
-	case svrerr.ErrStoringAccount:
+	case svrerr.ErrInvalidCredentials:
+		{
+			status = 401
+			message = err.Error()
+		}
+	case svrerr.ErrStoringData:
 		{
 			status = 500
 			message = err.Error()
