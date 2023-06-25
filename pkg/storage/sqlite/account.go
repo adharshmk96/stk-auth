@@ -79,6 +79,35 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 	return &user, nil
 }
 
+func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, error) {
+
+	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_USERNAME, username)
+
+	var userId string
+	var user entities.Account
+	err := row.Scan(
+		&userId,
+		&user.Username,
+		&user.Password,
+		&user.Salt,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, handleRetrieveErr(err)
+	}
+
+	user.ID, err = entities.ParseUserId(userId)
+	if err != nil {
+		logger.Error("error parsing user id: ", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_INSERT_SESSION_QUERY,
