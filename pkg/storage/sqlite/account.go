@@ -6,6 +6,7 @@ import (
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/infra"
+	"github.com/adharshmk96/auth-server/pkg/storage"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk/db"
 )
@@ -16,7 +17,7 @@ type sqliteStorage struct {
 	conn *sql.DB
 }
 
-func NewAccountStorage() entities.AccountStore {
+func NewAccountStorage() storage.AccountStore {
 	connection := db.GetSqliteConnection(sqlitePath)
 	return &sqliteStorage{
 		conn: connection,
@@ -51,7 +52,7 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 func handleSaveError(err error) error {
 	if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-		return svrerr.ErrAccountExists
+		return svrerr.ErrAccountDuplicate
 	}
 	logger.Error("error inserting user into database: ", err)
 	return svrerr.ErrStoringAccount
@@ -60,6 +61,35 @@ func handleSaveError(err error) error {
 func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, error) {
 
 	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_ID, id.String())
+
+	var userId string
+	var user entities.Account
+	err := row.Scan(
+		&userId,
+		&user.Username,
+		&user.Password,
+		&user.Salt,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return handleRetrieveErr(err)
+	}
+
+	user.ID, err = entities.ParseUserId(userId)
+	if err != nil {
+		logger.Error("error parsing user id: ", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) {
+
+	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_EMAIL, email)
 
 	var userId string
 	var user entities.Account

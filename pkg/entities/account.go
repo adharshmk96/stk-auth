@@ -30,24 +30,10 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type AccountService interface {
-	// Create a new user
-	RegisterUser(user *Account) (*Account, error)
-	// Get a user by id
-	GetUserByID(id UserID) (*Account, error)
-}
-
-type AccountStore interface {
-	// Create a new user
-	SaveUser(user *Account) error
-	// Get a user by id
-	GetUserByID(id UserID) (*Account, error)
-	// // Get a user by username
-	// GetUserByUsername(username string) (*User, error)
-	// // Get a user by email
-	// GetUserByEmail(email string) (*User, error)
-	// // Update a user
-	// UpdateUser(user *User) error
-	// // Delete a user
-	// DeleteUser(id int64) error
+type Session struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    UserID    `json:"user_id"`
+	SessionID string    `json:"session_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdateAt  time.Time `json:"updated_at"`
 }

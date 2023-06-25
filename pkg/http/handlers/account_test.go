@@ -10,6 +10,7 @@ import (
 	"github.com/adharshmk96/auth-server/mocks"
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/http/handlers"
+	"github.com/adharshmk96/auth-server/pkg/http/transport"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
 	"github.com/google/uuid"
@@ -36,7 +37,7 @@ func TestRegisterUser(t *testing.T) {
 		UpdatedAt: updated,
 	}
 
-	expectedResponse := handlers.UserResponse{
+	expectedResponse := transport.UserResponse{
 		ID:        userId.String(),
 		Username:  username,
 		Email:     email,
@@ -68,7 +69,7 @@ func TestRegisterUser(t *testing.T) {
 		service.AssertCalled(t, "RegisterUser", mock.Anything)
 		assert.Equal(t, 200, w.Code)
 
-		var response handlers.UserResponse
+		var response transport.UserResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
 
 		assert.Equal(t, expectedResponse.ID, response.ID)
@@ -177,7 +178,7 @@ func TestRegisterUser(t *testing.T) {
 	})
 }
 
-func TestGetUserByID(t *testing.T) {
+func TestLoginUserSession(t *testing.T) {
 
 	uid := uuid.New()
 	userId := entities.UserID(uid)
@@ -187,19 +188,16 @@ func TestGetUserByID(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
+	login := &transport.UserLogin{
+		Username: username,
+		Password: password,
+	}
+
 	userData := &entities.Account{
 		ID:        userId,
 		Username:  username,
 		Email:     email,
 		Password:  password,
-		CreatedAt: created,
-		UpdatedAt: updated,
-	}
-
-	expectedResponse := handlers.UserResponse{
-		ID:        userId.String(),
-		Username:  username,
-		Email:     email,
 		CreatedAt: created,
 		UpdatedAt: updated,
 	}
@@ -214,30 +212,31 @@ func TestGetUserByID(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("GetUserByID", mock.Anything).Return(userData, nil)
+		service.On("LoginSessionUser", mock.Anything).Return(userData, nil)
 
-		s.Get("/user/:id", handler.GetUserByID)
+		s.Post("/login", handler.LoginUserSession)
 
-		r := httptest.NewRequest("GET", "/user/"+uid.String(), nil)
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 200, w.Code)
-		service.AssertCalled(t, "GetUserByID", mock.Anything)
+		service.AssertCalled(t, "LoginSessionUser", mock.Anything)
 
-		var response handlers.UserResponse
+		var response transport.UserResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
 
-		assert.Equal(t, expectedResponse.ID, response.ID)
-		assert.Equal(t, expectedResponse.Username, response.Username)
-		assert.Equal(t, expectedResponse.Email, response.Email)
-		assert.EqualValues(t, expectedResponse.CreatedAt.Unix(), response.CreatedAt.Unix())
-		assert.EqualValues(t, expectedResponse.UpdatedAt.Unix(), response.UpdatedAt.Unix())
+		assert.Equal(t, userId.String(), response.ID)
+		assert.Equal(t, username, response.Username)
+		assert.Equal(t, email, response.Email)
+		assert.EqualValues(t, created.Unix(), response.CreatedAt.Unix())
+		assert.EqualValues(t, updated.Unix(), response.UpdatedAt.Unix())
 
 	})
 
-	t.Run("returns 400 if user id is invalid", func(t *testing.T) {
+	t.Run("returns 400 if invalid request body", func(t *testing.T) {
 		config := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
@@ -247,39 +246,15 @@ func TestGetUserByID(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/:id", handler.GetUserByID)
+		s.Post("/login", handler.LoginUserSession)
 
-		r := httptest.NewRequest("GET", "/user/invalid-uuid", nil)
+		r := httptest.NewRequest("POST", "/login", nil)
 		w := httptest.NewRecorder()
 
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 400, w.Code)
-		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
-
-	})
-
-	t.Run("returns 400 if user data is not found", func(t *testing.T) {
-		config := &stk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
-		}
-		s := stk.NewServer(config)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrAccountNotFound)
-
-		s.Get("/user/:id", handler.GetUserByID)
-
-		r := httptest.NewRequest("GET", "/user/"+uid.String(), nil)
-		w := httptest.NewRecorder()
-
-		s.Router.ServeHTTP(w, r)
-
-		assert.Equal(t, 404, w.Code)
-		service.AssertCalled(t, "GetUserByID", mock.Anything)
+		service.AssertNotCalled(t, "LoginUser", mock.Anything)
 
 	})
 

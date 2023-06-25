@@ -1,20 +1,21 @@
-package entities
+package validator
 
 import (
 	"testing"
 
+	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateUser(t *testing.T) {
 	tests := []struct {
 		name     string
-		user     *Account
+		user     *entities.Account
 		expected map[string]string
 	}{
 		{
 			name: "Valid user",
-			user: &Account{
+			user: &entities.Account{
 				Username: "TestUser",
 				Email:    "testuser@example.com",
 				Password: "Test$123",
@@ -23,7 +24,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty username and email",
-			user: &Account{
+			user: &entities.Account{
 				Password: "Test$123",
 			},
 			expected: map[string]string{
@@ -33,7 +34,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Invalid email",
-			user: &Account{
+			user: &entities.Account{
 				Username: "TestUser",
 				Email:    "invalid",
 				Password: "Test$123",
@@ -84,7 +85,7 @@ func TestValidationFuncitons(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				err := validateEmail(tt.email)
+				err := registrationEmail(tt.email)
 				if tt.err {
 					assert.Error(t, err)
 				} else {
@@ -114,7 +115,7 @@ func TestValidationFuncitons(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				err := validatePassword(tt.password)
+				err := registrationPassword(tt.password)
 				if tt.err {
 					assert.Error(t, err)
 				} else {
@@ -144,7 +145,7 @@ func TestValidationFuncitons(t *testing.T) {
 
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				err := validateUsername(tt.username)
+				err := registrationUsername(tt.username)
 				if tt.err {
 					assert.Error(t, err)
 				} else {

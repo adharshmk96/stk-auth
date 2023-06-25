@@ -2,11 +2,13 @@ package services_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/adharshmk96/auth-server/mocks"
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/services"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
+	"github.com/adharshmk96/stk/utils"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -68,62 +70,105 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrAccountExists)
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrAccountDuplicate)
 
 		// Test invalid registration
 		user, err := service.RegisterUser(userData)
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrAccountExists.Error())
+		assert.EqualError(t, err, svrerr.ErrAccountDuplicate.Error())
 		assert.Nil(t, user)
 	})
 
 }
 
-func TestAccountService_GetUserByID(t *testing.T) {
+func TestAccountService_LoginSessionUser(t *testing.T) {
 
-	user := &entities.Account{
-		ID:       entities.UserID(uuid.New()),
+	user_id := entities.UserID(uuid.New())
+	user_password := "testpassword"
+	created := time.Now()
+	updated := time.Now()
+
+	salt, _ := utils.GenerateSalt()
+	hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
+
+	requestData := &entities.Account{
 		Username: "testuser",
-		Email:    "testemail",
+		Password: user_password,
 	}
 
-	t.Run("returns user if user exists", func(t *testing.T) {
+	storedData := &entities.Account{
+		ID:        user_id,
+		Username:  "testuser",
+		Password:  hashedPassword,
+		Email:     "user@email.com",
+		Salt:      hashedSalt,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	t.Run("returns user with userid if data is valid", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(user, nil)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		retrievedUser, err := service.GetUserByID(user.ID)
+		retrievedUser, err := service.LoginSessionUser(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, retrievedUser)
-		assert.Equal(t, user, retrievedUser)
+		assert.Equal(t, storedData.ID, retrievedUser.ID)
+		assert.Equal(t, requestData.Username, retrievedUser.Username)
+		assert.Equal(t, storedData.Password, retrievedUser.Password)
+		assert.Equal(t, storedData.Salt, retrievedUser.Salt)
+		assert.Equal(t, storedData.Email, retrievedUser.Email)
+		assert.Equal(t, storedData.CreatedAt.Unix(), retrievedUser.CreatedAt.Unix())
+		assert.Equal(t, storedData.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
-	t.Run("returns err if user doesnt exist", func(t *testing.T) {
+	t.Run("returns error if password is incorrect", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrAccountNotFound)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		retrievedUser, err := service.GetUserByID(entities.UserID(uuid.New()))
+		requestData.Password = "wrongpassword"
 
-		assert.Error(t, err)
+		retrievedUser, err := service.LoginSessionUser(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrInvalidCredentials.Error())
 		assert.Nil(t, retrievedUser)
-		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
 	})
 
-	t.Run("returns err if storage failed", func(t *testing.T) {
+	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrRetrievingAccount)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrRetrievingAccount)
 
-		// Test invalid retrieval
-		user, err := service.GetUserByID(entities.UserID(uuid.New()))
+		retrievedUser, err := service.LoginSessionUser(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrRetrievingAccount.Error())
-		assert.Nil(t, user)
+		assert.Nil(t, retrievedUser)
+	})
+
+	t.Run("returns error if user does not exist", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrAccountNotFound)
+
+		retrievedUser, err := service.LoginSessionUser(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrInvalidCredentials.Error())
+		assert.Nil(t, retrievedUser)
 	})
 
 }

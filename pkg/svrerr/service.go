@@ -3,6 +3,6 @@ package svrerr
 import "errors"
 
 var (
-	// Account service errors
-	ErrHasingPassword = errors.New("error_hashing_password")
+	ErrHasingPassword     = errors.New("error_hashing_password")
+	ErrInvalidCredentials = errors.New("error_invalid_credentials")
 )

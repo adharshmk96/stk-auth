@@ -1,8 +1,10 @@
-package entities
+package validator
 
 import (
 	"regexp"
 	"unicode"
+
+	"github.com/adharshmk96/auth-server/pkg/entities"
 )
 
 const (
@@ -15,14 +17,14 @@ const (
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
-func validateUsername(username string) error {
+func registrationUsername(username string) error {
 	if len(username) < 3 {
 		return ErrInvalidUsername
 	}
 	return nil
 }
 
-func validatePassword(password string) error {
+func registrationPassword(password string) error {
 	var (
 		hasMinLen    = false
 		hasUppercase = false
@@ -53,14 +55,14 @@ func validatePassword(password string) error {
 	}
 }
 
-func validateEmail(email string) error {
+func registrationEmail(email string) error {
 	if !emailRegex.MatchString(email) {
 		return ErrInvalidEmail
 	}
 	return nil
 }
 
-func ValidateUser(user *Account) map[string]string {
+func ValidateUser(user *entities.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if user.Username == "" && user.Email == "" {
@@ -68,13 +70,13 @@ func ValidateUser(user *Account) map[string]string {
 		errorMessages["email"] = EmailOrUsernameRequired
 	} else {
 		if user.Username != "" {
-			if err := validateUsername(user.Username); err != nil {
+			if err := registrationUsername(user.Username); err != nil {
 				errorMessages["username"] = UsernameMustBeValid
 			}
 		}
 
 		if user.Email != "" {
-			if err := validateEmail(user.Email); err != nil {
+			if err := registrationEmail(user.Email); err != nil {
 				errorMessages["email"] = EmailMustBeValid
 			}
 		}
@@ -83,7 +85,7 @@ func ValidateUser(user *Account) map[string]string {
 	if user.Password == "" {
 		errorMessages["password"] = PasswordRequired
 	} else {
-		if err := validatePassword(user.Password); err != nil {
+		if err := registrationPassword(user.Password); err != nil {
 			errorMessages["password"] = PasswordMustBeValid
 		}
 	}

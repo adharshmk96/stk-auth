@@ -2,35 +2,22 @@ package handlers
 
 import (
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/auth-server/pkg/http/transport"
+	"github.com/adharshmk96/auth-server/pkg/http/validator"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
 )
-
-type accountHandler struct {
-	userService entities.AccountService
-}
-
-type AccountHandler interface {
-	RegisterUser(ctx stk.Context)
-	GetUserByID(ctx stk.Context)
-}
-
-func NewAccountHandler(userService entities.AccountService) AccountHandler {
-	return &accountHandler{
-		userService: userService,
-	}
-}
 
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	var user *entities.Account
 
 	err := ctx.DecodeJSONBody(&user)
 	if err != nil {
-		handleUserError(err, ctx)
+		transport.HandleUserError(err, ctx)
 		return
 	}
 
-	errorMessages := entities.ValidateUser(user)
+	errorMessages := validator.ValidateUser(user)
 	if len(errorMessages) > 0 {
 		ctx.Status(400).JSONResponse(stk.Map{
 			"error":   svrerr.ErrInvalidData.Error(),
@@ -41,11 +28,11 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 
 	createdUser, err := h.userService.RegisterUser(user)
 	if err != nil {
-		handleUserError(err, ctx)
+		transport.HandleUserError(err, ctx)
 		return
 	}
 
-	response := UserResponse{
+	response := transport.UserResponse{
 		ID:        createdUser.ID.String(),
 		Username:  createdUser.Username,
 		Email:     createdUser.Email,
@@ -56,28 +43,36 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	ctx.Status(200).JSONResponse(response)
 }
 
-func (h *accountHandler) GetUserByID(ctx stk.Context) {
+func (h *accountHandler) LoginUserSession(ctx stk.Context) {
+	var userLogin *entities.Account
 
-	id := ctx.GetParam("id")
-	userId, err := entities.ParseUserId(id)
+	err := ctx.DecodeJSONBody(&userLogin)
 	if err != nil {
-		handleUserError(err, ctx)
+		transport.HandleUserError(err, ctx)
 		return
 	}
 
-	retrievedUser, err := h.userService.GetUserByID(userId)
-	if err != nil {
-		handleUserError(err, ctx)
+	errorMessages := validator.ValidateLogin(userLogin)
+	if len(errorMessages) > 0 {
+		ctx.Status(400).JSONResponse(stk.Map{
+			"error":   svrerr.ErrInvalidData.Error(),
+			"details": errorMessages,
+		})
 		return
 	}
 
-	response := UserResponse{
-		ID:        retrievedUser.ID.String(),
-		Username:  retrievedUser.Username,
-		Email:     retrievedUser.Email,
-		CreatedAt: retrievedUser.CreatedAt,
-		UpdatedAt: retrievedUser.UpdatedAt,
+	loginResponse, err := h.userService.LoginSessionUser(userLogin)
+	if err != nil {
+		transport.HandleUserError(err, ctx)
+		return
 	}
 
+	response := transport.UserResponse{
+		ID:        loginResponse.ID.String(),
+		Username:  loginResponse.Username,
+		Email:     loginResponse.Email,
+		CreatedAt: loginResponse.CreatedAt,
+		UpdatedAt: loginResponse.UpdatedAt,
+	}
 	ctx.Status(200).JSONResponse(response)
 }

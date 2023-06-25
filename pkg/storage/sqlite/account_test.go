@@ -57,8 +57,14 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 
 	userStorage := sqlite.NewAccountStorage()
 
-	t.Run("returns error when account is not found", func(t *testing.T) {
+	t.Run("returns error when id is not found in empty db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByID(entities.UserID(userId))
+		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("returns error when email is not found in empty db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByEmail(user.Email)
 		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
 		assert.Nil(t, presaveUser)
 	})
@@ -73,7 +79,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		userStorage := sqlite.NewAccountStorage()
 		retrievedUser, err := userStorage.GetUserByID(entities.UserID(userId))
 		assert.NoError(t, err)
-		assert.Equal(t, userId, userId)
+		assert.Equal(t, userId, retrievedUser.ID)
 		assert.Equal(t, user.Username, retrievedUser.Username)
 		assert.Equal(t, user.Password, retrievedUser.Password)
 		assert.Equal(t, user.Salt, retrievedUser.Salt)
@@ -82,11 +88,30 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
-	t.Run("returns error if user is not found", func(t *testing.T) {
+	t.Run("returns error if user id is not found in populated db", func(t *testing.T) {
 		userStorage := sqlite.NewAccountStorage()
 		user, err := userStorage.GetUserByID(entities.UserID(uuid.New()))
 		assert.Nil(t, user)
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
 	})
+
+	t.Run("retrieves user by email", func(t *testing.T) {
+		retrievedUser, err := userStorage.GetUserByEmail(user.Email)
+		assert.NoError(t, err)
+		assert.Equal(t, userId, retrievedUser.ID)
+		assert.Equal(t, user.Username, retrievedUser.Username)
+		assert.Equal(t, user.Password, retrievedUser.Password)
+		assert.Equal(t, user.Salt, retrievedUser.Salt)
+		assert.Equal(t, user.Email, retrievedUser.Email)
+		assert.Equal(t, user.CreatedAt.Unix(), retrievedUser.CreatedAt.Unix())
+		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
+	})
+
+	t.Run("returns error when id is not found in populated db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByEmail(user.Email + "xd")
+		assert.EqualError(t, err, svrerr.ErrAccountNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
 }
