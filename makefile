@@ -9,7 +9,7 @@ NEW_TAG_PATCH := $(MAJOR).$(MINOR).$(NEW_PATCH)
 NEW_TAG_MINOR := $(MAJOR).$(NEW_MINOR).0
 NEW_TAG_MAJOR := $(NEW_MAJOR).0.0
 
-.PHONY: patch minor major build test publish
+.PHONY: patch minor major build test publish keygen
 
 patch:
 	$(eval NEW_TAG := $(NEW_TAG_PATCH))
@@ -31,6 +31,11 @@ test:
 
 publish:
 	@git push origin $(VERSION)
+
+keygen:
+	@mkdir -p .keys
+	@openssl genpkey -algorithm RSA -out .keys/private_key.pem -pkeyopt rsa_keygen_bits:2048
+	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 
 define tag
 	@echo "current version is $(VERSION)"
