@@ -38,6 +38,32 @@ func (_m *AccountStore) GetUserByEmail(email string) (*entities.Account, error) 
 	return r0, r1
 }
 
+// GetUserByUsername provides a mock function with given fields: username
+func (_m *AccountStore) GetUserByUsername(username string) (*entities.Account, error) {
+	ret := _m.Called(username)
+
+	var r0 *entities.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+		return rf(username)
+	}
+	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+		r0 = rf(username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RetrieveSessionByID provides a mock function with given fields: sessionID
 func (_m *AccountStore) RetrieveSessionByID(sessionID string) (*entities.Session, error) {
 	ret := _m.Called(sessionID)

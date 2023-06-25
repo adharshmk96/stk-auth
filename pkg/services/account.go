@@ -35,7 +35,13 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 }
 
 func (u *accountService) LoginSessionUser(user *entities.Account) (*entities.Session, error) {
-	userRecord, err := u.storage.GetUserByEmail(user.Email)
+	var userRecord *entities.Account
+	var err error
+	if user.Email == "" {
+		userRecord, err = u.storage.GetUserByUsername(user.Username)
+	} else {
+		userRecord, err = u.storage.GetUserByEmail(user.Email)
+	}
 	if err != nil {
 		if err == svrerr.ErrEntryNotFound {
 			return nil, svrerr.ErrInvalidCredentials
