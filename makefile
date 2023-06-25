@@ -30,7 +30,7 @@ test:
 	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 publish:
-	git push origin $(VERSION)
+	@git push origin $(VERSION)
 
 define tag
 	@echo "current version is $(VERSION)"

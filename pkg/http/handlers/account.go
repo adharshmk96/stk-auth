@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/adharshmk96/auth-server/pkg/entities"
 	"github.com/adharshmk96/auth-server/pkg/http/transport"
 	"github.com/adharshmk96/auth-server/pkg/http/validator"
+	"github.com/adharshmk96/auth-server/pkg/infra/config"
 	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
 )
@@ -67,12 +70,18 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	response := &transport.SessionResponse{
-		UserID:    sessionData.UserID.String(),
-		SessionID: sessionData.SessionID,
-		CreatedAt: sessionData.CreatedAt,
-		UpdatedAt: sessionData.UpdatedAt,
+	response := &transport.LoginResponse{
+		UserID: sessionData.UserID.String(),
 	}
 
+	httpOnly := config.ServerMode == config.SERVER_PROD_MODE
+	cookie := &http.Cookie{
+		Name:     config.SessionCookieName,
+		Value:    sessionData.SessionID,
+		HttpOnly: httpOnly,
+		Path:     "/",
+	}
+
+	ctx.SetCookie(cookie)
 	ctx.Status(200).JSONResponse(response)
 }

@@ -224,13 +224,14 @@ func TestLoginUserSession(t *testing.T) {
 		assert.Equal(t, 200, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
-		var response transport.SessionResponse
+		var response transport.LoginResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
 
 		assert.Equal(t, userId.String(), response.UserID)
-		assert.NotNil(t, response.SessionID)
-		assert.EqualValues(t, created.Unix(), response.CreatedAt.Unix())
-		assert.EqualValues(t, updated.Unix(), response.UpdatedAt.Unix())
+
+		// check if cookie is set
+		cookie := w.Result().Cookies()[0]
+		assert.Equal(t, sid, cookie.Value)
 
 	})
 
