@@ -71,14 +71,37 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		assert.Nil(t, presaveUser)
 	})
 
+	t.Run("returns error when username is not found in empty db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByUsername(user.Username)
+		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
 	t.Run("saves user to database", func(t *testing.T) {
 		err := userStorage.SaveUser(user)
 		assert.NoError(t, err)
+	})
 
+	t.Run("returns error when same user is saved again", func(t *testing.T) {
+		err := userStorage.SaveUser(user)
+		assert.Error(t, err)
+		assert.EqualError(t, err, svrerr.ErrDuplicateEntry.Error())
 	})
 
 	t.Run("retrieves user by email", func(t *testing.T) {
 		retrievedUser, err := userStorage.GetUserByEmail(user.Email)
+		assert.NoError(t, err)
+		assert.Equal(t, userId, retrievedUser.ID)
+		assert.Equal(t, user.Username, retrievedUser.Username)
+		assert.Equal(t, user.Password, retrievedUser.Password)
+		assert.Equal(t, user.Salt, retrievedUser.Salt)
+		assert.Equal(t, user.Email, retrievedUser.Email)
+		assert.Equal(t, user.CreatedAt.Unix(), retrievedUser.CreatedAt.Unix())
+		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
+	})
+
+	t.Run("retrieves user by username", func(t *testing.T) {
+		retrievedUser, err := userStorage.GetUserByUsername(user.Username)
 		assert.NoError(t, err)
 		assert.Equal(t, userId, retrievedUser.ID)
 		assert.Equal(t, user.Username, retrievedUser.Username)
