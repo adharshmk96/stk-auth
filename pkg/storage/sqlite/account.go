@@ -26,7 +26,7 @@ func NewAccountStorage() entities.AccountStore {
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 	result, err := s.conn.Exec(
-		INSERT_USER_QUERY,
+		ACCOUNT_INSERT_USER_QUERY,
 		user.ID.String(),
 		user.Username,
 		user.Password,
@@ -59,7 +59,7 @@ func handleSaveError(err error) error {
 
 func (s *sqliteStorage) GetUserByID(id entities.UserID) (*entities.Account, error) {
 
-	row := s.conn.QueryRow(GET_USER_BY_ID, id.String())
+	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_ID, id.String())
 
 	var userId string
 	var user entities.Account
