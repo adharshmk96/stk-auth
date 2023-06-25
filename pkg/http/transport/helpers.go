@@ -22,6 +22,13 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type SessionResponse struct {
+	UserID    string    `json:"user_id"`
+	SessionID string    `json:"session_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 func HandleUserError(err error, ctx stk.Context) {
 	var status int
 	var message string
@@ -37,12 +44,12 @@ func HandleUserError(err error, ctx stk.Context) {
 			status = 400
 			message = err.Error()
 		}
-	case svrerr.ErrAccountDuplicate:
+	case svrerr.ErrDuplicateEntry:
 		{
 			status = 409
 			message = err.Error()
 		}
-	case svrerr.ErrAccountNotFound:
+	case svrerr.ErrEntryNotFound:
 		{
 			status = 404
 			message = err.Error()
@@ -52,7 +59,7 @@ func HandleUserError(err error, ctx stk.Context) {
 			status = 401
 			message = err.Error()
 		}
-	case svrerr.ErrStoringAccount:
+	case svrerr.ErrStoringData:
 		{
 			status = 500
 			message = err.Error()

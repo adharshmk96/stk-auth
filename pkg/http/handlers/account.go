@@ -61,18 +61,18 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	loginResponse, err := h.userService.LoginSessionUser(userLogin)
+	sessionData, err := h.userService.LoginSessionUser(userLogin)
 	if err != nil {
 		transport.HandleUserError(err, ctx)
 		return
 	}
 
-	response := transport.UserResponse{
-		ID:        loginResponse.ID.String(),
-		Username:  loginResponse.Username,
-		Email:     loginResponse.Email,
-		CreatedAt: loginResponse.CreatedAt,
-		UpdatedAt: loginResponse.UpdatedAt,
+	response := &transport.SessionResponse{
+		UserID:    sessionData.UserID.String(),
+		SessionID: sessionData.SessionID,
+		CreatedAt: sessionData.CreatedAt,
+		UpdatedAt: sessionData.UpdatedAt,
 	}
+
 	ctx.Status(200).JSONResponse(response)
 }

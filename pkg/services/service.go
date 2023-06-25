@@ -14,7 +14,7 @@ type accountService struct {
 
 type AccountService interface {
 	RegisterUser(user *entities.Account) (*entities.Account, error)
-	LoginSessionUser(user *entities.Account) (*entities.Account, error)
+	LoginSessionUser(user *entities.Account) (*entities.Session, error)
 }
 
 func NewAccountService(storage storage.AccountStore) AccountService {

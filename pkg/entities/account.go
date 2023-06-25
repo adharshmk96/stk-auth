@@ -31,9 +31,9 @@ type Account struct {
 }
 
 type Session struct {
-	ID        uuid.UUID `json:"id"`
 	UserID    UserID    `json:"user_id"`
 	SessionID string    `json:"session_id"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdateAt  time.Time `json:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Valid     bool      `json:"valid"`
 }

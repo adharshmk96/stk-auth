@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateLogin(t *testing.T) {
@@ -56,15 +57,11 @@ func TestValidateLogin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateLogin(tt.login)
+			errMsg := ValidateLogin(tt.login)
 			if tt.err {
-				if err == nil {
-					t.Errorf("ValidateLogin() error = %v, wantErr %v", err, tt.err)
-				}
+				assert.True(t, len(errMsg) != 0)
 			} else {
-				if err != nil {
-					t.Errorf("ValidateLogin() error = %v, wantErr %v", err, tt.err)
-				}
+				assert.True(t, len(errMsg) == 0)
 			}
 		})
 	}

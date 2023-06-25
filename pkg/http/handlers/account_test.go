@@ -115,7 +115,7 @@ func TestRegisterUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrStoringAccount)
+		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrStoringData)
 
 		s.Post("/register", handler.RegisterUser)
 
@@ -181,9 +181,9 @@ func TestRegisterUser(t *testing.T) {
 func TestLoginUserSession(t *testing.T) {
 
 	uid := uuid.New()
+	sid := uuid.NewString()
 	userId := entities.UserID(uid)
 	username := "user"
-	email := "user@email.com"
 	password := "password"
 	created := time.Now()
 	updated := time.Now()
@@ -193,13 +193,12 @@ func TestLoginUserSession(t *testing.T) {
 		Password: password,
 	}
 
-	userData := &entities.Account{
-		ID:        userId,
-		Username:  username,
-		Email:     email,
-		Password:  password,
+	sessionData := &entities.Session{
+		UserID:    userId,
 		CreatedAt: created,
 		UpdatedAt: updated,
+		SessionID: sid,
+		Valid:     true,
 	}
 
 	t.Run("returns 200 and user data user data is retrieved", func(t *testing.T) {
@@ -212,7 +211,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginSessionUser", mock.Anything).Return(userData, nil)
+		service.On("LoginSessionUser", mock.Anything).Return(sessionData, nil)
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -225,12 +224,11 @@ func TestLoginUserSession(t *testing.T) {
 		assert.Equal(t, 200, w.Code)
 		service.AssertCalled(t, "LoginSessionUser", mock.Anything)
 
-		var response transport.UserResponse
+		var response transport.SessionResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
 
-		assert.Equal(t, userId.String(), response.ID)
-		assert.Equal(t, username, response.Username)
-		assert.Equal(t, email, response.Email)
+		assert.Equal(t, userId.String(), response.UserID)
+		assert.NotNil(t, response.SessionID)
 		assert.EqualValues(t, created.Unix(), response.CreatedAt.Unix())
 		assert.EqualValues(t, updated.Unix(), response.UpdatedAt.Unix())
 

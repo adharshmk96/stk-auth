@@ -1,0 +1,9 @@
+CREATE TABLE auth_user_sessions (
+    id integer NOT NULL,
+    user_id TEXT NOT NULL,
+    session_id varchar(40) NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    valid boolean DEFAULT TRUE,
+    PRIMARY KEY (id)
+)

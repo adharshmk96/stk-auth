@@ -12,11 +12,6 @@ type AccountHandler struct {
 	mock.Mock
 }
 
-// GetUserByID provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetUserByID(ctx stk.Context) {
-	_m.Called(ctx)
-}
-
 // LoginUserSession provides a mock function with given fields: ctx
 func (_m *AccountHandler) LoginUserSession(ctx stk.Context) {
 	_m.Called(ctx)

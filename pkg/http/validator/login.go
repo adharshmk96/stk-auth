@@ -4,21 +4,27 @@ import (
 	"github.com/adharshmk96/auth-server/pkg/entities"
 )
 
+const (
+	UsernameOrEmailRequired = "username or email is required"
+	UsernameEmailUsed       = "username cannot be used with email"
+	EmailUserNameUsed       = "email cannot be used with username"
+)
+
 func ValidateLogin(login *entities.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if login.Username == "" && login.Email == "" {
-		errorMessages["username"] = "username or email is required"
-		errorMessages["email"] = "username or email is required"
+		errorMessages["username"] = UsernameOrEmailRequired
+		errorMessages["email"] = UsernameOrEmailRequired
 	}
 
 	if login.Username != "" && login.Email != "" {
-		errorMessages["username"] = "username cannot be used with email"
-		errorMessages["email"] = "email cannot be used with  username"
+		errorMessages["username"] = UsernameEmailUsed
+		errorMessages["email"] = EmailUserNameUsed
 	}
 
 	if login.Password == "" {
-		errorMessages["password"] = "password is required"
+		errorMessages["password"] = PasswordRequired
 	}
 
 	return errorMessages
