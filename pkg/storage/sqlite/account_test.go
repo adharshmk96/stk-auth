@@ -37,6 +37,9 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	)`)
 
+	conn.Exec(`insert into auth_user_accounts (id, username, password, salt, email ) values ('invalid', 'invalid', 'test', 'salt', 'invalid' `)
+	conn.Exec(`insert into auth_user_sessions (id, user_id, session_id) values (1, 'invalid', 'invalid')`)
+
 	return conn
 }
 
@@ -74,6 +77,18 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 	t.Run("returns error when username is not found in empty db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByUsername(user.Username)
 		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("returns error when parsing invalid id", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByEmail("invalid")
+		assert.Error(t, err)
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("returns error when parsing invalid id", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByUsername("invalid")
+		assert.Error(t, err)
 		assert.Nil(t, presaveUser)
 	})
 
@@ -126,14 +141,31 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		Valid:     true,
 	}
 
-	t.Run("saves user session to database", func(t *testing.T) {
+	t.Run("returns error when session is not found in empty db", func(t *testing.T) {
+		presaveSession, err := userStorage.GetSessionByID("test")
+		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
+		assert.Nil(t, presaveSession)
+	})
 
+	t.Run("returns error when parsing invalid user id", func(t *testing.T) {
+		presaveUser, err := userStorage.GetSessionByID("invalid")
+		assert.Error(t, err)
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("saves user session to database", func(t *testing.T) {
 		err := userStorage.SaveSession(session)
 		assert.NoError(t, err)
 	})
 
+	t.Run("returns error when same session is saved again", func(t *testing.T) {
+		err := userStorage.SaveSession(session)
+		assert.Error(t, err)
+		assert.EqualError(t, err, svrerr.ErrDuplicateEntry.Error())
+	})
+
 	t.Run("retrieves user session by session id", func(t *testing.T) {
-		session, err := userStorage.RetrieveSessionByID("session")
+		session, err := userStorage.GetSessionByID("session")
 		assert.NoError(t, err)
 		assert.Equal(t, userId, session.UserID)
 		assert.Equal(t, "session", session.SessionID)

@@ -40,10 +40,9 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 		return handleSaveError(err)
 	}
 
-	rows, err := result.RowsAffected()
-	logger.Error("rows affected: " + string(rune(rows)))
+	_, err = result.RowsAffected()
 	if err != nil {
-		logger.Error("no rows affected: ", err)
+		logger.Error(err)
 		return svrerr.ErrStoringData
 	}
 
@@ -121,17 +120,16 @@ func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 		return handleSaveError(err)
 	}
 
-	rows, err := result.RowsAffected()
-	logger.Error("rows affected: " + string(rune(rows)))
+	_, err = result.RowsAffected()
 	if err != nil {
-		logger.Error("no rows affected: ", err)
+		logger.Error(err)
 		return svrerr.ErrStoringData
 	}
 
 	return nil
 }
 
-func (s *sqliteStorage) RetrieveSessionByID(sessionID string) (*entities.Session, error) {
+func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, error) {
 	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_SESSION_BY_ID, sessionID)
 
 	var userId string

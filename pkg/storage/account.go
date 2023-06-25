@@ -7,5 +7,5 @@ type AccountStore interface {
 	GetUserByEmail(email string) (*entities.Account, error)
 	GetUserByUsername(username string) (*entities.Account, error)
 	SaveSession(session *entities.Session) error
-	RetrieveSessionByID(sessionID string) (*entities.Session, error)
+	GetSessionByID(sessionID string) (*entities.Session, error)
 }

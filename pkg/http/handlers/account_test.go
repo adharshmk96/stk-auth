@@ -45,7 +45,7 @@ func TestRegisterUser(t *testing.T) {
 		UpdatedAt: updated,
 	}
 
-	t.Run("returns 200 and user data if user data is stored", func(t *testing.T) {
+	t.Run("returns 201 and user data if user data is stored", func(t *testing.T) {
 		config := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
@@ -67,7 +67,7 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, 201, w.Code)
 
 		var response transport.UserResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
@@ -201,7 +201,7 @@ func TestLoginUserSession(t *testing.T) {
 		Valid:     true,
 	}
 
-	t.Run("returns 200 and user data user data is retrieved", func(t *testing.T) {
+	t.Run("returns 200 and session is retrieved", func(t *testing.T) {
 		config := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
@@ -211,7 +211,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginSessionUser", mock.Anything).Return(sessionData, nil)
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, nil)
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -222,7 +222,7 @@ func TestLoginUserSession(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 200, w.Code)
-		service.AssertCalled(t, "LoginSessionUser", mock.Anything)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 		var response transport.SessionResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
@@ -253,6 +253,83 @@ func TestLoginUserSession(t *testing.T) {
 
 		assert.Equal(t, 400, w.Code)
 		service.AssertNotCalled(t, "LoginUser", mock.Anything)
+
+	})
+
+	t.Run("returns 401 if invalid credentials", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrInvalidCredentials)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 401, w.Code)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+
+	})
+
+	t.Run("return 400 if validation Fails", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		invalidLogin := &transport.UserLogin{
+			Username: "",
+			Password: "",
+		}
+
+		body, _ := json.Marshal(invalidLogin)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 400, w.Code)
+		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
+	})
+
+	t.Run("returns 500 if retreval fails for some reason", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 500, w.Code)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 	})
 

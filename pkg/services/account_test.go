@@ -114,7 +114,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Username: user_name,
 			Password: user_password,
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByUsername", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByEmail", mock.Anything)
@@ -138,7 +138,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: user_password,
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
@@ -161,7 +161,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: "wrongpassword",
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
@@ -181,7 +181,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: user_password,
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
@@ -203,7 +203,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: user_password,
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
@@ -224,7 +224,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 			Email:    user_email,
 			Password: user_password,
 		}
-		userSession, err := service.LoginSessionUser(requestData)
+		userSession, err := service.LoginUserSession(requestData)
 
 		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)

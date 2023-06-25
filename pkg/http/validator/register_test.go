@@ -43,7 +43,36 @@ func TestValidateUser(t *testing.T) {
 				"email": EmailMustBeValid,
 			},
 		},
-		// Add more cases as needed.
+		{
+			name: "Invalid username",
+			user: &entities.Account{
+				Username: "a",
+				Password: "Test$123",
+			},
+			expected: map[string]string{
+				"username": UsernameMustBeValid,
+			},
+		},
+		{
+			name: "Empty password",
+			user: &entities.Account{
+				Username: "test",
+				Password: "",
+			},
+			expected: map[string]string{
+				"password": PasswordRequired,
+			},
+		},
+		{
+			name: "invalid password",
+			user: &entities.Account{
+				Username: "test",
+				Password: "test",
+			},
+			expected: map[string]string{
+				"password": PasswordMustBeValid,
+			},
+		},
 	}
 
 	for _, tt := range tests {

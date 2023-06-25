@@ -40,7 +40,7 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 		UpdatedAt: createdUser.UpdatedAt,
 	}
 
-	ctx.Status(200).JSONResponse(response)
+	ctx.Status(201).JSONResponse(response)
 }
 
 func (h *accountHandler) LoginUserSession(ctx stk.Context) {
@@ -61,7 +61,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	sessionData, err := h.userService.LoginSessionUser(userLogin)
+	sessionData, err := h.userService.LoginUserSession(userLogin)
 	if err != nil {
 		transport.HandleUserError(err, ctx)
 		return
