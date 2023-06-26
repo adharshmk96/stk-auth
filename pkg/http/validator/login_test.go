@@ -14,7 +14,7 @@ func TestValidateLogin(t *testing.T) {
 		err   bool
 	}{
 		{
-			name: "Login with username",
+			name: "Username and password",
 			login: &entities.Account{
 				Username: "TestUser",
 				Password: "Test$123",
@@ -22,7 +22,7 @@ func TestValidateLogin(t *testing.T) {
 			err: false,
 		},
 		{
-			name: "Login with email",
+			name: "Email and password",
 			login: &entities.Account{
 				Email:    "user@email.com",
 				Password: "Test$123",
@@ -45,7 +45,7 @@ func TestValidateLogin(t *testing.T) {
 			err: true,
 		},
 		{
-			name: "username and email used together",
+			name: "Username and email used together",
 			login: &entities.Account{
 				Username: "TestUser",
 				Email:    "TestUser@email.com",

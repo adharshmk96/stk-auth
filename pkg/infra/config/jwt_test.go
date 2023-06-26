@@ -44,7 +44,7 @@ func removeTestKeys() {
 	os.Remove(TEST_KEY_DIR)
 }
 
-func TestConfig(t *testing.T) {
+func TestReadFunctions(t *testing.T) {
 	err := generateTestKeys()
 	if err != nil {
 		t.Fatal(fmt.Sprintf("Error generating test keys: %s", err))
