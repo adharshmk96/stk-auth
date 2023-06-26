@@ -68,42 +68,42 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 
 	userStorage := sqlite.NewAccountStorage()
 
-	t.Run("returns error when email is not found in empty db", func(t *testing.T) {
+	t.Run("GetUserByEmail returns error when email is not found in empty db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail(user.Email)
 		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
 		assert.Nil(t, presaveUser)
 	})
 
-	t.Run("returns error when username is not found in empty db", func(t *testing.T) {
+	t.Run("GetUserByUsername returns error when username is not found in empty db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByUsername(user.Username)
 		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
 		assert.Nil(t, presaveUser)
 	})
 
-	t.Run("returns error when parsing invalid id", func(t *testing.T) {
+	t.Run("GetUserByEmail get user by email returns error when parsing invalid id", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail("invalid")
 		assert.Error(t, err)
 		assert.Nil(t, presaveUser)
 	})
 
-	t.Run("returns error when parsing invalid id", func(t *testing.T) {
+	t.Run("GetUserByUsername get user by username returns error when parsing invalid id", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByUsername("invalid")
 		assert.Error(t, err)
 		assert.Nil(t, presaveUser)
 	})
 
-	t.Run("saves user to database", func(t *testing.T) {
+	t.Run("SaveUser saves user to database without error", func(t *testing.T) {
 		err := userStorage.SaveUser(user)
 		assert.NoError(t, err)
 	})
 
-	t.Run("returns error when same user is saved again", func(t *testing.T) {
+	t.Run("SaveUser returns error when same user is saved again", func(t *testing.T) {
 		err := userStorage.SaveUser(user)
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrDuplicateEntry.Error())
 	})
 
-	t.Run("retrieves user by email", func(t *testing.T) {
+	t.Run("GetUserByEmail retrieves user by email", func(t *testing.T) {
 		retrievedUser, err := userStorage.GetUserByEmail(user.Email)
 		assert.NoError(t, err)
 		assert.Equal(t, userId, retrievedUser.ID)
@@ -115,7 +115,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
-	t.Run("retrieves user by username", func(t *testing.T) {
+	t.Run("GetUserByUsername retrieves user by username", func(t *testing.T) {
 		retrievedUser, err := userStorage.GetUserByUsername(user.Username)
 		assert.NoError(t, err)
 		assert.Equal(t, userId, retrievedUser.ID)
@@ -127,7 +127,7 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
-	t.Run("returns error when id is not found in populated db", func(t *testing.T) {
+	t.Run("GetUserByEmail returns error when id is not found in populated db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail(user.Email + "xd")
 		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
 		assert.Nil(t, presaveUser)
@@ -141,30 +141,30 @@ func TestSaveAndRetrieveUser(t *testing.T) {
 		Valid:     true,
 	}
 
-	t.Run("returns error when session is not found in empty db", func(t *testing.T) {
+	t.Run("GetSessionByID returns error when session is not found in empty db", func(t *testing.T) {
 		presaveSession, err := userStorage.GetSessionByID("test")
 		assert.EqualError(t, err, svrerr.ErrEntryNotFound.Error())
 		assert.Nil(t, presaveSession)
 	})
 
-	t.Run("returns error when parsing invalid user id", func(t *testing.T) {
+	t.Run("GetSessionByID returns error when parsing invalid user id", func(t *testing.T) {
 		presaveUser, err := userStorage.GetSessionByID("invalid")
 		assert.Error(t, err)
 		assert.Nil(t, presaveUser)
 	})
 
-	t.Run("saves user session to database", func(t *testing.T) {
+	t.Run("SaveSession saves user session to database", func(t *testing.T) {
 		err := userStorage.SaveSession(session)
 		assert.NoError(t, err)
 	})
 
-	t.Run("returns error when same session is saved again", func(t *testing.T) {
+	t.Run("SaveSession returns error when same session is saved again", func(t *testing.T) {
 		err := userStorage.SaveSession(session)
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrDuplicateEntry.Error())
 	})
 
-	t.Run("retrieves user session by session id", func(t *testing.T) {
+	t.Run("GetSessionByID retrieves valid session succesfully", func(t *testing.T) {
 		session, err := userStorage.GetSessionByID("session")
 		assert.NoError(t, err)
 		assert.Equal(t, userId, session.UserID)

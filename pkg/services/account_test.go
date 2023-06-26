@@ -105,7 +105,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		UpdatedAt: updated,
 	}
 
-	t.Run("returns session with userid if username and password are valid", func(t *testing.T) {
+	t.Run("valid username and password returns session data", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -129,7 +129,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		assert.True(t, userSession.Valid)
 	})
 
-	t.Run("returns session with userid if email and password are valid", func(t *testing.T) {
+	t.Run("valid email and password returns session data", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -194,12 +194,12 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		assert.Nil(t, userSession)
 	})
 
-	t.Run("returns error if session store failed", func(t *testing.T) {
+	t.Run("returns store data error if session store failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrRetrievingData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrStoringData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -212,11 +212,11 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.EqualError(t, err, svrerr.ErrStoringData.Error())
 		assert.Nil(t, userSession)
 	})
 
-	t.Run("returns invalid credential error if user does not exist", func(t *testing.T) {
+	t.Run("returns invalid credential error if entry is not found", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -300,7 +300,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.NotNil(t, claims["aud"])
 	}
 
-	t.Run("returns token with userid and session if username and password are valid", func(t *testing.T) {
+	t.Run("valid username and password returns token with userid and session id", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -325,7 +325,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 
 	})
 
-	t.Run("returns token with userid and session if email and password are valid", func(t *testing.T) {
+	t.Run("valid email and password returns token with userid and session id", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -390,12 +390,12 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.Empty(t, userToken)
 	})
 
-	t.Run("returns error if session store failed", func(t *testing.T) {
+	t.Run("returns storage error if session store failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrRetrievingData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrStoringData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -408,11 +408,11 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.EqualError(t, err, svrerr.ErrStoringData.Error())
 		assert.Empty(t, userSession)
 	})
 
-	t.Run("returns invalid credential error if user does not exist", func(t *testing.T) {
+	t.Run("returns invalid credential error if user entry not found", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 

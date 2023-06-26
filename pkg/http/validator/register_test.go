@@ -77,7 +77,7 @@ func TestValidateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			errors := ValidateUser(tt.user)
+			errors := ValidateRegistration(tt.user)
 
 			if len(errors) != len(tt.expected) {
 				t.Errorf("expected %d error(s), got %d: %v", len(tt.expected), len(errors), errors)

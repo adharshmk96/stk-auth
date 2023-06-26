@@ -20,7 +20,7 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 		return
 	}
 
-	errorMessages := validator.ValidateUser(user)
+	errorMessages := validator.ValidateRegistration(user)
 	if len(errorMessages) > 0 {
 		ctx.Status(400).JSONResponse(stk.Map{
 			"error":   svrerr.ErrInvalidData.Error(),
