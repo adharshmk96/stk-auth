@@ -238,7 +238,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 
 }
 
-func setupKeys() (string, string) {
+func setupKeysDir() (string, string) {
 	var privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8p0Wv/07CoOip
 XxtZHmHCyz+hV1gJqnOhyhmc68XQynXDI96O65PKUCjYxtncAg3KSZExYvX6obyv
@@ -278,21 +278,24 @@ XsHvKM7+Av/HJiJSem9jdzPPYs0aNGVAmP0xqeOjuYALDSviEJx0pO5A2w3pd1rE
 qQIDAQAB
 -----END PUBLIC KEY-----
 `
-	os.MkdirAll(".keys", 0666)
-	os.WriteFile(".keys/private_key.pem", []byte(privateKey), 0666)
-	os.WriteFile(".keys/public_key.pem", []byte(publicKey), 0666)
+
+	os.Setenv("JWT_EDCA_PRIVATE_KEY", privateKey)
+	os.Setenv("JWT_EDCA_PUBLIC_KEY", publicKey)
 
 	return privateKey, publicKey
 }
 
-func tearDown() {
-	os.RemoveAll(".keys")
+func tearDownKeysDir() {
+	os.Unsetenv("JWT_EDCA_PRIVATE_KEY")
+	os.Unsetenv("JWT_EDCA_PUBLIC_KEY")
 }
 
 func TestAccountService_LoginSessionUserToken(t *testing.T) {
 
-	_, publicKey := setupKeys()
-	defer tearDown()
+	_, publicKey := setupKeysDir()
+	defer tearDownKeysDir()
+
+	assert.NotEmpty(t, publicKey)
 
 	user_id := entities.UserID(uuid.New())
 	user_name := "testuser"
@@ -332,7 +335,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.NotNil(t, claims["aud"])
 	}
 
-	t.Run("returns token with userid if username and password are valid", func(t *testing.T) {
+	t.Run("returns token with userid and session if username and password are valid", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -351,11 +354,13 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, userToken)
 
-		testJwtClaims(userToken)
+		if userToken != "" {
+			testJwtClaims(userToken)
+		}
 
 	})
 
-	t.Run("returns token with userid if email and password are valid", func(t *testing.T) {
+	t.Run("returns token with userid and session if email and password are valid", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
@@ -374,7 +379,9 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, userToken)
 
-		testJwtClaims(userToken)
+		if userToken != "" {
+			testJwtClaims(userToken)
+		}
 	})
 
 	t.Run("returns error if password is incorrect", func(t *testing.T) {

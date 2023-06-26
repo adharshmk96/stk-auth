@@ -51,9 +51,8 @@ qQIDAQAB
 
 func setupKeysDir() {
 	os.MkdirAll(".keys", 0666)
-	os.WriteFile(".keys/private_key.pem", []byte(privateKey), 0666)
-	os.WriteFile(".keys/public_key.pem", []byte(publicKey), 0666)
-
+	os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0666)
+	os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0666)
 }
 
 func tearDownKeysDir() {
