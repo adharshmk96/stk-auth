@@ -105,7 +105,7 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 
 	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.SESSION_COOKIE_NAME,
+		Name:     config.JWT_SESSION_COOKIE_NAME,
 		Value:    jwtToken,
 		HttpOnly: httpOnly,
 		Path:     "/",

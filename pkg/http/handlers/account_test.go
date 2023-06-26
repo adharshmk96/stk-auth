@@ -186,6 +186,15 @@ type UserLogin struct {
 	Password string `json:"password"`
 }
 
+func isCookieEquals(cookies []*http.Cookie, name, value string) bool {
+	for _, cookie := range cookies {
+		if cookie.Name == name && cookie.Value == value {
+			return true
+		}
+	}
+	return false
+}
+
 func TestLoginUserSession(t *testing.T) {
 
 	uid := uuid.New()
@@ -238,8 +247,9 @@ func TestLoginUserSession(t *testing.T) {
 		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
 
 		// check if cookie is set
-		cookie := w.Result().Cookies()[0]
-		assert.Equal(t, sid, cookie.Value)
+		cookies := w.Result().Cookies()
+		ok := isCookieEquals(cookies, svrconfig.JWT_SESSION_COOKIE_NAME, sid)
+		assert.True(t, ok)
 
 	})
 
@@ -285,9 +295,10 @@ func TestLoginUserSessionToken(t *testing.T) {
 		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
 
 		// check if cookie is set
-		jwtCookie := w.Result().Cookies()[0].Value
+		cookies := w.Result().Cookies()
+		ok := isCookieEquals(cookies, svrconfig.JWT_SESSION_COOKIE_NAME, sessionToken)
 
-		assert.Equal(t, sessionToken, jwtCookie)
+		assert.True(t, ok)
 
 	})
 
