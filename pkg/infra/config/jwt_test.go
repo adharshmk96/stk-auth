@@ -88,3 +88,25 @@ func TestParsingKeys(t *testing.T) {
 		assert.Nil(t, key)
 	})
 }
+
+func TestReadKeys(t *testing.T) {
+	t.Run("reads from environment if env is set", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PRIVATE_KEY", "privateKey")
+		os.Setenv("JWT_EDCA_PUBLIC_KEY", "publicKey")
+		key := config.ReadPrivateKey()
+		assert.Equal(t, "privateKey", string(key))
+		key = config.ReadPublicKey()
+		assert.Equal(t, "publicKey", string(key))
+		os.Unsetenv("JWT_EDCA_PRIVATE_KEY")
+		os.Unsetenv("JWT_EDCA_PUBLIC_KEY")
+	})
+
+	t.Run("reads from file if env is not set", func(t *testing.T) {
+		setupKeys()
+		key := config.ReadPrivateKey()
+		assert.Equal(t, privateKey, string(key))
+		key = config.ReadPublicKey()
+		assert.Equal(t, publicKey, string(key))
+		tearDown()
+	})
+}
