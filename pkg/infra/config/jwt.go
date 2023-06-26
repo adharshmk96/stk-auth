@@ -8,9 +8,14 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+const (
+	DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH = ".keys/private_key.pem"
+	DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH  = ".keys/public_key.pem"
+)
+
 func ReadPrivateKey() []byte {
 	JWT_EDCA_PRIVATE_KEY := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY", "")
-	JWT_EDCA_PRIVATE_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", ".keys/private_key.pem")
+	JWT_EDCA_PRIVATE_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
 	if JWT_EDCA_PRIVATE_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PRIVATE_KEY_PATH)
 		if err != nil {
@@ -23,7 +28,7 @@ func ReadPrivateKey() []byte {
 
 func ReadPublicKey() []byte {
 	JWT_EDCA_PUBLIC_KEY := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY", "")
-	JWT_EDCA_PUBLIC_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY_PATH", ".keys/public_key.pem")
+	JWT_EDCA_PUBLIC_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY_PATH", DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
 	if JWT_EDCA_PUBLIC_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PUBLIC_KEY_PATH)
 		if err != nil {

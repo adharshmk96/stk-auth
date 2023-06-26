@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/adharshmk96/auth-server/pkg/infra/config"
+	"github.com/adharshmk96/stk/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,20 +49,20 @@ qQIDAQAB
 -----END PUBLIC KEY-----
 `
 
-func setupKeys() {
+func setupKeysDir() {
 	os.MkdirAll(".keys", 0666)
 	os.WriteFile(".keys/private_key.pem", []byte(privateKey), 0666)
 	os.WriteFile(".keys/public_key.pem", []byte(publicKey), 0666)
 
 }
 
-func tearDown() {
+func tearDownKeysDir() {
 	os.RemoveAll(".keys")
 }
 
 func TestParsingKeys(t *testing.T) {
 
-	setupKeys()
+	setupKeysDir()
 
 	t.Run("gets private key from dir", func(t *testing.T) {
 		key, err := config.GetJWTPrivateKey()
@@ -75,7 +76,7 @@ func TestParsingKeys(t *testing.T) {
 		assert.NotNil(t, key)
 	})
 
-	tearDown()
+	tearDownKeysDir()
 
 	t.Run("fails if private key is not found", func(t *testing.T) {
 		key, err := config.GetJWTPrivateKey()
@@ -90,7 +91,21 @@ func TestParsingKeys(t *testing.T) {
 }
 
 func TestReadKeys(t *testing.T) {
+	setupKeysDir()
+	defer tearDownKeysDir()
 	t.Run("reads from environment if env is set", func(t *testing.T) {
+		// checks file exists
+		pvtpath := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
+		pubpath := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
+
+		data, err := os.ReadFile(pvtpath)
+		assert.NoError(t, err)
+		assert.Equal(t, privateKey, string(data))
+
+		data, err = os.ReadFile(pubpath)
+		assert.NoError(t, err)
+		assert.Equal(t, privateKey, string(data))
+
 		os.Setenv("JWT_EDCA_PRIVATE_KEY", "privateKey")
 		os.Setenv("JWT_EDCA_PUBLIC_KEY", "publicKey")
 		key := config.ReadPrivateKey()
@@ -102,11 +117,10 @@ func TestReadKeys(t *testing.T) {
 	})
 
 	t.Run("reads from file if env is not set", func(t *testing.T) {
-		setupKeys()
 		key := config.ReadPrivateKey()
 		assert.Equal(t, privateKey, string(key))
 		key = config.ReadPublicKey()
 		assert.Equal(t, publicKey, string(key))
-		tearDown()
+
 	})
 }
