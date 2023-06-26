@@ -20,4 +20,4 @@ jobs:
       run: "make build"
 
     - name: Test
-      run: "make init && make test"
+      run: "make initci && make test"

@@ -9,7 +9,7 @@ NEW_TAG_PATCH := $(MAJOR).$(MINOR).$(NEW_PATCH)
 NEW_TAG_MINOR := $(MAJOR).$(NEW_MINOR).0
 NEW_TAG_MAJOR := $(NEW_MAJOR).0.0
 
-.PHONY: patch minor major build test publish keygen serve init moddownload migrate
+.PHONY: patch minor major build test publish keygen serve init initci moddownload migrate
 
 ##########################
 ### Manage Commands
@@ -68,6 +68,9 @@ endef
 
 init: moddownload migrate keygen
 	@echo "Project initialized."
+
+initci: moddownload keygen
+	@echo "Project initialized for CI."
 
 moddownload:
 	@echo "initializing go module"
