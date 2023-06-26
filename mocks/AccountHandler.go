@@ -17,6 +17,11 @@ func (_m *AccountHandler) LoginUserSession(ctx stk.Context) {
 	_m.Called(ctx)
 }
 
+// LoginUserSessionToken provides a mock function with given fields: ctx
+func (_m *AccountHandler) LoginUserSessionToken(ctx stk.Context) {
+	_m.Called(ctx)
+}
+
 // RegisterUser provides a mock function with given fields: ctx
 func (_m *AccountHandler) RegisterUser(ctx stk.Context) {
 	_m.Called(ctx)

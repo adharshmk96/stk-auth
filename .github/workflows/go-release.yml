@@ -20,7 +20,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: auth-server
+          files: stk-auth
           generate_release_notes: true
       - name: GO list
-        run: GOPROXY=proxy.golang.org go list -m github.com/adharshmk96/auth-server@${{ github.ref_name }}
+        run: GOPROXY=proxy.golang.org go list -m github.com/adharshmk96/stk-auth@${{ github.ref_name }}

@@ -3,9 +3,11 @@ package services
 import (
 	"time"
 
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
@@ -74,4 +76,59 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	}
 
 	return session, nil
+}
+
+func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
+	var userRecord *entities.Account
+	var err error
+	if user.Email == "" {
+		userRecord, err = u.storage.GetUserByUsername(user.Username)
+	} else {
+		userRecord, err = u.storage.GetUserByEmail(user.Email)
+	}
+	if err != nil {
+		if err == svrerr.ErrEntryNotFound {
+			return "", svrerr.ErrInvalidCredentials
+		}
+		return "", err
+	}
+
+	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
+	if err != nil {
+		logger.Error("error verifying password: ", err)
+		return "", err
+	}
+	if !valid {
+		return "", svrerr.ErrInvalidCredentials
+	}
+
+	newSessionId := uuid.New().String()
+	currentTimestamp := time.Now()
+
+	session := &entities.Session{
+		UserID:    userRecord.ID,
+		SessionID: newSessionId,
+		CreatedAt: currentTimestamp,
+		UpdatedAt: currentTimestamp,
+		Valid:     true,
+	}
+
+	if err = u.storage.SaveSession(session); err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, getClaims(session.SessionID, userRecord.ID.String()))
+	private_key, err := config.GetJWTPrivateKey()
+	if err != nil {
+		logger.Error("error getting private key: ", err)
+		return "", err
+	}
+
+	signedToken, err := token.SignedString(private_key)
+	if err != nil {
+		logger.Error("error signing token: ", err)
+		return "", err
+	}
+
+	return signedToken, nil
 }

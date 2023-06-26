@@ -1,9 +1,9 @@
 package services
 
 import (
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/infra"
-	"github.com/adharshmk96/auth-server/pkg/storage"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/storage"
 )
 
 var logger = infra.GetLogger()
@@ -15,6 +15,7 @@ type accountService struct {
 type AccountService interface {
 	RegisterUser(user *entities.Account) (*entities.Account, error)
 	LoginUserSession(user *entities.Account) (*entities.Session, error)
+	LoginUserSessionToken(user *entities.Account) (string, error)
 }
 
 func NewAccountService(storage storage.AccountStore) AccountService {

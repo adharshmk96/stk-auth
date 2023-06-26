@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	entities "github.com/adharshmk96/auth-server/pkg/entities"
+	entities "github.com/adharshmk96/stk-auth/pkg/entities"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -27,6 +27,30 @@ func (_m *AccountService) LoginUserSession(user *entities.Account) (*entities.Se
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entities.Session)
 		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*entities.Account) error); ok {
+		r1 = rf(user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// LoginUserSessionToken provides a mock function with given fields: user
+func (_m *AccountService) LoginUserSessionToken(user *entities.Account) (string, error) {
+	ret := _m.Called(user)
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*entities.Account) (string, error)); ok {
+		return rf(user)
+	}
+	if rf, ok := ret.Get(0).(func(*entities.Account) string); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Get(0).(string)
 	}
 
 	if rf, ok := ret.Get(1).(func(*entities.Account) error); ok {

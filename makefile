@@ -9,7 +9,11 @@ NEW_TAG_PATCH := $(MAJOR).$(MINOR).$(NEW_PATCH)
 NEW_TAG_MINOR := $(MAJOR).$(NEW_MINOR).0
 NEW_TAG_MAJOR := $(NEW_MAJOR).0.0
 
-.PHONY: patch minor major build test publish
+.PHONY: patch minor major build test publish keygen serve init initci moddownload migrate
+
+##########################
+### Manage Commands
+##########################
 
 patch:
 	$(eval NEW_TAG := $(NEW_TAG_PATCH))
@@ -23,15 +27,24 @@ major:
 	$(eval NEW_TAG := $(NEW_TAG_MAJOR))
 	$(call tag)
 
+publish:
+	@git push origin $(VERSION)
+
 build:
 	@go build .	
 
 test:
 	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
-publish:
-	@git push origin $(VERSION)
+testci:
+	@go test ./... -coverprofile=coverage.out
 
+serve:
+	@go run . serve -p 8080
+
+##########################
+### Helpers
+##########################
 define tag
 	@echo "current version is $(VERSION)"
     $(eval EXISTING_TAG := $(shell git tag -l $(NEW_TAG) 2>/dev/null))
@@ -51,3 +64,29 @@ define update_file
     @git add cmd/root.go
     @git commit -m "bump version to $(NEW_TAG)" > /dev/null
 endef
+
+##########################
+### Setup Commands
+##########################
+
+init: moddownload migrate keygen
+	@echo "Project initialized."
+
+initci: moddownload keygen
+	@echo "Project initialized for CI."
+
+moddownload:
+	@echo "initializing go module"
+	@go mod download > /dev/null
+
+migrate:
+	@go install github.com/adharshmk96/migdb@latest
+	@echo "migrating database"
+	@migdb up > /dev/null
+
+keygen:
+	@mkdir -p .keys
+	@openssl genpkey -algorithm RSA -out .keys/private_key.pem -pkeyopt rsa_keygen_bits:2048
+	@chmod 666 .keys/private_key.pem
+	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
+	@chmod 666 .keys/public_key.pem

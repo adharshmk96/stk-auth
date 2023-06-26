@@ -1,4 +1,4 @@
-module github.com/adharshmk96/auth-server
+module github.com/adharshmk96/stk-auth
 
 go 1.20
 
@@ -8,6 +8,8 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.3
 )
+
+require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

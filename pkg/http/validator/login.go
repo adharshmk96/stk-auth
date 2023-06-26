@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/adharshmk96/auth-server/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
 const (

@@ -3,12 +3,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/http/transport"
-	"github.com/adharshmk96/auth-server/pkg/http/validator"
-	"github.com/adharshmk96/auth-server/pkg/infra/config"
-	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/http/transport"
+	"github.com/adharshmk96/stk-auth/pkg/http/validator"
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
@@ -70,16 +70,56 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	response := &transport.LoginResponse{
-		UserID: sessionData.UserID.String(),
-	}
-
-	httpOnly := config.ServerMode == config.SERVER_PROD_MODE
+	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.SessionCookieName,
+		Name:     config.SESSION_COOKIE_NAME,
 		Value:    sessionData.SessionID,
 		HttpOnly: httpOnly,
 		Path:     "/",
+	}
+
+	response := stk.Map{
+		"message": transport.SUCCESS_LOGIN,
+	}
+
+	ctx.SetCookie(cookie)
+	ctx.Status(200).JSONResponse(response)
+}
+
+func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
+	var userLogin *entities.Account
+
+	err := ctx.DecodeJSONBody(&userLogin)
+	if err != nil {
+		transport.HandleUserError(err, ctx)
+		return
+	}
+
+	errorMessages := validator.ValidateLogin(userLogin)
+	if len(errorMessages) > 0 {
+		ctx.Status(400).JSONResponse(stk.Map{
+			"error":   svrerr.ErrInvalidData.Error(),
+			"details": errorMessages,
+		})
+		return
+	}
+
+	jwtToken, err := h.userService.LoginUserSessionToken(userLogin)
+	if err != nil {
+		transport.HandleUserError(err, ctx)
+		return
+	}
+
+	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
+	cookie := &http.Cookie{
+		Name:     config.SESSION_COOKIE_NAME,
+		Value:    jwtToken,
+		HttpOnly: httpOnly,
+		Path:     "/",
+	}
+
+	response := stk.Map{
+		"message": transport.SUCCESS_LOGIN,
 	}
 
 	ctx.SetCookie(cookie)
