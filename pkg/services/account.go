@@ -145,6 +145,7 @@ func (u *accountService) GetUserBySessionId(sessionId string) (*entities.Account
 	return user, nil
 }
 
+// TODO: refactor this
 func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
 
 	publicKey, err := config.GetJWTPublicKey()
