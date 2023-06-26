@@ -66,11 +66,12 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.SESSION_COOKIE_NAME,
 		Value:    sessionData.SessionID,
-		HttpOnly: httpOnly,
+		HttpOnly: true,
+		Secure:   secureCookie,
 		Path:     "/",
 	}
 
@@ -82,6 +83,8 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
+// Session + Token based login,
+// NOTE: session token should not be exposed to client, it should be in httpOnly cookie
 func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	var userLogin *entities.Account
 
@@ -103,11 +106,12 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 		return
 	}
 
-	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.JWT_SESSION_COOKIE_NAME,
 		Value:    jwtToken,
-		HttpOnly: httpOnly,
+		HttpOnly: true,
+		Secure:   secureCookie,
 		Path:     "/",
 	}
 
@@ -155,6 +159,60 @@ func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
+
+	ctx.Status(http.StatusOK).JSONResponse(response)
+}
+
+func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
+	sessionCookie, err := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
+	if sessionCookie == nil || sessionCookie.Value == "" {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			"message": transport.ERROR_UNAUTHORIZED,
+		})
+		return
+	}
+	if err != nil {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			"message": transport.ERROR_UNAUTHORIZED,
+		})
+		return
+	}
+
+	userWithToken, err := h.userService.GetUserBySessionToken(sessionCookie.Value)
+	if err != nil {
+		if err == svrerr.ErrInvalidToken {
+			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+				"message": transport.ERROR_UNAUTHORIZED,
+			})
+		} else if err == svrerr.ErrInvalidSession {
+			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+				"message": transport.ERROR_UNAUTHORIZED,
+			})
+		} else {
+			ctx.Status(http.StatusInternalServerError).JSONResponse(stk.Map{
+				"message": transport.INTERNAL_SERVER_ERROR,
+			})
+		}
+		return
+	}
+
+	response := transport.UserResponse{
+		ID:        userWithToken.ID.String(),
+		Username:  userWithToken.Username,
+		Email:     userWithToken.Email,
+		CreatedAt: userWithToken.CreatedAt,
+		UpdatedAt: userWithToken.UpdatedAt,
+	}
+	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	cookie := &http.Cookie{
+		Name:     config.JWT_SESSION_COOKIE_NAME,
+		Value:    userWithToken.Token,
+		HttpOnly: true,
+		Secure:   secureCookie,
+		Path:     "/",
+	}
+
+	ctx.SetCookie(cookie)
 
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }

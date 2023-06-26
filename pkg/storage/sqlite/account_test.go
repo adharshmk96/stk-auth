@@ -91,6 +91,12 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 		assert.Nil(t, presaveUser)
 	})
 
+	t.Run("GetUserByUserID returns error when username is not found in empty db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByUserID(user.Username)
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
 	t.Run("GetUserByEmail get user by email returns error when parsing invalid id", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail("invalid")
 		assert.Error(t, err)
@@ -99,6 +105,12 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 
 	t.Run("GetUserByUsername get user by username returns error when parsing invalid id", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByUsername("invalid")
+		assert.Error(t, err)
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("GetUserByUserID get user by username returns error when parsing invalid id", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByUserID("invalid")
 		assert.Error(t, err)
 		assert.Nil(t, presaveUser)
 	})
@@ -127,7 +139,7 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 
 }
 
-func TestUserStorage_GetUserByEmailAndUserName(t *testing.T) {
+func TestUserStorage_GetUserByX(t *testing.T) {
 
 	conn := setupDatabase()
 	defer tearDownDatabase()
@@ -185,6 +197,18 @@ func TestUserStorage_GetUserByEmailAndUserName(t *testing.T) {
 		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
 	})
 
+	t.Run("GetUserByUserID retrieves user by id", func(t *testing.T) {
+		retrievedUser, err := userStorage.GetUserByUserID(userId.String())
+		assert.NoError(t, err)
+		assert.Equal(t, userId, retrievedUser.ID)
+		assert.Equal(t, user.Username, retrievedUser.Username)
+		assert.Equal(t, user.Password, retrievedUser.Password)
+		assert.Equal(t, user.Salt, retrievedUser.Salt)
+		assert.Equal(t, user.Email, retrievedUser.Email)
+		assert.Equal(t, user.CreatedAt.Unix(), retrievedUser.CreatedAt.Unix())
+		assert.Equal(t, user.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
+	})
+
 	t.Run("GetUserByEmail returns error when id is not found in populated db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail(user.Email + "xd")
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
@@ -193,6 +217,12 @@ func TestUserStorage_GetUserByEmailAndUserName(t *testing.T) {
 
 	t.Run("GetUserByUsername returns error when id is not found in populated db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByUsername(user.Username + "xd")
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+		assert.Nil(t, presaveUser)
+	})
+
+	t.Run("GetUserByUserID returns error when id is not found in populated db", func(t *testing.T) {
+		presaveUser, err := userStorage.GetUserByUserID(uuid.New().String())
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 		assert.Nil(t, presaveUser)
 	})

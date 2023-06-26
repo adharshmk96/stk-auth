@@ -123,6 +123,41 @@ func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, e
 	return &user, nil
 }
 
+func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
+
+	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_ID, uid)
+
+	var userId string
+	var user entities.Account
+	err := row.Scan(
+		&userId,
+		&user.Username,
+		&user.Password,
+		&user.Salt,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logger.Error("record not found:", err)
+			return nil, svrerr.ErrDBEntryNotFound
+		}
+
+		logger.Error("error retrieving user from database: ", err)
+		return nil, svrerr.ErrDBRetrievingData
+	}
+
+	user.ID, err = entities.ParseUserId(userId)
+	if err != nil {
+		logger.Error("error parsing user id: ", err)
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_INSERT_SESSION_QUERY,
@@ -179,7 +214,6 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 	}
 
 	return &session, nil
-
 }
 
 func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account, error) {

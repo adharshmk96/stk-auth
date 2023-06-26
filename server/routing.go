@@ -16,4 +16,5 @@ func setupRoutes(server *stk.Server) {
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
 	server.Post("/api/auth/session/login/token", userHandler.LoginUserSessionToken)
 	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
+	server.Get("/api/auth/session/user/token", userHandler.GetSessionTokenUser)
 }

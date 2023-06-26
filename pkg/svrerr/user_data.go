@@ -7,4 +7,5 @@ var (
 	ErrInvalidCredentials = errors.New("error_invalid_credentials")
 
 	ErrInvalidSession = errors.New("invalid_session")
+	ErrInvalidToken   = errors.New("invalid_token")
 )

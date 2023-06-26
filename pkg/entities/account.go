@@ -31,6 +31,11 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type AccountWithToken struct {
+	Account
+	Token string
+}
+
 type Session struct {
 	UserID    UserID    `json:"user_id"`
 	SessionID string    `json:"session_id"`
