@@ -35,7 +35,9 @@ publish:
 keygen:
 	@mkdir -p .keys
 	@openssl genpkey -algorithm RSA -out .keys/private_key.pem -pkeyopt rsa_keygen_bits:2048
+	@chmod 666 .keys/private_key.pem
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
+	@chmod 666 .keys/public_key.pem
 
 define tag
 	@echo "current version is $(VERSION)"

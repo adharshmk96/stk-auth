@@ -8,12 +8,17 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+const (
+	PRIVATE_KEY_PATH = ".keys/private_key.pem"
+	PUBLIC_KEY_PATH  = ".keys/public_key.pem"
+)
+
 var JWTPrivateKey = utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY", "")
 var JWTPublicKey = utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY", "")
 
 func readPrivateKey() []byte {
 	if JWTPrivateKey == "" {
-		data, err := os.ReadFile(".keys/private.pem")
+		data, err := os.ReadFile(PRIVATE_KEY_PATH)
 		if err != nil {
 			JWTPrivateKey = ""
 		}
@@ -24,7 +29,7 @@ func readPrivateKey() []byte {
 
 func readPublicKey() []byte {
 	if JWTPublicKey == "" {
-		data, err := os.ReadFile(".keys/private.pem")
+		data, err := os.ReadFile(PUBLIC_KEY_PATH)
 		if err != nil {
 			JWTPublicKey = ""
 		}
