@@ -50,16 +50,16 @@ qQIDAQAB
 `
 
 func setupKeysDir() error {
-	err := os.MkdirAll(".keys", 0666)
+	err := os.MkdirAll(".keys", 0766)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0666)
+	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0766)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0666)
+	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0766)
 	if err != nil {
 		return err
 	}
