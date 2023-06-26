@@ -1,65 +1,36 @@
 package config_test
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"testing"
 
+	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/infra/config"
-	"github.com/adharshmk96/stk/utils"
 	"github.com/stretchr/testify/assert"
 )
 
-var privateKey = `-----BEGIN PRIVATE KEY-----
-MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8p0Wv/07CoOip
-XxtZHmHCyz+hV1gJqnOhyhmc68XQynXDI96O65PKUCjYxtncAg3KSZExYvX6obyv
-FsnluNmHffy+QBVQReGHZ2yTzqpionwuJ4ZYLNMGbiDk2td9x8DGdSX2fFZF1qnJ
-0ulSph44anzF0Uqx6B5fi9M6IkD622/6GfMGEmE/1ssObECm66DOLzLIYOB5EHj9
-RkUTaoCs88Q9/uFejKk1Y0QOObnPx+MKJ9I36vplxl2fKRfHATvpqSt/UYsElDu5
-zKEi1Olewe8ozv4C/8cmIlJ6b2N3M89izRo0ZUCY/TGp46O5gAsNK+IQnHSk7kDb
-Del3WsSpAgMBAAECggEAY3mcUGJCKHRqWizRIdvYVruPcMa6oFYlpNEJUmosI50u
-HViDmT707f/4md24sL7QgLLsAWuaIq836+cLTLt80GoJZFQsKOjANALACOw3gc0F
-x9yFhWcVWtWlOKeAa01yA/Nvshn779VyL/6rky4Oz1avNivWxBqOMXlsRsIbG2rC
-mCRJFH99sO0KYAt5BgSQkI/ygunniwRH+VOhn+qzDDFhBQXjfTAW0CbRJPrXLeCs
-WR0Mjo48IL++vlNGLqHhKNd85HtEv5G5QTP/I9DVCCOReoYvpsNscf332kCAkbv5
-xtxKd+voKRFrTHMivJ5+Q1GVb34zcz7xJ9cVHwVNgQKBgQD4G1GMxfV9aryvtsRL
-oybQG8kn03ok/lC0R7qyydDcTi8qCR7ITz0Q7iwy/cY+vE17lkmQNZr4zuLEbWJl
-rhWWji8ZttcKilYcxGoycuAygTPjeaFL7joxfI2RPrPgmZUnG58KK/YbkYA8TYbO
-Tn2eb0VTfV5kKVt8Z5gVcacZ2QKBgQDCp73sO+po/TJDIWLF1izhEzub44a+K1BZ
-9GP/fEqCcS5lKXPt3Ob6dI4b6ybUF+MUBG7whBiAAgZ1AW5bvCgLmRAEjXUXoArd
-rejmmG2bgBVCnULK3m0BSJO2IIUjLntkJ6LNvJpCRsNtsrjzjkcJ3IlsvBBA4E4Z
-ZLG64OrvUQKBgDE9wsast1dH6uD45iaY3+gny5mi6DgVXVEad1xqn5BJ2CSAoOJi
-j50fmBgas9DZsIsZvcnoSbSd4vXXO9MwZMp3t7NjzXQjFoopFWaj1AlSCUlZZ4DZ
-bCVMMhCkoDCwaqDTY5IyPWslSo0tWdbyTw41yU2TsTsx1h1vtghzgRWpAoGATi+6
-Za0bVth82+IJHpYMqMtk4hTeBny3Zap4kCKIeySjEhc4bY6RaIBwpF4r1n1RxLST
-KyCkBqbJmS3d+hL1stLkUC/RnI+4TZqRNi57uD4WTA+GyJ3XAvD4A+vEDoGZJn2V
-MzZSb9SkoudqysmXVyqyOG7ByI1QUXrUuM+nDkECgYByMK0F7VTpCyrXtKV9v+h8
-9qMAUsn6zdHr18CFYzxr8ah8aJkA8bhWRHqOFnaDorcuJ/AeJV9irQ4cj9dhStAO
-h3t4BI3tAhV779CvXoTbjwXtWGeAUOCuvTjQgJeZiuGQXaj+rQlgWCzk9HK4sV3G
-QR7Naff0gsNlqCJibCwOhA==
------END PRIVATE KEY-----
-`
-var publicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvKdFr/9OwqDoqV8bWR5h
-wss/oVdYCapzocoZnOvF0Mp1wyPejuuTylAo2MbZ3AINykmRMWL1+qG8rxbJ5bjZ
-h338vkAVUEXhh2dsk86qYqJ8LieGWCzTBm4g5NrXfcfAxnUl9nxWRdapydLpUqYe
-OGp8xdFKsegeX4vTOiJA+ttv+hnzBhJhP9bLDmxApuugzi8yyGDgeRB4/UZFE2qA
-rPPEPf7hXoypNWNEDjm5z8fjCifSN+r6ZcZdnykXxwE76akrf1GLBJQ7ucyhItTp
-XsHvKM7+Av/HJiJSem9jdzPPYs0aNGVAmP0xqeOjuYALDSviEJx0pO5A2w3pd1rE
-qQIDAQAB
------END PUBLIC KEY-----
-`
+const (
+	TEST_KEY_DIR          = "./test_keys"
+	TEST_PRIVATE_KEY_PATH = TEST_KEY_DIR + "/private_key.pem"
+	TEST_PUBLIC_KEY_PATH  = TEST_KEY_DIR + "/public_key.pem"
+)
 
-func setupKeysDir() error {
-	err := os.MkdirAll(".keys", 0766)
+func generateTestKeys() error {
+	privateKeyPEM, publicKeyPEM, err := mocks.GenerateKeyPair()
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0766)
+	os.Mkdir(TEST_KEY_DIR, 0700)
+
+	err = ioutil.WriteFile(TEST_PRIVATE_KEY_PATH, privateKeyPEM, 0600)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0766)
+
+	err = ioutil.WriteFile(TEST_PUBLIC_KEY_PATH, publicKeyPEM, 0600)
 	if err != nil {
 		return err
 	}
@@ -67,90 +38,69 @@ func setupKeysDir() error {
 	return nil
 }
 
-func tearDownKeysDir() {
-	os.RemoveAll(".keys")
+func removeTestKeys() {
+	os.Remove(TEST_PRIVATE_KEY_PATH)
+	os.Remove(TEST_PUBLIC_KEY_PATH)
+	os.Remove(TEST_KEY_DIR)
 }
 
-func TestParsingKeys(t *testing.T) {
+func TestConfig(t *testing.T) {
+	err := generateTestKeys()
+	if err != nil {
+		t.Fatal(fmt.Sprintf("Error generating test keys: %s", err))
+	}
 
-	err := setupKeysDir()
-	assert.NoError(t, err)
+	t.Run("test read private key from environment variable", func(t *testing.T) {
 
-	t.Run("gets private key from dir", func(t *testing.T) {
-		key, err := config.GetJWTPrivateKey()
-		assert.NoError(t, err)
-		assert.NotNil(t, key)
-	})
-
-	t.Run("gets public key from dir", func(t *testing.T) {
-		key, err := config.GetJWTPublicKey()
-		assert.NoError(t, err)
-		assert.NotNil(t, key)
-	})
-
-	tearDownKeysDir()
-
-	t.Run("fails if private key is not found", func(t *testing.T) {
-		data, err := os.ReadFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
-		assert.Error(t, err)
-		assert.Nil(t, data)
-
-		key, err := config.GetJWTPrivateKey()
-		assert.Error(t, err)
-		assert.Nil(t, key)
-	})
-	t.Run("fails if public key is not found", func(t *testing.T) {
-		data, err := os.ReadFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
-		assert.Error(t, err)
-		assert.Nil(t, data)
-
-		key, err := config.GetJWTPublicKey()
-		assert.Error(t, err)
-		assert.Nil(t, key)
-	})
-}
-
-func TestReadKeys(t *testing.T) {
-	err := setupKeysDir()
-	assert.NoError(t, err)
-
-	defer tearDownKeysDir()
-	t.Run("reads from environment if env is set", func(t *testing.T) {
-		// checks file exists
-		pvtpath := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
-		pubpath := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
-
-		data, err := os.ReadFile(pvtpath)
-		assert.NoError(t, err)
-		assert.Equal(t, privateKey, string(data))
-
-		data, err = os.ReadFile(pubpath)
-		assert.NoError(t, err)
-		assert.Equal(t, privateKey, string(data))
-
-		os.Setenv("JWT_EDCA_PRIVATE_KEY", "privateKey")
-		os.Setenv("JWT_EDCA_PUBLIC_KEY", "publicKey")
+		os.Setenv("JWT_EDCA_PRIVATE_KEY", "test-private-key")
 		key := config.ReadPrivateKey()
-		assert.Equal(t, "privateKey", string(key))
-		key = config.ReadPublicKey()
-		assert.Equal(t, "publicKey", string(key))
+		assert.Equal(t, "test-private-key", string(key))
 		os.Unsetenv("JWT_EDCA_PRIVATE_KEY")
+	})
+
+	t.Run("test read private key from file", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PRIVATE_KEY_PATH", TEST_PRIVATE_KEY_PATH)
+		key := config.ReadPrivateKey()
+		assert.NotNil(t, key)
+		os.Unsetenv("JWT_EDCA_PRIVATE_KEY_PATH")
+	})
+
+	t.Run("test read public key from environment variable", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PUBLIC_KEY", "test-public-key")
+		key := config.ReadPublicKey()
+		assert.Equal(t, "test-public-key", string(key))
 		os.Unsetenv("JWT_EDCA_PUBLIC_KEY")
 	})
 
-	t.Run("reads from file if env is not set", func(t *testing.T) {
-
-		pvtkey, ok := os.LookupEnv("JWT_EDCA_PRIVATE_KEY")
-		assert.False(t, ok)
-		assert.Empty(t, pvtkey)
-		pubkey, ok := os.LookupEnv("JWT_EDCA_PUBLIC_KEY")
-		assert.False(t, ok)
-		assert.Empty(t, pubkey)
-
-		key := config.ReadPrivateKey()
-		assert.Equal(t, privateKey, string(key))
-		key = config.ReadPublicKey()
-		assert.Equal(t, publicKey, string(key))
-
+	t.Run("test read public key from file", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PUBLIC_KEY_PATH", TEST_PUBLIC_KEY_PATH)
+		key := config.ReadPublicKey()
+		assert.NotNil(t, key)
+		os.Unsetenv("JWT_EDCA_PUBLIC_KEY_PATH")
 	})
+
+	removeTestKeys()
+}
+
+func TestErrorOnInvalidKeys(t *testing.T) {
+	err := generateTestKeys()
+	if err != nil {
+		t.Fatal(fmt.Sprintf("Error generating test keys: %s", err))
+	}
+
+	t.Run("test error on invalid private key", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PRIVATE_KEY", "invalid-private-key")
+		_, err := config.GetJWTPrivateKey()
+		assert.NotNil(t, err, "Expected error when trying to parse an invalid private key, but got nil")
+		os.Unsetenv("JWT_EDCA_PRIVATE_KEY")
+	})
+
+	t.Run("test error on invalid public key", func(t *testing.T) {
+		os.Setenv("JWT_EDCA_PUBLIC_KEY", "invalid-public-key")
+		_, err := config.GetJWTPublicKey()
+		assert.NotNil(t, err, "Expected error when trying to parse an invalid public key, but got nil")
+		os.Unsetenv("JWT_EDCA_PUBLIC_KEY")
+	})
+
+	removeTestKeys()
 }
