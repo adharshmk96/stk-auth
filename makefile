@@ -74,7 +74,7 @@ moddownload:
 	@go mod download > /dev/null
 
 migrate:
-	@go install migdb@latest
+	@go install github.com/adharshmk96/migdb@latest
 	@echo "migrating database"
 	@migdb up > /dev/null
 
