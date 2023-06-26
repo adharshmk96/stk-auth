@@ -70,9 +70,9 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	httpOnly := config.ServerMode == config.SERVER_PROD_MODE
+	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.SessionCookieName,
+		Name:     config.SESSION_COOKIE_NAME,
 		Value:    jwtToken,
 		HttpOnly: httpOnly,
 		Path:     "/",

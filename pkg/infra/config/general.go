@@ -5,10 +5,10 @@ import (
 )
 
 const (
-	SERVER_DEV_MODE             = "dev"
-	SERVER_PROD_MODE            = "prod"
+	SERVER_DEV_MODE             = "SERVER_DEV_MODE"
+	SERVER_PROD_MODE            = "SERVER_PROD_MODE"
 	DEFAULT_SESSION_COOKIE_NAME = "session_id"
 )
 
-var ServerMode = utils.GetEnvOrDefault("SERVER_MODE", SERVER_DEV_MODE)
-var SessionCookieName = utils.GetEnvOrDefault("SESSION_COOKIE_NAME", DEFAULT_SESSION_COOKIE_NAME)
+var SERVER_MODE = utils.GetEnvOrDefault("SERVER_MODE", SERVER_DEV_MODE)
+var SESSION_COOKIE_NAME = utils.GetEnvOrDefault("SESSION_COOKIE_NAME", DEFAULT_SESSION_COOKIE_NAME)

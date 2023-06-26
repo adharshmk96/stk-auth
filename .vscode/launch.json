@@ -9,6 +9,8 @@
         "program": "${workspaceFolder}/main.go",
         "env": {
           "SESSION_COOKIE_NAME": "session_id",
+          "JWT_EDCA_PRIVATE_KEY_PATH": ".keys/private_key.pem",
+          "JWT_EDCA_PUBLIC_KEY_PATH": ".keys/public_key.pem",
         },
         "args": ["serve", "-p", "8080"]
       }
