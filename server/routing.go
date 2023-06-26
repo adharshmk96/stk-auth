@@ -13,5 +13,6 @@ func setupRoutes(server *stk.Server) {
 	userHandler := handlers.NewAccountHandler(userService)
 
 	server.Post("/api/auth/register", userHandler.RegisterUser)
-	server.Post("/api/auth/session/login", userHandler.LoginUserSessionToken)
+	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
+	server.Post("/api/auth/session/login/token", userHandler.LoginUserSessionToken)
 }

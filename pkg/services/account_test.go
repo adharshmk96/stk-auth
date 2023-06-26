@@ -83,7 +83,163 @@ func TestAccountService_RegisterUser(t *testing.T) {
 
 }
 
-var privateKey = `-----BEGIN PRIVATE KEY-----
+func TestAccountService_LoginSessionUser(t *testing.T) {
+
+	user_id := entities.UserID(uuid.New())
+	user_name := "testuser"
+	user_email := "user@email.com"
+	user_password := "testpassword"
+	created := time.Now()
+	updated := time.Now()
+
+	salt, _ := utils.GenerateSalt()
+	hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
+
+	storedData := &entities.Account{
+		ID:        user_id,
+		Username:  "testuser",
+		Password:  hashedPassword,
+		Email:     user_email,
+		Salt:      hashedSalt,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	t.Run("returns session with userid if username and password are valid", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByUsername", mock.Anything).Return(storedData, nil)
+		mockStore.On("SaveSession", mock.Anything).Return(nil)
+
+		requestData := &entities.Account{
+			Username: user_name,
+			Password: user_password,
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByUsername", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByEmail", mock.Anything)
+
+		assert.NoError(t, err)
+		assert.Equal(t, storedData.ID, userSession.UserID)
+		assert.NotEmpty(t, userSession.SessionID)
+		assert.NotEmpty(t, userSession.CreatedAt)
+		assert.NotEmpty(t, userSession.UpdatedAt)
+		assert.True(t, userSession.Valid)
+	})
+
+	t.Run("returns session with userid if email and password are valid", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
+		mockStore.On("SaveSession", mock.Anything).Return(nil)
+
+		requestData := &entities.Account{
+			Email:    user_email,
+			Password: user_password,
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
+
+		assert.NoError(t, err)
+		assert.Equal(t, storedData.ID, userSession.UserID)
+		assert.NotEmpty(t, userSession.SessionID)
+		assert.NotEmpty(t, userSession.CreatedAt)
+		assert.NotEmpty(t, userSession.UpdatedAt)
+		assert.True(t, userSession.Valid)
+	})
+
+	t.Run("returns error if password is incorrect", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
+
+		requestData := &entities.Account{
+			Email:    user_email,
+			Password: "wrongpassword",
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
+		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrInvalidCredentials.Error())
+		assert.Nil(t, userSession)
+	})
+
+	t.Run("returns retrieve data error if account retrieving failed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+
+		requestData := &entities.Account{
+			Email:    user_email,
+			Password: user_password,
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
+		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
+
+		assert.Error(t, err)
+		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.Nil(t, userSession)
+	})
+
+	t.Run("returns error if session store failed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrRetrievingData)
+
+		requestData := &entities.Account{
+			Email:    user_email,
+			Password: user_password,
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
+		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
+
+		assert.Error(t, err)
+		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.Nil(t, userSession)
+	})
+
+	t.Run("returns invalid credential error if user does not exist", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrEntryNotFound)
+
+		requestData := &entities.Account{
+			Email:    user_email,
+			Password: user_password,
+		}
+		userSession, err := service.LoginUserSession(requestData)
+
+		mockStore.AssertCalled(t, "GetUserByEmail", mock.Anything)
+		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
+		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrInvalidCredentials.Error())
+		assert.Nil(t, userSession)
+	})
+
+}
+
+func setupKeys() (string, string) {
+	var privateKey = `-----BEGIN PRIVATE KEY-----
 MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC8p0Wv/07CoOip
 XxtZHmHCyz+hV1gJqnOhyhmc68XQynXDI96O65PKUCjYxtncAg3KSZExYvX6obyv
 FsnluNmHffy+QBVQReGHZ2yTzqpionwuJ4ZYLNMGbiDk2td9x8DGdSX2fFZF1qnJ
@@ -112,7 +268,7 @@ h3t4BI3tAhV779CvXoTbjwXtWGeAUOCuvTjQgJeZiuGQXaj+rQlgWCzk9HK4sV3G
 QR7Naff0gsNlqCJibCwOhA==
 -----END PRIVATE KEY-----
 `
-var publicKey = `-----BEGIN PUBLIC KEY-----
+	var publicKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvKdFr/9OwqDoqV8bWR5h
 wss/oVdYCapzocoZnOvF0Mp1wyPejuuTylAo2MbZ3AINykmRMWL1+qG8rxbJ5bjZ
 h338vkAVUEXhh2dsk86qYqJ8LieGWCzTBm4g5NrXfcfAxnUl9nxWRdapydLpUqYe
@@ -122,21 +278,20 @@ XsHvKM7+Av/HJiJSem9jdzPPYs0aNGVAmP0xqeOjuYALDSviEJx0pO5A2w3pd1rE
 qQIDAQAB
 -----END PUBLIC KEY-----
 `
-
-func setupKeys() {
 	os.MkdirAll(".keys", 0666)
 	os.WriteFile(".keys/private_key.pem", []byte(privateKey), 0666)
 	os.WriteFile(".keys/public_key.pem", []byte(publicKey), 0666)
 
+	return privateKey, publicKey
 }
 
 func tearDown() {
 	os.RemoveAll(".keys")
 }
 
-func TestAccountService_LoginSessionUser(t *testing.T) {
+func TestAccountService_LoginSessionUserToken(t *testing.T) {
 
-	setupKeys()
+	_, publicKey := setupKeys()
 	defer tearDown()
 
 	user_id := entities.UserID(uuid.New())

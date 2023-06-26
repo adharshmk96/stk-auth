@@ -46,6 +46,46 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	ctx.Status(201).JSONResponse(response)
 }
 
+func (h *accountHandler) LoginUserSession(ctx stk.Context) {
+	var userLogin *entities.Account
+
+	err := ctx.DecodeJSONBody(&userLogin)
+	if err != nil {
+		transport.HandleUserError(err, ctx)
+		return
+	}
+
+	errorMessages := validator.ValidateLogin(userLogin)
+	if len(errorMessages) > 0 {
+		ctx.Status(400).JSONResponse(stk.Map{
+			"error":   svrerr.ErrInvalidData.Error(),
+			"details": errorMessages,
+		})
+		return
+	}
+
+	sessionData, err := h.userService.LoginUserSession(userLogin)
+	if err != nil {
+		transport.HandleUserError(err, ctx)
+		return
+	}
+
+	httpOnly := config.SERVER_MODE == config.SERVER_PROD_MODE
+	cookie := &http.Cookie{
+		Name:     config.SESSION_COOKIE_NAME,
+		Value:    sessionData.SessionID,
+		HttpOnly: httpOnly,
+		Path:     "/",
+	}
+
+	response := stk.Map{
+		"message": transport.SUCCESS_LOGIN,
+	}
+
+	ctx.SetCookie(cookie)
+	ctx.Status(200).JSONResponse(response)
+}
+
 func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	var userLogin *entities.Account
 
@@ -78,8 +118,10 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 		Path:     "/",
 	}
 
+	response := stk.Map{
+		"message": transport.SUCCESS_LOGIN,
+	}
+
 	ctx.SetCookie(cookie)
-	ctx.Status(200).JSONResponse(stk.Map{
-		"message": "login successful",
-	})
+	ctx.Status(200).JSONResponse(response)
 }

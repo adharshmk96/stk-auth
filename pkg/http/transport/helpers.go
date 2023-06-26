@@ -22,13 +22,11 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type LoginResponse struct {
-	UserID string `json:"user_id"`
-}
-
 type SessionCookie struct {
 	SessionID string `json:"session_id"`
 }
+
+const SUCCESS_LOGIN = "login_successful"
 
 func HandleUserError(err error, ctx stk.Context) {
 	var status int

@@ -36,6 +36,48 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	return user, nil
 }
 
+func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Session, error) {
+	var userRecord *entities.Account
+	var err error
+	if user.Email == "" {
+		userRecord, err = u.storage.GetUserByUsername(user.Username)
+	} else {
+		userRecord, err = u.storage.GetUserByEmail(user.Email)
+	}
+	if err != nil {
+		if err == svrerr.ErrEntryNotFound {
+			return nil, svrerr.ErrInvalidCredentials
+		}
+		return nil, err
+	}
+
+	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
+	if err != nil {
+		logger.Error("error verifying password: ", err)
+		return nil, err
+	}
+	if !valid {
+		return nil, svrerr.ErrInvalidCredentials
+	}
+
+	newSessionId := uuid.New().String()
+	currentTimestamp := time.Now()
+
+	session := &entities.Session{
+		UserID:    userRecord.ID,
+		SessionID: newSessionId,
+		CreatedAt: currentTimestamp,
+		UpdatedAt: currentTimestamp,
+		Valid:     true,
+	}
+
+	if err = u.storage.SaveSession(session); err != nil {
+		return nil, err
+	}
+
+	return session, nil
+}
+
 func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
 	var userRecord *entities.Account
 	var err error

@@ -14,6 +14,7 @@ type accountService struct {
 
 type AccountService interface {
 	RegisterUser(user *entities.Account) (*entities.Account, error)
+	LoginUserSession(user *entities.Account) (*entities.Session, error)
 	LoginUserSessionToken(user *entities.Account) (string, error)
 }
 

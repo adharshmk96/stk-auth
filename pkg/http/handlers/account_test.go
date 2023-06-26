@@ -180,6 +180,164 @@ func TestRegisterUser(t *testing.T) {
 
 func TestLoginUserSession(t *testing.T) {
 
+	uid := uuid.New()
+	sid := uuid.NewString()
+	userId := entities.UserID(uid)
+	username := "user"
+	password := "password"
+	created := time.Now()
+	updated := time.Now()
+
+	login := &transport.UserLogin{
+		Username: username,
+		Password: password,
+	}
+
+	sessionData := &entities.Session{
+		UserID:    userId,
+		CreatedAt: created,
+		UpdatedAt: updated,
+		SessionID: sid,
+		Valid:     true,
+	}
+
+	t.Run("returns 200 and session is retrieved", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, nil)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 200, w.Code)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+
+		// check if response has "message"
+		var response stk.Map
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
+
+		// check if cookie is set
+		cookie := w.Result().Cookies()[0]
+		assert.Equal(t, sid, cookie.Value)
+
+	})
+
+	t.Run("returns 400 if invalid request body", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		r := httptest.NewRequest("POST", "/login", nil)
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 400, w.Code)
+		service.AssertNotCalled(t, "LoginUser", mock.Anything)
+
+	})
+
+	t.Run("returns 401 if invalid credentials", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrInvalidCredentials)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 401, w.Code)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+
+	})
+
+	t.Run("return 400 if validation Fails", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		invalidLogin := &transport.UserLogin{
+			Username: "",
+			Password: "",
+		}
+
+		body, _ := json.Marshal(invalidLogin)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 400, w.Code)
+		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
+	})
+
+	t.Run("returns 500 if retreval fails for some reason", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+
+		s.Post("/login", handler.LoginUserSession)
+
+		body, _ := json.Marshal(login)
+		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, 500, w.Code)
+		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+
+	})
+
+}
+
+func TestLoginUserSessionToken(t *testing.T) {
+
 	username := "test"
 	password := "#Password123"
 
@@ -213,8 +371,9 @@ func TestLoginUserSession(t *testing.T) {
 		assert.Equal(t, 200, w.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var response transport.LoginResponse
+		var response stk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
 
 		// check if cookie is set
 		jwtCookie := w.Result().Cookies()[0].Value
