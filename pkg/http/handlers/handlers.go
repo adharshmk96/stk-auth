@@ -11,7 +11,7 @@ type accountHandler struct {
 
 type AccountHandler interface {
 	RegisterUser(ctx stk.Context)
-	LoginUserSession(ctx stk.Context)
+	LoginUserSessionToken(ctx stk.Context)
 }
 
 func NewAccountHandler(userService services.AccountService) AccountHandler {

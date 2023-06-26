@@ -46,7 +46,7 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	ctx.Status(201).JSONResponse(response)
 }
 
-func (h *accountHandler) LoginUserSession(ctx stk.Context) {
+func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	var userLogin *entities.Account
 
 	err := ctx.DecodeJSONBody(&userLogin)
@@ -64,7 +64,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	jwtToken, err := h.userService.LoginUserSession(userLogin)
+	jwtToken, err := h.userService.LoginUserSessionToken(userLogin)
 	if err != nil {
 		transport.HandleUserError(err, ctx)
 		return

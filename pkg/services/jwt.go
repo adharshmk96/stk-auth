@@ -7,15 +7,15 @@ import (
 )
 
 type CustomClaims struct {
-	sessionID string
-	userID    string
+	SessionID string `json:"session_id"`
+	UserID    string `json:"user_id"`
 	jwt.StandardClaims
 }
 
 func getClaims(sessionId, userId string) jwt.Claims {
 	claims := CustomClaims{
-		sessionID: sessionId,
-		userID:    userId,
+		SessionID: sessionId,
+		UserID:    userId,
 		StandardClaims: jwt.StandardClaims{
 			Subject:   "authentication",
 			Issuer:    "auth-server",

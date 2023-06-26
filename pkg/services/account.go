@@ -36,7 +36,7 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	return user, nil
 }
 
-func (u *accountService) LoginUserSession(user *entities.Account) (string, error) {
+func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
 	var userRecord *entities.Account
 	var err error
 	if user.Email == "" {

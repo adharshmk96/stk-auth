@@ -12,8 +12,8 @@ type AccountHandler struct {
 	mock.Mock
 }
 
-// LoginUserSession provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSession(ctx stk.Context) {
+// LoginUserSessionToken provides a mock function with given fields: ctx
+func (_m *AccountHandler) LoginUserSessionToken(ctx stk.Context) {
 	_m.Called(ctx)
 }
 

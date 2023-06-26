@@ -180,26 +180,15 @@ func TestRegisterUser(t *testing.T) {
 
 func TestLoginUserSession(t *testing.T) {
 
-	uid := uuid.New()
-	sid := uuid.NewString()
-	userId := entities.UserID(uid)
-	username := "user"
-	password := "password"
-	created := time.Now()
-	updated := time.Now()
+	username := "test"
+	password := "#Password123"
 
 	login := &transport.UserLogin{
 		Username: username,
 		Password: password,
 	}
 
-	sessionData := &entities.Session{
-		UserID:    userId,
-		CreatedAt: created,
-		UpdatedAt: updated,
-		SessionID: sid,
-		Valid:     true,
-	}
+	sessionToken := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoLXNlcnZlciIsImV4cCI6MTY4Nzg0NzAzNiwiaWF0IjoxNjg3NzYwNjM2LCJpc3MiOiJhdXRoLXNlcnZlciIsInN1YiI6ImF1dGhlbnRpY2F0aW9uIn0.fJzia9f1GzpfUQXSW2v-7AXyq8kg0OncdEzgOS2PZziCU4-u3-4kgHzigZCeUQjD3xBL8nOMSDeWEo669es8z6NIbtlMsA4Jh4pQ3_a1AIhMa9mdyQl0CfOhReNHlYOkFZUUSjGs5DY2XwixnN4jJe7gkZv_LyBaroEoZ918DOaFeVpqTct_EUu8G_24HX4AnXL4NISwVe3KOtSiNvFi1xIicnUi0W4hwHvi5S3S_3oGtUb-AmBoWUMof_sUs3xmo46vpevgvjV8SDsDUMtOEuJw4gXAqGL9FksD3QS1mvq3tOH7cGtvCtI7QjuGXTA40nLNe05KMUDP2sv_Rshj0g"
 
 	t.Run("returns 200 and session is retrieved", func(t *testing.T) {
 		config := &stk.ServerConfig{
@@ -211,9 +200,9 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSession", mock.Anything).Return(sessionData, nil)
+		service.On("LoginUserSessionToken", mock.Anything).Return(sessionToken, nil)
 
-		s.Post("/login", handler.LoginUserSession)
+		s.Post("/login", handler.LoginUserSessionToken)
 
 		body, _ := json.Marshal(login)
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
@@ -222,16 +211,15 @@ func TestLoginUserSession(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 200, w.Code)
-		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var response transport.LoginResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
 
-		assert.Equal(t, userId.String(), response.UserID)
-
 		// check if cookie is set
-		cookie := w.Result().Cookies()[0]
-		assert.Equal(t, sid, cookie.Value)
+		jwtCookie := w.Result().Cookies()[0].Value
+
+		assert.Equal(t, sessionToken, jwtCookie)
 
 	})
 
@@ -245,7 +233,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Post("/login", handler.LoginUserSession)
+		s.Post("/login", handler.LoginUserSessionToken)
 
 		r := httptest.NewRequest("POST", "/login", nil)
 		w := httptest.NewRecorder()
@@ -267,9 +255,9 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrInvalidCredentials)
+		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrInvalidCredentials)
 
-		s.Post("/login", handler.LoginUserSession)
+		s.Post("/login", handler.LoginUserSessionToken)
 
 		body, _ := json.Marshal(login)
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
@@ -278,7 +266,7 @@ func TestLoginUserSession(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 401, w.Code)
-		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 	})
 
@@ -292,7 +280,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Post("/login", handler.LoginUserSession)
+		s.Post("/login", handler.LoginUserSessionToken)
 
 		invalidLogin := &transport.UserLogin{
 			Username: "",
@@ -306,7 +294,7 @@ func TestLoginUserSession(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 400, w.Code)
-		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
+		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
 	})
 
 	t.Run("returns 500 if retreval fails for some reason", func(t *testing.T) {
@@ -319,9 +307,9 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSession", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrRetrievingData)
 
-		s.Post("/login", handler.LoginUserSession)
+		s.Post("/login", handler.LoginUserSessionToken)
 
 		body, _ := json.Marshal(login)
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
@@ -330,7 +318,7 @@ func TestLoginUserSession(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, 500, w.Code)
-		service.AssertCalled(t, "LoginUserSession", mock.Anything)
+		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 	})
 

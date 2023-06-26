@@ -12,8 +12,8 @@ type AccountService struct {
 	mock.Mock
 }
 
-// LoginUserSession provides a mock function with given fields: user
-func (_m *AccountService) LoginUserSession(user *entities.Account) (string, error) {
+// LoginUserSessionToken provides a mock function with given fields: user
+func (_m *AccountService) LoginUserSessionToken(user *entities.Account) (string, error) {
 	ret := _m.Called(user)
 
 	var r0 string
