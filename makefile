@@ -37,7 +37,7 @@ test:
 	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 testci:
-	@go test -v ./... -coverprofile=coverage.out
+	@go test ./... -coverprofile=coverage.out
 
 serve:
 	@go run . serve -p 8080
