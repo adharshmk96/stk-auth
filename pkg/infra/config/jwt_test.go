@@ -49,10 +49,22 @@ qQIDAQAB
 -----END PUBLIC KEY-----
 `
 
-func setupKeysDir() {
-	os.MkdirAll(".keys", 0666)
-	os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0666)
-	os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0666)
+func setupKeysDir() error {
+	err := os.MkdirAll(".keys", 0666)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH, []byte(privateKey), 0666)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH, []byte(publicKey), 0666)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func tearDownKeysDir() {
@@ -61,7 +73,8 @@ func tearDownKeysDir() {
 
 func TestParsingKeys(t *testing.T) {
 
-	setupKeysDir()
+	err := setupKeysDir()
+	assert.NoError(t, err)
 
 	t.Run("gets private key from dir", func(t *testing.T) {
 		key, err := config.GetJWTPrivateKey()
@@ -78,11 +91,19 @@ func TestParsingKeys(t *testing.T) {
 	tearDownKeysDir()
 
 	t.Run("fails if private key is not found", func(t *testing.T) {
+		data, err := os.ReadFile(config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
+		assert.Error(t, err)
+		assert.Nil(t, data)
+
 		key, err := config.GetJWTPrivateKey()
 		assert.Error(t, err)
 		assert.Nil(t, key)
 	})
 	t.Run("fails if public key is not found", func(t *testing.T) {
+		data, err := os.ReadFile(config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
+		assert.Error(t, err)
+		assert.Nil(t, data)
+
 		key, err := config.GetJWTPublicKey()
 		assert.Error(t, err)
 		assert.Nil(t, key)
@@ -90,7 +111,9 @@ func TestParsingKeys(t *testing.T) {
 }
 
 func TestReadKeys(t *testing.T) {
-	setupKeysDir()
+	err := setupKeysDir()
+	assert.NoError(t, err)
+
 	defer tearDownKeysDir()
 	t.Run("reads from environment if env is set", func(t *testing.T) {
 		// checks file exists
@@ -116,6 +139,14 @@ func TestReadKeys(t *testing.T) {
 	})
 
 	t.Run("reads from file if env is not set", func(t *testing.T) {
+
+		pvtkey, ok := os.LookupEnv("JWT_EDCA_PRIVATE_KEY")
+		assert.False(t, ok)
+		assert.Empty(t, pvtkey)
+		pubkey, ok := os.LookupEnv("JWT_EDCA_PUBLIC_KEY")
+		assert.False(t, ok)
+		assert.Empty(t, pubkey)
+
 		key := config.ReadPrivateKey()
 		assert.Equal(t, privateKey, string(key))
 		key = config.ReadPublicKey()
