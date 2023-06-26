@@ -13,7 +13,7 @@ var version = "v0.0.3"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "auth-server",
+	Use:   "stk-auth",
 	Short: "Auth server is a simple authentication server",
 	Long:  `Auth server is a simple authentication server that can be used to authenticate users.`,
 	// Uncomment the following line if your bare application

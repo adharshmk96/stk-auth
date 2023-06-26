@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/adharshmk96/auth-server/pkg/entities"
+import "github.com/adharshmk96/stk-auth/pkg/entities"
 
 type AccountStore interface {
 	SaveUser(user *entities.Account) error

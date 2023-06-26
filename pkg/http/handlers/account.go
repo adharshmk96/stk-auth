@@ -3,12 +3,12 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/http/transport"
-	"github.com/adharshmk96/auth-server/pkg/http/validator"
-	"github.com/adharshmk96/auth-server/pkg/infra/config"
-	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/http/transport"
+	"github.com/adharshmk96/stk-auth/pkg/http/validator"
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 func (h *accountHandler) RegisterUser(ctx stk.Context) {

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/adharshmk96/auth-server/pkg/services"
 	"github.com/adharshmk96/stk"
+	"github.com/adharshmk96/stk-auth/pkg/services"
 )
 
 type accountHandler struct {

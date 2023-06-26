@@ -1,9 +1,9 @@
 package services
 
 import (
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/infra"
-	"github.com/adharshmk96/auth-server/pkg/storage"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/storage"
 )
 
 var logger = infra.GetLogger()

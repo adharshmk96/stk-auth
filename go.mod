@@ -1,4 +1,4 @@
-module github.com/adharshmk96/auth-server
+module github.com/adharshmk96/stk-auth
 
 go 1.20
 

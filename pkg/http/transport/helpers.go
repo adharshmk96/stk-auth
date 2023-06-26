@@ -3,9 +3,9 @@ package transport
 import (
 	"time"
 
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/svrerr"
 	"github.com/adharshmk96/stk"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 type UserLogin struct {

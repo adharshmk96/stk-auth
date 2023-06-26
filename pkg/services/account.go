@@ -3,9 +3,9 @@ package services
 import (
 	"time"
 
-	"github.com/adharshmk96/auth-server/pkg/entities"
-	"github.com/adharshmk96/auth-server/pkg/infra/config"
-	"github.com/adharshmk96/auth-server/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

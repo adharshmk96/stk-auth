@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	entities "github.com/adharshmk96/auth-server/pkg/entities"
+	entities "github.com/adharshmk96/stk-auth/pkg/entities"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -1,4 +1,4 @@
-# auth-server
+# stk-auth
 
 A simple authentication server written in go with basic features.
 
@@ -7,7 +7,7 @@ A simple authentication server written in go with basic features.
 Binary can be downloaded from releases
 
 ```bash
-auth-server serve -p 8080
+stk-auth serve -p 8080
 ```
 
 ## Development

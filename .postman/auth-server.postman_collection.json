@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "8d65f8a7-3d16-4c08-a374-9e9eca258a05",
-		"name": "auth-server",
+		"name": "stk-auth",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "8259072"
 	},

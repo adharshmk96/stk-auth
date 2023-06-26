@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/adharshmk96/auth-server/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/stretchr/testify/assert"
 )

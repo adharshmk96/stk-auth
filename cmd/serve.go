@@ -4,7 +4,7 @@ Copyright © 2023 Adharsh M adharshmk96@gmail.com
 package cmd
 
 import (
-	"github.com/adharshmk96/auth-server/server"
+	"github.com/adharshmk96/stk-auth/server"
 	"github.com/spf13/cobra"
 )
 

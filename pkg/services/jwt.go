@@ -18,8 +18,8 @@ func getClaims(sessionId, userId string) jwt.Claims {
 		UserID:    userId,
 		StandardClaims: jwt.StandardClaims{
 			Subject:   "authentication",
-			Issuer:    "auth-server",
-			Audience:  "auth-server",
+			Issuer:    "stk-auth",
+			Audience:  "stk-auth",
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
