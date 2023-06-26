@@ -3,6 +3,7 @@ package entities
 import (
 	"time"
 
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 )
 
@@ -15,7 +16,7 @@ func (u *UserID) String() string {
 func ParseUserId(id string) (UserID, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return UserID{}, ErrParsingUserID
+		return UserID{}, svrerr.ErrParsingUserID
 	}
 	return UserID(uid), nil
 }

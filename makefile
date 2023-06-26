@@ -42,9 +42,13 @@ testci:
 serve:
 	@go run . serve -p 8080
 
+clean-branch:
+	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
+
 ##########################
 ### Helpers
 ##########################
+
 define tag
 	@echo "current version is $(VERSION)"
     $(eval EXISTING_TAG := $(shell git tag -l $(NEW_TAG) 2>/dev/null))

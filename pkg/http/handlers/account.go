@@ -8,7 +8,6 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
 	"github.com/adharshmk96/stk-auth/pkg/infra/config"
-	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
@@ -16,22 +15,19 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 
 	err := ctx.DecodeJSONBody(&user)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleJsonDecodeError(err, ctx)
 		return
 	}
 
 	errorMessages := validator.ValidateRegistration(user)
 	if len(errorMessages) > 0 {
-		ctx.Status(400).JSONResponse(stk.Map{
-			"error":   svrerr.ErrInvalidData.Error(),
-			"details": errorMessages,
-		})
+		transport.HandleValidationError(errorMessages, ctx)
 		return
 	}
 
 	createdUser, err := h.userService.RegisterUser(user)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleRegistrationError(err, ctx)
 		return
 	}
 
@@ -43,7 +39,7 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 		UpdatedAt: createdUser.UpdatedAt,
 	}
 
-	ctx.Status(201).JSONResponse(response)
+	ctx.Status(http.StatusCreated).JSONResponse(response)
 }
 
 func (h *accountHandler) LoginUserSession(ctx stk.Context) {
@@ -51,22 +47,19 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 
 	err := ctx.DecodeJSONBody(&userLogin)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleJsonDecodeError(err, ctx)
 		return
 	}
 
 	errorMessages := validator.ValidateLogin(userLogin)
 	if len(errorMessages) > 0 {
-		ctx.Status(400).JSONResponse(stk.Map{
-			"error":   svrerr.ErrInvalidData.Error(),
-			"details": errorMessages,
-		})
+		transport.HandleValidationError(errorMessages, ctx)
 		return
 	}
 
 	sessionData, err := h.userService.LoginUserSession(userLogin)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleLoginError(err, ctx)
 		return
 	}
 
@@ -83,7 +76,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 	}
 
 	ctx.SetCookie(cookie)
-	ctx.Status(200).JSONResponse(response)
+	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
 func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
@@ -91,22 +84,19 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 
 	err := ctx.DecodeJSONBody(&userLogin)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleJsonDecodeError(err, ctx)
 		return
 	}
 
 	errorMessages := validator.ValidateLogin(userLogin)
 	if len(errorMessages) > 0 {
-		ctx.Status(400).JSONResponse(stk.Map{
-			"error":   svrerr.ErrInvalidData.Error(),
-			"details": errorMessages,
-		})
+		transport.HandleValidationError(errorMessages, ctx)
 		return
 	}
 
 	jwtToken, err := h.userService.LoginUserSessionToken(userLogin)
 	if err != nil {
-		transport.HandleUserError(err, ctx)
+		transport.HandleLoginError(err, ctx)
 		return
 	}
 
@@ -123,5 +113,5 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	}
 
 	ctx.SetCookie(cookie)
-	ctx.Status(200).JSONResponse(response)
+	ctx.Status(http.StatusOK).JSONResponse(response)
 }

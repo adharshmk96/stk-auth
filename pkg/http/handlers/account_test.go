@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -67,7 +68,7 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 201, w.Code)
+		assert.Equal(t, http.StatusCreated, w.Code)
 
 		var response transport.UserResponse
 		json.Unmarshal(w.Body.Bytes(), &response)
@@ -100,7 +101,7 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 400, w.Code)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
 	t.Run("returns 500 if there is storage error", func(t *testing.T) {
@@ -125,7 +126,7 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 500, w.Code)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 
 	t.Run("returns 500 when passing userid, fails decoding.", func(t *testing.T) {
@@ -150,7 +151,7 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 500, w.Code)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	})
 
@@ -174,8 +175,14 @@ func TestRegisterUser(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 400, w.Code)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
+}
+
+type UserLogin struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func TestLoginUserSession(t *testing.T) {
@@ -188,7 +195,7 @@ func TestLoginUserSession(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	login := &transport.UserLogin{
+	login := UserLogin{
 		Username: username,
 		Password: password,
 	}
@@ -221,7 +228,7 @@ func TestLoginUserSession(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 		// check if response has "message"
@@ -242,7 +249,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 	username := "test"
 	password := "#Password123"
 
-	login := &transport.UserLogin{
+	login := UserLogin{
 		Username: username,
 		Password: password,
 	}
@@ -269,7 +276,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		assert.Equal(t, 200, w.Code)
+		assert.Equal(t, http.StatusOK, w.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var response stk.Map
@@ -296,7 +303,7 @@ func TestCommonErrors(t *testing.T) {
 	username := "test"
 	password := "#Password123"
 
-	login := &transport.UserLogin{
+	login := UserLogin{
 		Username: username,
 		Password: password,
 	}
@@ -330,11 +337,11 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w3, r3)
 
 		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
-		assert.Equal(t, 400, w3.Code)
+		assert.Equal(t, http.StatusBadRequest, w3.Code)
 
 		var responseBody3 stk.Map
 		json.Unmarshal(w3.Body.Bytes(), &responseBody3)
-		assert.Equal(t, stk.ErrInvalidJSON.Error(), responseBody3["error"])
+		assert.Equal(t, transport.INVALID_BODY, responseBody3["error"])
 
 		// session login
 		r := httptest.NewRequest("POST", "/login", nil)
@@ -342,12 +349,12 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		assert.Equal(t, 400, w.Code)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
 
 		var responseBody stk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
-		assert.Equal(t, stk.ErrInvalidJSON.Error(), responseBody["error"])
+		assert.Equal(t, transport.INVALID_BODY, responseBody["error"])
 
 		// session token login
 		r2 := httptest.NewRequest("POST", "/login/token", nil)
@@ -355,12 +362,12 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w2, r2)
 
-		assert.Equal(t, 400, w2.Code)
+		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var responseBody2 stk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBody2)
-		assert.Equal(t, stk.ErrInvalidJSON.Error(), responseBody2["error"])
+		assert.Equal(t, transport.INVALID_BODY, responseBody2["error"])
 
 	})
 
@@ -388,12 +395,12 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		assert.Equal(t, 401, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 		var responseBody stk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
-		assert.Equal(t, svrerr.ErrInvalidCredentials.Error(), responseBody["error"])
+		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBody["error"])
 
 		// session token login
 		r2 := httptest.NewRequest("POST", "/login/token", bytes.NewBuffer(body))
@@ -401,12 +408,12 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w2, r2)
 
-		assert.Equal(t, 401, w2.Code)
+		assert.Equal(t, http.StatusUnauthorized, w2.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var responseBodyt stk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
-		assert.Equal(t, svrerr.ErrInvalidCredentials.Error(), responseBodyt["error"])
+		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBodyt["error"])
 
 	})
 
@@ -423,7 +430,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Post("/login/token", handler.LoginUserSessionToken)
 		s.Post("/login", handler.LoginUserSession)
 
-		invalidLogin := &transport.UserLogin{
+		invalidLogin := UserLogin{
 			Username: "",
 			Password: "",
 		}
@@ -438,11 +445,11 @@ func TestCommonErrors(t *testing.T) {
 
 		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
 
-		assert.Equal(t, 400, w.Code)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
 
 		var responseBody stk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
-		assert.Equal(t, svrerr.ErrInvalidData.Error(), responseBody["error"])
+		assert.Equal(t, svrerr.ErrValidationFailed.Error(), responseBody["error"])
 
 		// session token login
 		r2 := httptest.NewRequest("POST", "/login/token", bytes.NewBuffer(body))
@@ -450,12 +457,12 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w2, r2)
 
-		assert.Equal(t, 400, w2.Code)
+		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var responseBodyt stk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
-		assert.Equal(t, svrerr.ErrInvalidData.Error(), responseBodyt["error"])
+		assert.Equal(t, svrerr.ErrValidationFailed.Error(), responseBodyt["error"])
 	})
 
 	t.Run("returns 500 if storage fails for some reason", func(t *testing.T) {
@@ -482,7 +489,7 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w, r)
 
-		assert.Equal(t, 500, w.Code)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 		var responseBody stk.Map
@@ -495,7 +502,7 @@ func TestCommonErrors(t *testing.T) {
 
 		s.Router.ServeHTTP(w2, r2)
 
-		assert.Equal(t, 500, w2.Code)
+		assert.Equal(t, http.StatusInternalServerError, w2.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
 		var responseBodyt stk.Map
