@@ -4,22 +4,15 @@ A simple authentication server written in go with basic features.
 
 ## Usage
 
+Binary can be downloaded from releases
+
 ```bash
-server serve -p 8080
+auth-server serve -p 8080
 ```
 
 ## Development
 
-### With sqlite3 ( default db )
-
-- clone the repository 
-```git clone https://github.com/adharshmk96/auth-server.git```
-- install dependancies
-```go mod tidy```
-- run migrations using migdb ( install migdb `go install github.com/adharshmk96/migdb` )
-```migdb up``` 
-- debugging, you can use launch.json to debug the server in vscode.
-- postman collection is available in the repo for api testing.
+refer [dev docs](docs/dev.md)
 
 ## About
 
