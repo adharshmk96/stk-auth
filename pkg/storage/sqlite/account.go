@@ -38,16 +38,16 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return svrerr.ErrDuplicateEntry
+			return svrerr.ErrDBDuplicateEntry
 		}
 		logger.Error("error inserting user into database: ", err)
-		return svrerr.ErrStoringData
+		return svrerr.ErrDBStoringData
 	}
 
 	_, err = result.RowsAffected()
 	if err != nil {
 		logger.Error(err)
-		return svrerr.ErrStoringData
+		return svrerr.ErrDBStoringData
 	}
 
 	return nil
@@ -72,11 +72,11 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logger.Error("record not found:", err)
-			return nil, svrerr.ErrEntryNotFound
+			return nil, svrerr.ErrDBEntryNotFound
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrRetrievingData
+		return nil, svrerr.ErrDBRetrievingData
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
@@ -107,11 +107,11 @@ func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, e
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logger.Error("record not found:", err)
-			return nil, svrerr.ErrEntryNotFound
+			return nil, svrerr.ErrDBEntryNotFound
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrRetrievingData
+		return nil, svrerr.ErrDBRetrievingData
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
@@ -134,16 +134,16 @@ func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return svrerr.ErrDuplicateEntry
+			return svrerr.ErrDBDuplicateEntry
 		}
 		logger.Error("error inserting user into database: ", err)
-		return svrerr.ErrStoringData
+		return svrerr.ErrDBStoringData
 	}
 
 	_, err = result.RowsAffected()
 	if err != nil {
 		logger.Error(err)
-		return svrerr.ErrStoringData
+		return svrerr.ErrDBStoringData
 	}
 
 	return nil
@@ -165,11 +165,11 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 	if err != nil {
 		if err == sql.ErrNoRows {
 			logger.Error("record not found:", err)
-			return nil, svrerr.ErrEntryNotFound
+			return nil, svrerr.ErrDBEntryNotFound
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrRetrievingData
+		return nil, svrerr.ErrDBRetrievingData
 	}
 
 	session.UserID, err = entities.ParseUserId(userId)
@@ -180,4 +180,36 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 
 	return &session, nil
 
+}
+
+func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account, error) {
+	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_USER_BY_SESSION_ID, sessionId)
+
+	var userId string
+	var user entities.Account
+	err := row.Scan(
+		&userId,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logger.Error("record not found:", err)
+			return nil, svrerr.ErrDBEntryNotFound
+		}
+
+		logger.Error("error retrieving user from database: ", err)
+		return nil, svrerr.ErrDBRetrievingData
+	}
+
+	user.ID, err = entities.ParseUserId(userId)
+	if err != nil {
+		logger.Error("error parsing user id: ", err)
+		return nil, err
+	}
+
+	return &user, nil
 }

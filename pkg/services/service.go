@@ -16,6 +16,7 @@ type AccountService interface {
 	RegisterUser(user *entities.Account) (*entities.Account, error)
 	LoginUserSession(user *entities.Account) (*entities.Session, error)
 	LoginUserSessionToken(user *entities.Account) (string, error)
+	GetUserBySessionId(sessionId string) (*entities.Account, error)
 }
 
 func NewAccountService(storage storage.AccountStore) AccountService {

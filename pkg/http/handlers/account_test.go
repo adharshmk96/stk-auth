@@ -13,6 +13,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
+	svrconfig "github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -116,7 +117,7 @@ func TestRegisterUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrStoringData)
+		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrDBStoringData)
 
 		s.Post("/register", handler.RegisterUser)
 
@@ -290,6 +291,85 @@ func TestLoginUserSessionToken(t *testing.T) {
 
 	})
 
+}
+
+func TestGetSessionUser(t *testing.T) {
+
+	uid := uuid.New()
+	// sid := uuid.NewString()
+	userId := entities.UserID(uid)
+	username := "user"
+	email := "user@email.com"
+	password := "password"
+	created := time.Now()
+	updated := time.Now()
+
+	userData := &entities.Account{
+		ID:        userId,
+		Email:     email,
+		Username:  username,
+		Password:  password,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	// sessionData := &entities.Session{
+	// 	UserID:    userId,
+	// 	CreatedAt: created,
+	// 	UpdatedAt: updated,
+	// 	SessionID: sid,
+	// 	Valid:     true,
+	// }
+
+	t.Run("returns 200 and user details if session id is present in the cookie", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Get("/user", handler.GetSessionUser)
+
+		r := httptest.NewRequest("GET", "/user", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Value: "abcdefg-asdfasdf",
+		}
+
+		r.AddCookie(cookie)
+		service.On("GetUserBySessionId", mock.Anything).Return(userData, nil)
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		service.AssertCalled(t, "GetUserBySessionId", cookie.Value)
+	})
+
+	t.Run("returns 401 if session id is not present in the cookie", func(t *testing.T) {
+		config := &stk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := stk.NewServer(config)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Get("/user", handler.GetSessionUser)
+
+		r := httptest.NewRequest("GET", "/user", nil)
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
 }
 
 func TestCommonErrors(t *testing.T) {
@@ -475,8 +555,8 @@ func TestCommonErrors(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrRetrievingData)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrRetrievingData)
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrDBRetrievingData)
+		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrDBRetrievingData)
 
 		s.Post("/login", handler.LoginUserSession)
 		s.Post("/login/token", handler.LoginUserSessionToken)

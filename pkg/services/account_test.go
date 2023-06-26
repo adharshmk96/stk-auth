@@ -59,12 +59,12 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrStoringData)
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBStoringData)
 
 		// Test invalid registration
 		user, err := service.RegisterUser(userData)
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrStoringData.Error())
+		assert.EqualError(t, err, svrerr.ErrDBStoringData.Error())
 		assert.Nil(t, user)
 	})
 
@@ -72,12 +72,12 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDuplicateEntry)
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBDuplicateEntry)
 
 		// Test invalid registration
 		user, err := service.RegisterUser(userData)
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrDuplicateEntry.Error())
+		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
 		assert.Nil(t, user)
 	})
 
@@ -177,7 +177,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBRetrievingData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -190,7 +190,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.EqualError(t, err, svrerr.ErrDBRetrievingData.Error())
 		assert.Nil(t, userSession)
 	})
 
@@ -199,7 +199,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrStoringData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStoringData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -212,7 +212,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrStoringData.Error())
+		assert.EqualError(t, err, svrerr.ErrDBStoringData.Error())
 		assert.Nil(t, userSession)
 	})
 
@@ -220,7 +220,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrEntryNotFound)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -373,7 +373,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrRetrievingData)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBRetrievingData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -386,7 +386,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrRetrievingData.Error())
+		assert.EqualError(t, err, svrerr.ErrDBRetrievingData.Error())
 		assert.Empty(t, userToken)
 	})
 
@@ -395,7 +395,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrStoringData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStoringData)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -408,7 +408,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.EqualError(t, err, svrerr.ErrStoringData.Error())
+		assert.EqualError(t, err, svrerr.ErrDBStoringData.Error())
 		assert.Empty(t, userSession)
 	})
 
@@ -416,7 +416,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrEntryNotFound)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -430,6 +430,69 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 
 		assert.EqualError(t, err, svrerr.ErrInvalidCredentials.Error())
 		assert.Empty(t, userToken)
+	})
+
+}
+
+func TestAccountService_GetUserBySessionID(t *testing.T) {
+	user_id := entities.UserID(uuid.New())
+	user_name := "testuser"
+	user_email := "user@email.com"
+	// user_password := "testpassword"
+	created := time.Now()
+	updated := time.Now()
+
+	// salt, _ := utils.GenerateSalt()
+	// hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
+
+	storedData := &entities.Account{
+		ID:        user_id,
+		Username:  user_name,
+		Email:     user_email,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	t.Run("returns user data if session id is valid", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserBySessionID", mock.Anything).Return(storedData, nil)
+
+		userData, err := service.GetUserBySessionId("validsessionid")
+
+		mockStore.AssertCalled(t, "GetUserBySessionID", mock.Anything)
+
+		assert.NoError(t, err)
+		assert.Equal(t, storedData, userData)
+	})
+
+	t.Run("returns error if session id is invalid", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserBySessionID", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
+
+		userData, err := service.GetUserBySessionId("invalidsessionid")
+
+		mockStore.AssertCalled(t, "GetUserBySessionID", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrInvalidSession.Error())
+		assert.Empty(t, userData)
+	})
+
+	t.Run("returns error if storage fails to retrieve", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserBySessionID", mock.Anything).Return(nil, svrerr.ErrDBRetrievingData)
+
+		userData, err := service.GetUserBySessionId("")
+
+		mockStore.AssertCalled(t, "GetUserBySessionID", mock.Anything)
+
+		assert.EqualError(t, err, svrerr.ErrDBRetrievingData.Error())
+		assert.Empty(t, userData)
 	})
 
 }

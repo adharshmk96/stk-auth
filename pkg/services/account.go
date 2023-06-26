@@ -45,7 +45,7 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 		userRecord, err = u.storage.GetUserByEmail(user.Email)
 	}
 	if err != nil {
-		if err == svrerr.ErrEntryNotFound {
+		if err == svrerr.ErrDBEntryNotFound {
 			return nil, svrerr.ErrInvalidCredentials
 		}
 		return nil, err
@@ -87,7 +87,7 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		userRecord, err = u.storage.GetUserByEmail(user.Email)
 	}
 	if err != nil {
-		if err == svrerr.ErrEntryNotFound {
+		if err == svrerr.ErrDBEntryNotFound {
 			return "", svrerr.ErrInvalidCredentials
 		}
 		return "", err
@@ -131,4 +131,16 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 	}
 
 	return signedToken, nil
+}
+
+func (u *accountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
+	user, err := u.storage.GetUserBySessionID(sessionId)
+	if err != nil {
+		if err == svrerr.ErrDBEntryNotFound {
+			return nil, svrerr.ErrInvalidSession
+		}
+		return nil, err
+	}
+
+	return user, nil
 }

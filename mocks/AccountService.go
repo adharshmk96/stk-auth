@@ -12,6 +12,32 @@ type AccountService struct {
 	mock.Mock
 }
 
+// GetUserBySessionId provides a mock function with given fields: sessionId
+func (_m *AccountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
+	ret := _m.Called(sessionId)
+
+	var r0 *entities.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+		return rf(sessionId)
+	}
+	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+		r0 = rf(sessionId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sessionId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LoginUserSession provides a mock function with given fields: user
 func (_m *AccountService) LoginUserSession(user *entities.Account) (*entities.Session, error) {
 	ret := _m.Called(user)

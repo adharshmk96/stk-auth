@@ -94,3 +94,13 @@ keygen:
 	@chmod 666 .keys/private_key.pem
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 	@chmod 666 .keys/public_key.pem
+
+##########################
+### Clean up commands
+##########################
+
+clean:
+	@rm -rf .keys
+	@rm -f auth_database.db
+	@rm -f coverage.out
+	

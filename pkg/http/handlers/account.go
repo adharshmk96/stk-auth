@@ -8,6 +8,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
 	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
@@ -42,6 +43,8 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	ctx.Status(http.StatusCreated).JSONResponse(response)
 }
 
+// Session based login,
+// NOTE: session id should not be exposed to client, it should be in httpOnly cookie
 func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 	var userLogin *entities.Account
 
@@ -113,5 +116,45 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	}
 
 	ctx.SetCookie(cookie)
+	ctx.Status(http.StatusOK).JSONResponse(response)
+}
+
+func (h *accountHandler) GetSessionUser(ctx stk.Context) {
+	sessionCookie, err := ctx.GetCookie(config.SESSION_COOKIE_NAME)
+	if sessionCookie == nil || sessionCookie.Value == "" {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			"message": transport.ERROR_UNAUTHORIZED,
+		})
+		return
+	}
+	if err != nil {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			"message": transport.ERROR_UNAUTHORIZED,
+		})
+		return
+	}
+
+	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
+	if err != nil {
+		if err == svrerr.ErrInvalidSession {
+			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+				"message": transport.ERROR_UNAUTHORIZED,
+			})
+		} else {
+			ctx.Status(http.StatusInternalServerError).JSONResponse(stk.Map{
+				"message": transport.INTERNAL_SERVER_ERROR,
+			})
+		}
+		return
+	}
+
+	response := transport.UserResponse{
+		ID:        user.ID.String(),
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }

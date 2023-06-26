@@ -5,8 +5,9 @@ const SUCCESS_LOGIN = "login_successful"
 // Error message
 // User input
 const VALIDATION_FAILED = "failed_data_validation"
-const INVALID_BODY = "invalid_input"
-const INVALID_CREDENTIALS = "invalid_input"
+const INVALID_BODY = "invalid_request_body"
+const INVALID_CREDENTIALS = "invalid_credentials"
+const ERROR_UNAUTHORIZED = "unauthorized"
 
 // Constrains
 const USER_EXISTS = "user_already_exists"

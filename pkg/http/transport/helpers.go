@@ -20,7 +20,7 @@ func HandleJsonDecodeError(err error, ctx stk.Context) {
 }
 
 func HandleRegistrationError(err error, ctx stk.Context) {
-	if err == svrerr.ErrDuplicateEntry {
+	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(stk.Map{
 			"error": USER_EXISTS,
 		})
@@ -32,7 +32,7 @@ func HandleRegistrationError(err error, ctx stk.Context) {
 }
 
 func HandleLoginError(err error, ctx stk.Context) {
-	if err == svrerr.ErrDuplicateEntry {
+	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(stk.Map{
 			"error": SESSION_EXISTS,
 		})
