@@ -9,7 +9,11 @@ NEW_TAG_PATCH := $(MAJOR).$(MINOR).$(NEW_PATCH)
 NEW_TAG_MINOR := $(MAJOR).$(NEW_MINOR).0
 NEW_TAG_MAJOR := $(NEW_MAJOR).0.0
 
-.PHONY: patch minor major build test publish keygen
+.PHONY: patch minor major build test publish keygen serve
+
+##########################
+### Manage Commands
+##########################
 
 patch:
 	$(eval NEW_TAG := $(NEW_TAG_PATCH))
@@ -23,14 +27,32 @@ major:
 	$(eval NEW_TAG := $(NEW_TAG_MAJOR))
 	$(call tag)
 
+publish:
+	@git push origin $(VERSION)
+
 build:
 	@go build .	
 
 test:
 	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
-publish:
-	@git push origin $(VERSION)
+serve:
+	@go run . serve -p 8080
+
+##########################
+### Setup Commands
+##########################
+
+init: tidy migrate keygen
+	@echo "Project initialized."
+
+tidy:
+	@echo "initializing go module"
+	@go mod tidy > /dev/null
+
+migrate:
+	@echo "migrating database"
+	@migdb up > /dev/null
 
 keygen:
 	@mkdir -p .keys
@@ -39,6 +61,9 @@ keygen:
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 	@chmod 666 .keys/public_key.pem
 
+##########################
+### Helpers
+##########################
 define tag
 	@echo "current version is $(VERSION)"
     $(eval EXISTING_TAG := $(shell git tag -l $(NEW_TAG) 2>/dev/null))
