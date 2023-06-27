@@ -18,5 +18,9 @@ const (
 	ACCOUNT_SESSION_TABLE_NAME   = "auth_user_sessions"
 	ACCOUNT_INSERT_SESSION_QUERY = "INSERT INTO " + ACCOUNT_SESSION_TABLE_NAME + " (user_id, session_id, created_at , updated_at , valid ) VALUES (?, ?, ?, ?, ?)"
 
-	ACCOUNT_RETRIEVE_SESSION_BY_ID = "SELECT user_id, session_id, created_at , updated_at , valid FROM " + ACCOUNT_SESSION_TABLE_NAME + " WHERE session_id = ?"
+	ACCOUNT_RETRIEVE_SESSION_BY_ID = "SELECT user_id, session_id, created_at , updated_at , valid FROM " + ACCOUNT_SESSION_TABLE_NAME + " WHERE session_id = ? and valid = 1"
+)
+
+const (
+	ACCOUNT_RETRIEVE_USER_BY_SESSION_ID = "SELECT id, username, email, created_at, updated_at FROM " + ACCOUNT_USER_TABLE_NAME + " WHERE id = (SELECT user_id FROM " + ACCOUNT_SESSION_TABLE_NAME + " WHERE session_id = ? and valid = 1)"
 )

@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/adharshmk96/stk/utils"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 const (

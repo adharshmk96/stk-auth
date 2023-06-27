@@ -8,7 +8,8 @@
         "mode": "auto",
         "program": "${workspaceFolder}/main.go",
         "env": {
-          "SESSION_COOKIE_NAME": "session_id",
+          "SESSION_COOKIE_NAME": "stk_session_id",
+          "JWT_SESSION_COOKIE_NAME": "stk_session_token",
           "JWT_EDCA_PRIVATE_KEY_PATH": ".keys/private_key.pem",
           "JWT_EDCA_PUBLIC_KEY_PATH": ".keys/public_key.pem",
         },

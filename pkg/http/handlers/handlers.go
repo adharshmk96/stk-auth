@@ -13,6 +13,8 @@ type AccountHandler interface {
 	RegisterUser(ctx stk.Context)
 	LoginUserSession(ctx stk.Context)
 	LoginUserSessionToken(ctx stk.Context)
+	GetSessionUser(ctx stk.Context)
+	GetSessionTokenUser(ctx stk.Context)
 }
 
 func NewAccountHandler(userService services.AccountService) AccountHandler {

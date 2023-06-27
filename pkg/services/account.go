@@ -1,13 +1,14 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -45,7 +46,7 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 		userRecord, err = u.storage.GetUserByEmail(user.Email)
 	}
 	if err != nil {
-		if err == svrerr.ErrEntryNotFound {
+		if err == svrerr.ErrDBEntryNotFound {
 			return nil, svrerr.ErrInvalidCredentials
 		}
 		return nil, err
@@ -78,6 +79,7 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	return session, nil
 }
 
+// TODO: refactor this
 func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
 	var userRecord *entities.Account
 	var err error
@@ -87,7 +89,7 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		userRecord, err = u.storage.GetUserByEmail(user.Email)
 	}
 	if err != nil {
-		if err == svrerr.ErrEntryNotFound {
+		if err == svrerr.ErrDBEntryNotFound {
 			return "", svrerr.ErrInvalidCredentials
 		}
 		return "", err
@@ -117,18 +119,89 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, getClaims(session.SessionID, userRecord.ID.String()))
+	claims := NewCustomClaims(userRecord.ID.String(), session.SessionID)
 	private_key, err := config.GetJWTPrivateKey()
 	if err != nil {
 		logger.Error("error getting private key: ", err)
 		return "", err
 	}
-
-	signedToken, err := token.SignedString(private_key)
+	signedToken, err := GetSignedToken(private_key, claims)
 	if err != nil {
-		logger.Error("error signing token: ", err)
+		logger.Error("error generating token: ", err)
 		return "", err
 	}
 
 	return signedToken, nil
+}
+
+func (u *accountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
+	user, err := u.storage.GetUserBySessionID(sessionId)
+	if err != nil {
+		if err == svrerr.ErrDBEntryNotFound {
+			return nil, svrerr.ErrInvalidSession
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// TODO: refactor this
+func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
+
+	publicKey, err := config.GetJWTPublicKey()
+	if err != nil {
+		logger.Error("error getting public key: ", err)
+		return nil, err
+	}
+
+	claims, err := verifyToken(publicKey, sessionToken)
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			user, err := u.storage.GetUserBySessionID(claims.SessionID)
+			if err != nil {
+				if err == svrerr.ErrDBEntryNotFound {
+					return nil, svrerr.ErrInvalidSession
+				}
+				return nil, err
+			}
+
+			logger.Info("token expired, session is valid, refreshing token")
+
+			claims := NewCustomClaims(claims.UserID, claims.SessionID)
+			private_key, err := config.GetJWTPrivateKey()
+			if err != nil {
+				logger.Error("error getting private key: ", err)
+				return nil, err
+			}
+			signedToken, err := GetSignedToken(private_key, claims)
+			if err != nil {
+				logger.Error("error generating token: ", err)
+				return nil, err
+			}
+
+			accountWithToken := &entities.AccountWithToken{
+				Account: *user,
+				Token:   signedToken,
+			}
+			return accountWithToken, nil
+		}
+		return nil, svrerr.ErrInvalidToken
+	}
+
+	userId := claims.UserID
+	user, err := u.storage.GetUserByUserID(userId)
+	if err != nil {
+		if err == svrerr.ErrDBEntryNotFound {
+			return nil, svrerr.ErrInvalidSession
+		}
+		return nil, err
+	}
+
+	accountWithToken := &entities.AccountWithToken{
+		Account: *user,
+		Token:   sessionToken,
+	}
+	return accountWithToken, nil
+
 }

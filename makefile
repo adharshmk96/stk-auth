@@ -42,9 +42,13 @@ testci:
 serve:
 	@go run . serve -p 8080
 
+clean-branch:
+	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
+
 ##########################
 ### Helpers
 ##########################
+
 define tag
 	@echo "current version is $(VERSION)"
     $(eval EXISTING_TAG := $(shell git tag -l $(NEW_TAG) 2>/dev/null))
@@ -90,3 +94,13 @@ keygen:
 	@chmod 666 .keys/private_key.pem
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 	@chmod 666 .keys/public_key.pem
+
+##########################
+### Clean up commands
+##########################
+
+clean:
+	@rm -rf .keys
+	@rm -f auth_database.db
+	@rm -f coverage.out
+	
