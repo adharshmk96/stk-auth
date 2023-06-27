@@ -205,3 +205,45 @@ func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.A
 	return accountWithToken, nil
 
 }
+
+func (u *accountService) LogoutUserBySessionId(sessionId string) error {
+
+	err := u.storage.InvalidateSessionByID(sessionId)
+	if err != nil {
+		if errors.Is(err, svrerr.ErrDBUpdatingData) || errors.Is(err, svrerr.ErrDBEntryNotFound) {
+			return svrerr.ErrInvalidSession
+		} else {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (u *accountService) LogoutUserBySessionToken(sessionToken string) error {
+	publicKey, err := config.GetJWTPublicKey()
+	if err != nil {
+		logger.Error("error getting public key: ", err)
+		return err
+	}
+
+	claims, err := verifyToken(publicKey, sessionToken)
+	if err != nil {
+		if !errors.Is(err, jwt.ErrTokenExpired) {
+			return svrerr.ErrInvalidToken
+		}
+	}
+
+	sessionId := claims.SessionID
+
+	err = u.storage.InvalidateSessionByID(sessionId)
+	if err != nil {
+		if errors.Is(err, svrerr.ErrDBUpdatingData) || errors.Is(err, svrerr.ErrDBEntryNotFound) {
+			return svrerr.ErrInvalidSession
+		} else {
+			return err
+		}
+	}
+
+	return nil
+}

@@ -114,6 +114,34 @@ func (_m *AccountService) LoginUserSessionToken(user *entities.Account) (string,
 	return r0, r1
 }
 
+// LogoutUserBySessionId provides a mock function with given fields: sessionId
+func (_m *AccountService) LogoutUserBySessionId(sessionId string) error {
+	ret := _m.Called(sessionId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sessionId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// LogoutUserBySessionToken provides a mock function with given fields: sessionToken
+func (_m *AccountService) LogoutUserBySessionToken(sessionToken string) error {
+	ret := _m.Called(sessionToken)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sessionToken)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // RegisterUser provides a mock function with given fields: user
 func (_m *AccountService) RegisterUser(user *entities.Account) (*entities.Account, error) {
 	ret := _m.Called(user)

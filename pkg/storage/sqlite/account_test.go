@@ -374,3 +374,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	})
 
 }
+
+func TestUserStorage_InvalidateSessionByID(t *testing.T) {
+
+}

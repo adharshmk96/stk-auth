@@ -247,3 +247,26 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 
 	return &user, nil
 }
+
+func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
+	result, err := s.conn.Exec(
+		ACCOUNT_INVALIDATE_SESSION_ID,
+		sessionId,
+	)
+	if err != nil {
+		logger.Error("error invalidating session: ", err)
+		return svrerr.ErrDBUpdatingData
+	}
+
+	rows, err := result.RowsAffected()
+	if rows == 0 {
+		logger.Error("session not found")
+		return svrerr.ErrDBEntryNotFound
+	}
+	if err != nil {
+		logger.Error(err)
+		return svrerr.ErrDBStoringData
+	}
+
+	return nil
+}
