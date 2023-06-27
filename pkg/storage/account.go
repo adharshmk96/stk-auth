@@ -10,4 +10,5 @@ type AccountStore interface {
 	SaveSession(session *entities.Session) error
 	GetSessionByID(sessionID string) (*entities.Session, error)
 	GetUserBySessionID(sessionID string) (*entities.Account, error)
+	InvalidateSessionByID(sessionID string) error
 }

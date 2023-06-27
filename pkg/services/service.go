@@ -18,6 +18,8 @@ type AccountService interface {
 	LoginUserSessionToken(user *entities.Account) (string, error)
 	GetUserBySessionId(sessionId string) (*entities.Account, error)
 	GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error)
+	LogoutUserBySessionId(sessionId string) error
+	LogoutUserBySessionToken(sessionToken string) error
 }
 
 func NewAccountService(storage storage.AccountStore) AccountService {

@@ -1,6 +1,7 @@
 package transport
 
 const SUCCESS_LOGIN = "login_successful"
+const SUCCESS_LOGOUT = "logout_successful"
 
 // Error message
 // User input

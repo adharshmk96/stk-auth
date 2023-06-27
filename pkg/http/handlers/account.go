@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/adharshmk96/stk"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -125,13 +126,14 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 
 func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.SESSION_COOKIE_NAME)
-	if sessionCookie == nil || sessionCookie.Value == "" {
+	if err != nil {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
 	}
-	if err != nil {
+
+	if sessionCookie == nil || sessionCookie.Value == "" {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
@@ -165,13 +167,14 @@ func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 
 func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
-	if sessionCookie == nil || sessionCookie.Value == "" {
+	if err != nil {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
 	}
-	if err != nil {
+
+	if sessionCookie == nil || sessionCookie.Value == "" {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
@@ -215,4 +218,47 @@ func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 	ctx.SetCookie(cookie)
 
 	ctx.Status(http.StatusOK).JSONResponse(response)
+}
+
+func (h *accountHandler) LogoutUser(ctx stk.Context) {
+	sessionCookie, sessionToken, err := transport.GetSessionOrTokenFromCookie(ctx)
+	if err != nil {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			"message": transport.ERROR_UNAUTHORIZED,
+		})
+		return
+	}
+
+	var cookieName string
+	if sessionCookie != nil && sessionCookie.Value != "" {
+		err := h.userService.LogoutUserBySessionId(sessionCookie.Value)
+		if err != nil {
+			transport.HandleLogoutError(err, ctx)
+			return
+		}
+		cookieName = config.SESSION_COOKIE_NAME
+	} else {
+		err := h.userService.LogoutUserBySessionToken(sessionToken.Value)
+		if err != nil {
+			transport.HandleLogoutError(err, ctx)
+			return
+		}
+		cookieName = config.JWT_SESSION_COOKIE_NAME
+	}
+
+	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	cookie := &http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		HttpOnly: true,
+		Secure:   secureCookie,
+		Path:     "/",
+		Expires:  time.Now().AddDate(0, 0, -1),
+	}
+
+	ctx.SetCookie(cookie)
+
+	ctx.Status(http.StatusOK).JSONResponse(stk.Map{
+		"message": transport.SUCCESS_LOGOUT,
+	})
 }

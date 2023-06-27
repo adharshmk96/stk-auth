@@ -142,6 +142,20 @@ func (_m *AccountStore) GetUserByUsername(username string) (*entities.Account, e
 	return r0, r1
 }
 
+// InvalidateSessionByID provides a mock function with given fields: sessionID
+func (_m *AccountStore) InvalidateSessionByID(sessionID string) error {
+	ret := _m.Called(sessionID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(sessionID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SaveSession provides a mock function with given fields: session
 func (_m *AccountStore) SaveSession(session *entities.Session) error {
 	ret := _m.Called(session)

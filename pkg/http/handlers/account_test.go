@@ -584,6 +584,145 @@ func TestGetSessionTokenUser(t *testing.T) {
 	})
 }
 
+func TestLogoutUser(t *testing.T) {
+
+	config := &stk.ServerConfig{
+		Port:           "8080",
+		RequestLogging: false,
+	}
+	s := stk.NewServer(config)
+
+	t.Run("returns 200 service validates the session id in the cookie", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/logout", handler.LogoutUser)
+
+		r := httptest.NewRequest("POST", "/logout", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Value: "abcdefg-asdfasdf",
+		}
+
+		r.AddCookie(cookie)
+		service.On("LogoutUserBySessionId", mock.Anything).Return(nil)
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		service.AssertCalled(t, "LogoutUserBySessionId", cookie.Value)
+		service.AssertNotCalled(t, "LogoutUserBySessionToken", mock.Anything)
+
+		// check if cookie is set
+		wcookies := w.Result().Cookies()
+		wcookie := getCookie(wcookies, svrconfig.SESSION_COOKIE_NAME)
+		assert.Empty(t, wcookie.Value)
+	})
+
+	t.Run("returns 200 if valid session token is present in the cookie", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/logout/a", handler.LogoutUser)
+
+		r := httptest.NewRequest("POST", "/logout/a", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Value: "abcdefg-asdfasdf",
+		}
+
+		r.AddCookie(cookie)
+		service.On("LogoutUserBySessionToken", mock.Anything).Return(nil)
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		service.AssertCalled(t, "LogoutUserBySessionToken", cookie.Value)
+		service.AssertNotCalled(t, "LogoutUserBySessionId", mock.Anything)
+
+		// check if cookie is set
+		wcookies := w.Result().Cookies()
+		wcookie := getCookie(wcookies, svrconfig.JWT_SESSION_COOKIE_NAME)
+		assert.Empty(t, wcookie.Value)
+	})
+
+	t.Run("returns 401 both session id and session token are absent in the cookie", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/logout/b", handler.LogoutUser)
+
+		r := httptest.NewRequest("POST", "/logout/b", nil)
+		w := httptest.NewRecorder()
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+
+	t.Run("returns 401 if session id is invalid", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/logout/c", handler.LogoutUser)
+
+		r := httptest.NewRequest("POST", "/logout/c", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Value: "abcdefg-asdfasdf",
+		}
+
+		r.AddCookie(cookie)
+		service.On("LogoutUserBySessionId", mock.Anything).Return(svrerr.ErrInvalidSession)
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+		service.AssertCalled(t, "LogoutUserBySessionId", cookie.Value)
+		service.AssertNotCalled(t, "LogoutUserBySessionToken", mock.Anything)
+	})
+
+	t.Run("returns 500 if storage error occurs", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/logout/d", handler.LogoutUser)
+
+		r := httptest.NewRequest("POST", "/logout/d", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Value: "abcdefg-asdfasdf",
+		}
+
+		r.AddCookie(cookie)
+		service.On("LogoutUserBySessionToken", mock.Anything).Return(svrerr.ErrDBUpdatingData)
+
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+		service.AssertCalled(t, "LogoutUserBySessionToken", cookie.Value)
+		service.AssertNotCalled(t, "LogoutUserBySessionId", mock.Anything)
+	})
+
+}
+
 func TestCommonErrors(t *testing.T) {
 
 	uid := uuid.New()

@@ -42,14 +42,6 @@ func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) 
 	return claims, nil
 }
 
-func claimExpired(claims *customClaims) bool {
-	expiry, err := claims.GetExpirationTime()
-	if err != nil {
-		return true
-	}
-	return expiry.Before(time.Now())
-}
-
 func GetSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	signedToken, err := token.SignedString(privateKey)
@@ -59,5 +51,3 @@ func GetSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, erro
 	}
 	return signedToken, err
 }
-
-// eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uX2lkIjoiODBmZTVjZjMtNmRhMi00NjUwLWFkOGUtMDQyYWU0ZmI0YzgxIiwidXNlcl9pZCI6ImZmY2IzMzgxLWJiZTUtNGU3Yi04MTMxLTg5M2I1MDU3NmNhOSIsImlzcyI6InN0ay1hdXRoIiwic3ViIjoiYXV0aGVudGljYXRpb24iLCJhdWQiOlsic3RrLWF1dGgiXSwiZXhwIjoxNjg3ODE1MTc4LCJpYXQiOjE2ODc4MTUxNzh9.PXmx6J5fKFVrCPFnAG6MkqZkJ43XWDdUUVl0An_smALfine3UhVj2sO6ooZDivDKsG8yvXpvHTUX85m3B45cGZfiaoSctdaj_DFJkBJN-NQif8rB_HgrjfGantXhClbRINXhujMlcU6ftCV58ItIGM6nYSkK3METCQOv6aQh9Ubpri9yrRtgI6mdSOoDItNGgH7TMUkN5CJMwIjDcmXXzJ3lD0aS7SvmxOCsMTU55mdm-ZQb9yeqqJ-Km6Sxpy309PLtzv-HUoWCppN5wqcOde6OYTApyWgpjbMbiXpb9Zj2qfqGKKb1iFdc-sg98qQ8h734LM2XvxwuA8lgjGu7PA
