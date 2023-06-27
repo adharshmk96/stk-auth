@@ -79,6 +79,7 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	return session, nil
 }
 
+// TODO: refactor this
 func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
 	var userRecord *entities.Account
 	var err error

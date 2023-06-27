@@ -130,7 +130,7 @@ func TestRegisterUser(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 
-	t.Run("returns 500 when passing userid, fails decoding.", func(t *testing.T) {
+	t.Run("returns 500 when passing userid in request body, fails decoding.", func(t *testing.T) {
 		config := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
@@ -267,7 +267,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		Password: password,
 	}
 
-	sessionToken := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoLXNlcnZlciIsImV4cCI6MTY4Nzg0NzAzNiwiaWF0IjoxNjg3NzYwNjM2LCJpc3MiOiJhdXRoLXNlcnZlciIsInN1YiI6ImF1dGhlbnRpY2F0aW9uIn0.fJzia9f1GzpfUQXSW2v-7AXyq8kg0OncdEzgOS2PZziCU4-u3-4kgHzigZCeUQjD3xBL8nOMSDeWEo669es8z6NIbtlMsA4Jh4pQ3_a1AIhMa9mdyQl0CfOhReNHlYOkFZUUSjGs5DY2XwixnN4jJe7gkZv_LyBaroEoZ918DOaFeVpqTct_EUu8G_24HX4AnXL4NISwVe3KOtSiNvFi1xIicnUi0W4hwHvi5S3S_3oGtUb-AmBoWUMof_sUs3xmo46vpevgvjV8SDsDUMtOEuJw4gXAqGL9FksD3QS1mvq3tOH7cGtvCtI7QjuGXTA40nLNe05KMUDP2sv_Rshj0g"
+	sessionToken := "header.claims.signature"
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
 		config := &stk.ServerConfig{
