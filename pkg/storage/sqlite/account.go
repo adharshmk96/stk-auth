@@ -18,7 +18,7 @@ type sqliteStorage struct {
 }
 
 func NewAccountStorage() storage.AccountStore {
-	connection := db.GetSqliteConnection(sqlitePath)
+	connection := db.GetSqliteConnection(SQLITE_FILEPATH)
 	return &sqliteStorage{
 		conn: connection,
 	}
