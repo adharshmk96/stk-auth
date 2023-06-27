@@ -1,7 +1,11 @@
 package sqlite
 
-const (
-	sqlitePath = "auth_database.db"
+import (
+	"github.com/adharshmk96/stk/utils"
+)
+
+var (
+	SQLITE_FILEPATH = utils.GetEnvOrDefault("DATABASE_CONNECTION_STRING", "./auth_database.db")
 )
 
 const (

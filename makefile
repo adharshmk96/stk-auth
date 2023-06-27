@@ -39,9 +39,6 @@ test:
 testci:
 	@go test ./... -coverprofile=coverage.out
 
-serve:
-	@go run . serve -p 8080
-
 clean-branch:
 	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
 
@@ -79,14 +76,15 @@ init: moddownload migrate keygen
 initci: moddownload keygen
 	@echo "Project initialized for CI."
 
+serve:
+	@go run . serve -p 8080
+
 moddownload:
 	@echo "initializing go module"
 	@go mod download > /dev/null
 
 migrate:
-	@go install github.com/adharshmk96/migdb@latest
-	@echo "migrating database"
-	@migdb up > /dev/null
+	@go run . migrate
 
 keygen:
 	@mkdir -p .keys
