@@ -117,7 +117,7 @@ func TestRegisterUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrDBStoringData)
+		service.On("RegisterUser", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed)
 
 		s.Post("/register", handler.RegisterUser)
 
@@ -574,7 +574,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		}
 
 		r.AddCookie(cookie)
-		service.On("GetUserBySessionToken", mock.Anything).Return(nil, svrerr.ErrDBStoringData)
+		service.On("GetUserBySessionToken", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed)
 
 		s.Router.ServeHTTP(w, r)
 
@@ -711,7 +711,7 @@ func TestLogoutUser(t *testing.T) {
 		}
 
 		r.AddCookie(cookie)
-		service.On("LogoutUserBySessionToken", mock.Anything).Return(svrerr.ErrDBUpdatingData)
+		service.On("LogoutUserBySessionToken", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
 		s.Router.ServeHTTP(w, r)
 
@@ -897,8 +897,8 @@ func TestCommonErrors(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrDBRetrievingData)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrDBRetrievingData)
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrDBStorageFailed)
+		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrDBStorageFailed)
 
 		s.Post("/login/d", handler.LoginUserSession)
 		s.Post("/login/d/token", handler.LoginUserSessionToken)
