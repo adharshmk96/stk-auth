@@ -2,8 +2,11 @@ package services
 
 import (
 	"crypto/rsa"
+	"os"
 	"time"
 
+	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -13,22 +16,52 @@ type customClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewCustomClaims(userId, sessionId string) jwt.Claims {
+func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
+
+	private_key, err := GetJWTPrivateKey()
+	if err != nil {
+		logger.Error("error getting private key: ", err)
+		return "", err
+	}
+	signedToken, err := getSignedToken(private_key, claims)
+	if err != nil {
+		logger.Error("error generating token: ", err)
+		return "", err
+	}
+	return signedToken, err
+}
+
+/*
+MakeCustomClaims creates a new custom claims object
+*/
+func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	timeNow := time.Now()
-	JWT_EXPIRATION_DURATION := time.Hour * 24
 
 	claims := customClaims{
 		SessionID: sessionId,
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   "authentication",
-			Issuer:    "stk-auth",
-			Audience:  []string{"stk-auth"},
+			Subject:   userId,
+			Issuer:    config.JWT_ISSUER,
 			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(timeNow.Add(JWT_EXPIRATION_DURATION)),
+			ExpiresAt: jwt.NewNumericDate(timeNow.Add(config.JWT_EXPIRATION_DURATION)),
 		},
 	}
+
 	return claims
+}
+
+func VerifyToken(token string) (*customClaims, error) {
+	publicKey, err := GetJWTPublicKey()
+	if err != nil {
+		logger.Error("error getting public key: ", err)
+		return nil, err
+	}
+	claims, err := verifyToken(publicKey, token)
+	if err != nil {
+		return claims, err
+	}
+	return claims, nil
 }
 
 func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) {
@@ -42,7 +75,7 @@ func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) 
 	return claims, nil
 }
 
-func GetSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, error) {
+func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	signedToken, err := token.SignedString(privateKey)
 	if err != nil {
@@ -50,4 +83,44 @@ func GetSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, erro
 		return "", err
 	}
 	return signedToken, err
+}
+
+/*
+ReadPrivateKey reads the private key from the environment variable or the file and returns as byte array
+*/
+func ReadPrivateKey() []byte {
+	JWT_EDCA_PRIVATE_KEY := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY", "")
+	JWT_EDCA_PRIVATE_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", config.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
+	if JWT_EDCA_PRIVATE_KEY == "" {
+		data, err := os.ReadFile(JWT_EDCA_PRIVATE_KEY_PATH)
+		if err != nil {
+			JWT_EDCA_PRIVATE_KEY = ""
+		}
+		return data
+	}
+	return []byte(JWT_EDCA_PRIVATE_KEY)
+}
+
+/*
+ReadPublicKey reads the public key from the environment variable or the file and returns as byte array
+*/
+func ReadPublicKey() []byte {
+	JWT_EDCA_PUBLIC_KEY := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY", "")
+	JWT_EDCA_PUBLIC_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY_PATH", config.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
+	if JWT_EDCA_PUBLIC_KEY == "" {
+		data, err := os.ReadFile(JWT_EDCA_PUBLIC_KEY_PATH)
+		if err != nil {
+			JWT_EDCA_PUBLIC_KEY = ""
+		}
+		return data
+	}
+	return []byte(JWT_EDCA_PUBLIC_KEY)
+}
+
+func GetJWTPrivateKey() (*rsa.PrivateKey, error) {
+	return jwt.ParseRSAPrivateKeyFromPEM(ReadPrivateKey())
+}
+
+func GetJWTPublicKey() (*rsa.PublicKey, error) {
+	return jwt.ParseRSAPublicKeyFromPEM(ReadPublicKey())
 }

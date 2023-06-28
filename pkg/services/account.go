@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -133,11 +132,12 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		return "", svrerr.ErrInvalidCredentials
 	}
 
+	userId := userRecord.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 
 	session := &entities.Session{
-		UserID:    userRecord.ID,
+		UserID:    userId,
 		SessionID: newSessionId,
 		CreatedAt: currentTimestamp,
 		UpdatedAt: currentTimestamp,
@@ -148,15 +148,9 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		return "", err
 	}
 
-	claims := NewCustomClaims(userRecord.ID.String(), session.SessionID)
-	private_key, err := config.GetJWTPrivateKey()
+	claims := MakeCustomClaims(userId.String(), newSessionId)
+	signedToken, err := GetSignedTokenWithClaims(claims)
 	if err != nil {
-		logger.Error("error getting private key: ", err)
-		return "", err
-	}
-	signedToken, err := GetSignedToken(private_key, claims)
-	if err != nil {
-		logger.Error("error generating token: ", err)
 		return "", err
 	}
 
@@ -195,13 +189,7 @@ ERRORS:
 // TODO: refactor this
 func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
 
-	publicKey, err := config.GetJWTPublicKey()
-	if err != nil {
-		logger.Error("error getting public key: ", err)
-		return nil, err
-	}
-
-	claims, err := verifyToken(publicKey, sessionToken)
+	claims, err := VerifyToken(sessionToken)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			user, err := u.storage.GetUserBySessionID(claims.SessionID)
@@ -214,15 +202,9 @@ func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.A
 
 			logger.Info("token expired, session is valid, refreshing token")
 
-			claims := NewCustomClaims(claims.UserID, claims.SessionID)
-			private_key, err := config.GetJWTPrivateKey()
+			claims := MakeCustomClaims(claims.UserID, claims.SessionID)
+			signedToken, err := GetSignedTokenWithClaims(claims)
 			if err != nil {
-				logger.Error("error getting private key: ", err)
-				return nil, err
-			}
-			signedToken, err := GetSignedToken(private_key, claims)
-			if err != nil {
-				logger.Error("error generating token: ", err)
 				return nil, err
 			}
 
@@ -282,13 +264,8 @@ ERRORS:
 // storage: ErrDBStorageFailed, ErrDBEntryNotFound
 */
 func (u *accountService) LogoutUserBySessionToken(sessionToken string) error {
-	publicKey, err := config.GetJWTPublicKey()
-	if err != nil {
-		logger.Error("error getting public key: ", err)
-		return err
-	}
 
-	claims, err := verifyToken(publicKey, sessionToken)
+	claims, err := VerifyToken(sessionToken)
 	if err != nil {
 		if !errors.Is(err, jwt.ErrTokenExpired) {
 			return svrerr.ErrInvalidToken

@@ -6,6 +6,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/ory/viper"
 	"github.com/spf13/cobra"
 )
 
@@ -28,5 +29,10 @@ func Execute() {
 	}
 }
 
+func initialSetup() {
+	viper.AutomaticEnv()
+}
+
 func init() {
+	cobra.OnInitialize(initialSetup)
 }

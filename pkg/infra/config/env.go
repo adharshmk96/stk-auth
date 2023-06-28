@@ -1,0 +1,89 @@
+package config
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/spf13/viper"
+)
+
+// config name
+const (
+	// Server
+	ENV_SERVER_MODE = "SERVER_MODE"
+
+	// Session
+	ENV_SESSION_COOKIE_NAME     = "SESSION_COOKIE_NAME"
+	ENV_JWT_SESSION_COOKIE_NAME = "JWT_SESSION_COOKIE_NAME"
+
+	// Storage
+	ENV_SQLITE_FILE = "SQLITE_FILE"
+
+	// JWT
+
+	ENV_JWT_EXPIRATION_DURATION   = "JWT_EXPIRATION_DURATION"
+	ENV_JWT_EDCA_PRIVATE_KEY      = "JWT_EDCA_PRIVATE_KEY"
+	ENV_JWT_EDCA_PUBLIC_KEY       = "JWT_EDCA_PUBLIC_KEY"
+	ENV_JWT_EDCA_PRIVATE_KEY_PATH = "JWT_EDCA_PRIVATE_KEY_PATH"
+	ENV_JWT_EDCA_PUBLIC_KEY_PATH  = "JWT_EDCA_PUBLIC_KEY_PATH"
+)
+
+// config defaults
+const (
+	// Session
+	DEFAULT_SESSION_COOKIE_NAME     = "stk_session"
+	DEFAULT_SESSION_JWT_COOKIE_NAME = "stk_session_token"
+
+	// Storage
+	DEFAULT_SQLITE_FILE = "auth_database.db"
+
+	// JWT
+	DEFAULT_JWT_EXPIRATION_DURATION   = 1440
+	DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH = ".keys/private_key.pem"
+	DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH  = ".keys/public_key.pem"
+)
+
+// FROM ENVIRONMENT
+
+// Server
+var SERVER_MODE string
+
+// Session
+var SESSION_COOKIE_NAME string
+var JWT_SESSION_COOKIE_NAME string
+
+// JWT
+var JWT_EXPIRATION_DURATION time.Duration
+
+// Storage
+var SQLITE_FILE string
+
+func init() {
+
+	viper.SetDefault(ENV_SERVER_MODE, SERVER_DEV_MODE)
+
+	viper.SetDefault(ENV_SESSION_COOKIE_NAME, DEFAULT_SESSION_COOKIE_NAME)
+	viper.SetDefault(ENV_JWT_SESSION_COOKIE_NAME, DEFAULT_SESSION_JWT_COOKIE_NAME)
+
+	viper.SetDefault(ENV_JWT_EXPIRATION_DURATION, DEFAULT_JWT_EXPIRATION_DURATION)
+
+	viper.SetDefault(ENV_SQLITE_FILE, DEFAULT_SQLITE_FILE)
+
+	viper.AutomaticEnv()
+
+	// Server
+	SERVER_MODE = viper.GetString(ENV_SERVER_MODE)
+
+	// Session
+	SESSION_COOKIE_NAME = viper.GetString(ENV_SESSION_COOKIE_NAME)
+	JWT_SESSION_COOKIE_NAME = viper.GetString(ENV_JWT_SESSION_COOKIE_NAME)
+
+	// JWT
+	JWT_EXPIRATION_DURATION = time.Minute * viper.GetDuration(ENV_JWT_EXPIRATION_DURATION)
+
+	// Storage
+	SQLITE_FILE = viper.GetString(ENV_SQLITE_FILE)
+
+	fmt.Println("JWT_EXPIRATION_DURATION: ", JWT_EXPIRATION_DURATION)
+
+}

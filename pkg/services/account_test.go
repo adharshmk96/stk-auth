@@ -7,7 +7,6 @@ import (
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
@@ -298,7 +297,6 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.Equal(t, claims["user_id"], user_id.String())
 		assert.NotNil(t, claims["sub"])
 		assert.NotNil(t, claims["exp"])
-		assert.NotNil(t, claims["aud"])
 	}
 
 	t.Run("valid username and password returns token with userid and session id", func(t *testing.T) {
@@ -500,10 +498,8 @@ func TestAccountService_GetUserBySessionID(t *testing.T) {
 }
 
 func generateToken(user, session string) (string, error) {
-	claims := services.NewCustomClaims(user, session)
-	privateKey, _ := config.GetJWTPrivateKey()
-	token, err := services.GetSignedToken(privateKey, claims)
-	return token, err
+	claims := services.MakeCustomClaims(user, session)
+	return services.GetSignedTokenWithClaims(claims)
 }
 
 func generateExpiredToken(user, session string) (string, error) {
@@ -528,8 +524,7 @@ func generateExpiredToken(user, session string) (string, error) {
 		},
 	}
 
-	privateKey, _ := config.GetJWTPrivateKey()
-	token, err := services.GetSignedToken(privateKey, claims)
+	token, err := services.GetSignedTokenWithClaims(claims)
 	return token, err
 }
 
