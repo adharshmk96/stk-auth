@@ -12,6 +12,14 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
+/*
+RegisterUser registers a new user
+// Decodes and Validates the user information from body
+// Calls the service layer to store the user information
+// Returns the user information
+ERRORS:
+// handler: ErrJsonDecodeFailed, ErrValidationFailed, ErrRegistrationFailed
+*/
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	var user *entities.Account
 
