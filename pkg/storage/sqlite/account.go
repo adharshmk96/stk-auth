@@ -6,7 +6,6 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
-	"github.com/adharshmk96/stk-auth/pkg/storage"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/db"
 )
@@ -17,7 +16,7 @@ type sqliteStorage struct {
 	conn *sql.DB
 }
 
-func NewAccountStorage() storage.AccountStore {
+func NewAccountStorage() entities.AccountStore {
 	connection := db.GetSqliteConnection(sqlitePath)
 	return &sqliteStorage{
 		conn: connection,
