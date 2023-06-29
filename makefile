@@ -1,13 +1,13 @@
 VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-MAJOR := $(shell echo $(VERSION) | cut -d . -f 1)
+MAJOR := $(shell echo $(VERSION) | cut -d . -f 1 | sed 's/v//')
 MINOR := $(shell echo $(VERSION) | cut -d . -f 2)
-PATCH := $(shell echo $(VERSION) | cut -d . -f 3 | sed 's/v//')
+PATCH := $(shell echo $(VERSION) | cut -d . -f 3)
 NEW_PATCH := $(shell echo $$(($(PATCH) + 1)))
 NEW_MINOR := $(shell echo $$(($(MINOR) + 1)))
 NEW_MAJOR := $(shell echo $$(($(MAJOR) + 1)))
-NEW_TAG_PATCH := $(MAJOR).$(MINOR).$(NEW_PATCH)
-NEW_TAG_MINOR := $(MAJOR).$(NEW_MINOR).0
-NEW_TAG_MAJOR := $(NEW_MAJOR).0.0
+NEW_TAG_PATCH := v$(MAJOR).$(MINOR).$(NEW_PATCH)
+NEW_TAG_MINOR := v$(MAJOR).$(NEW_MINOR).0
+NEW_TAG_MAJOR := v$(NEW_MAJOR).0.0
 
 .PHONY: patch minor major build test publish keygen serve init initci moddownload migrate
 
