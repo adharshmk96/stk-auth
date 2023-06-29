@@ -34,9 +34,20 @@ func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
 	return signedToken, err
 }
 
-/*
-MakeCustomClaims creates a new custom claims object
-*/
+func VerifyToken(token string) (*customClaims, error) {
+	publicKey, err := GetJWTPublicKey()
+	if err != nil {
+		logger.Error("error getting public key: ", err)
+		return nil, err
+	}
+	claims, err := verifyToken(publicKey, token)
+	if err != nil {
+		logger.Error("error verifying token: ", err)
+		return claims, err
+	}
+	return claims, nil
+}
+
 func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	timeNow := time.Now()
 
@@ -52,19 +63,6 @@ func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	}
 
 	return claims
-}
-
-func VerifyToken(token string) (*customClaims, error) {
-	publicKey, err := GetJWTPublicKey()
-	if err != nil {
-		logger.Error("error getting public key: ", err)
-		return nil, err
-	}
-	claims, err := verifyToken(publicKey, token)
-	if err != nil {
-		return claims, err
-	}
-	return claims, nil
 }
 
 func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) {
