@@ -15,14 +15,14 @@ import (
 
 var config = infra.GetConfig()
 
-/*
-RegisterUser registers a new user
-// Decodes and Validates the user information from body
-// Calls the service layer to store the user information
-// Returns the user information
-ERRORS:
-// handler: ErrJsonDecodeFailed, ErrValidationFailed, ErrRegistrationFailed
-*/
+// RegisterUser registers a new user
+// - Decodes and Validates the user information from body
+// - Calls the service layer to store the user information
+// - Returns the user information
+// ERRORS:
+// - handler: ErrJsonDecodeFailed, ErrValidationFailed
+// - service: ErrHasingPassword,
+// - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
 func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	var user *entities.Account
 
@@ -55,8 +55,16 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 	ctx.Status(http.StatusCreated).JSONResponse(response)
 }
 
-// Session based login,
-// NOTE: session id should not be exposed to client, it should be in httpOnly cookie
+// LoginUserSession creates a new session for the user and sets the session id in cookie
+// - Decodes and Validates the user information from body
+// - Calls the service layer to authenticate and store the session information
+// - Sets the session id in cookie
+// ERRORS:
+// - handler: ErrJsonDecodeFailed, ErrValidationFailed
+// - service: ErrInvalidCredentials
+// - storage: ErrDBStorageFailed
+// NOTE:
+// - session id should not be exposed to client, it should be in httpOnly cookie
 func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 	var userLogin *entities.Account
 
@@ -95,8 +103,16 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
-// Session + Token based login,
-// NOTE: session token should not be exposed to client, it should be in httpOnly cookie
+// LoginUserSessionToken creates a new session for the user and sets the session id in cookie
+// - Decodes and Validates the user information from body
+// - Calls the service layer to authenticate, store the session information and generate jwt token with session id as claim
+// - Sets the session token in cookie
+// ERRORS:
+// - handler: ErrJsonDecodeFailed, ErrValidationFailed
+// - service: ErrInvalidCredentials
+// - storage: ErrDBStorageFailed
+// NOTE:
+// - session token should not be exposed to client, it should be in httpOnly cookie
 func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	var userLogin *entities.Account
 
@@ -135,6 +151,14 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
+// GetSessionUser returns the user information from session id
+// - Gets the session id from cookie
+// - Calls the service layer to get the user information
+// - Returns the user information
+// ERRORS:
+// - handler: cookie_error
+// - service: ErrInvalidSession
+// - storage: ErrDBStorageFailed
 func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.SESSION_COOKIE_NAME)
 	if err != nil {
@@ -176,6 +200,14 @@ func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
+// GetSessionTokenUser returns the user information from session token
+// - Gets the session token from cookie
+// - Calls the service layer to validate token and get the user information
+// - Returns the user information
+// ERRORS:
+// - handler: cookie_error
+// - service: ErrInvalidToken
+// - storage: ErrDBStorageFailed
 func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
 	if err != nil {
@@ -231,6 +263,14 @@ func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
+// LogoutUser logs out the user
+// - Gets the session id or session toekn from cookie
+// - Calls the service layer to invalidate the session
+// - Returns the success message
+// ERRORS:
+// - handler: cookie_error
+// - service: ErrInvalidSession, ErrInvalidToken
+// - storage: ErrDBStorageFailed
 func (h *accountHandler) LogoutUser(ctx stk.Context) {
 	sessionCookie, sessionToken, err := transport.GetSessionOrTokenFromCookie(ctx)
 	if err != nil {

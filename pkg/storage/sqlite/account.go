@@ -24,7 +24,7 @@ func NewAccountStorage() entities.AccountStore {
 	}
 }
 
-// Stores User in the db
+// SaveUser Stores User in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
@@ -55,7 +55,7 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 	return nil
 }
 
-// Retrieves User from the db by email
+// GetUserByEmail Retrieves User from the db by email
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) {
 
@@ -92,7 +92,7 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 	return &user, nil
 }
 
-// Retrieves User from the db by username
+// GetUserByUsername Retrieves User from the db by username
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, error) {
 
@@ -129,7 +129,7 @@ func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, e
 	return &user, nil
 }
 
-// Retrieves User from the db by user id
+// GetUserByUserID Retrieves User from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 
@@ -166,7 +166,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 	return &user, nil
 }
 
-// Stores Session in the db
+// SaveSession Stores Session in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	result, err := s.conn.Exec(
@@ -194,7 +194,7 @@ func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	return nil
 }
 
-// Retrieves Valid Sessions from the db by session id
+// GetSessionByID Retrieves Valid Sessions from the db by session id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, error) {
 	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_SESSION_BY_ID, sessionID)
@@ -228,7 +228,7 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 	return &session, nil
 }
 
-// Retrieves Session from the db by user id
+// GetUserBySessionID Retrieves Session from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account, error) {
 	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_USER_BY_SESSION_ID, sessionId)
@@ -262,7 +262,7 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 	return &user, nil
 }
 
-// Invalidates Session in the db by session id
+// InvalidateSessionByID Invalidates Session in the db by session id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
 func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
 	result, err := s.conn.Exec(
