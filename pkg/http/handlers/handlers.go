@@ -1,24 +1,14 @@
 package handlers
 
 import (
-	"github.com/adharshmk96/stk"
-	"github.com/adharshmk96/stk-auth/pkg/services"
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
 type accountHandler struct {
-	userService services.AccountService
+	userService entities.AccountService
 }
 
-type AccountHandler interface {
-	RegisterUser(ctx stk.Context)
-	LoginUserSession(ctx stk.Context)
-	LoginUserSessionToken(ctx stk.Context)
-	GetSessionUser(ctx stk.Context)
-	GetSessionTokenUser(ctx stk.Context)
-	LogoutUser(ctx stk.Context)
-}
-
-func NewAccountHandler(userService services.AccountService) AccountHandler {
+func NewAccountHandler(userService entities.AccountService) entities.AccountHandler {
 	return &accountHandler{
 		userService: userService,
 	}

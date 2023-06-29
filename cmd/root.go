@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var version = "v0.1.0"
@@ -28,5 +29,10 @@ func Execute() {
 	}
 }
 
+func initialSetup() {
+	viper.AutomaticEnv()
+}
+
 func init() {
+	cobra.OnInitialize(initialSetup)
 }

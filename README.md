@@ -12,7 +12,13 @@ stk-auth serve -p 8080
 
 ## Development
 
-refer [dev docs](docs/dev.md)
+refer [dev docs](docs/dev.md) for general overview
+
+References.
+- [architecture](docs/architecture.md)
+- [server](docs/server.md)
+- [config](docs/config.md)
+
 
 ## About
 

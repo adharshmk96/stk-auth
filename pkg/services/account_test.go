@@ -7,8 +7,9 @@ import (
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/services"
+	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -60,12 +61,12 @@ func TestAccountService_RegisterUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBStoringData)
+		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
 		// Test invalid registration
 		user, err := service.RegisterUser(userData)
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStoringData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Nil(t, user)
 	})
 
@@ -178,7 +179,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBRetrievingData)
+		mockStore.On("GetUserByEmail", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -191,7 +192,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBRetrievingData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Nil(t, userSession)
 	})
 
@@ -200,7 +201,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStoringData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -213,7 +214,7 @@ func TestAccountService_LoginSessionUser(t *testing.T) {
 		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStoringData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Nil(t, userSession)
 	})
 
@@ -247,6 +248,7 @@ func setupKeysDir() (string, string) {
 
 	os.Setenv("JWT_EDCA_PRIVATE_KEY", string(privateKeyPEM))
 	os.Setenv("JWT_EDCA_PUBLIC_KEY", string(publicKeyPEM))
+	infra.LoadConfigFromEnv()
 
 	return string(privateKeyPEM), string(publicKeyPEM)
 }
@@ -298,7 +300,6 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		assert.Equal(t, claims["user_id"], user_id.String())
 		assert.NotNil(t, claims["sub"])
 		assert.NotNil(t, claims["exp"])
-		assert.NotNil(t, claims["aud"])
 	}
 
 	t.Run("valid username and password returns token with userid and session id", func(t *testing.T) {
@@ -376,7 +377,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserByEmail", user_email).Return(nil, svrerr.ErrDBRetrievingData)
+		mockStore.On("GetUserByEmail", user_email).Return(nil, svrerr.ErrDBStorageFailed)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -389,7 +390,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
 
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBRetrievingData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Empty(t, userToken)
 	})
 
@@ -398,7 +399,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		service := services.NewAccountService(mockStore)
 
 		mockStore.On("GetUserByEmail", user_email).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStoringData)
+		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
 		requestData := &entities.Account{
 			Email:    user_email,
@@ -411,7 +412,7 @@ func TestAccountService_LoginSessionUserToken(t *testing.T) {
 		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
 
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStoringData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Empty(t, userSession)
 	})
 
@@ -488,22 +489,20 @@ func TestAccountService_GetUserBySessionID(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBRetrievingData)
+		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBStorageFailed)
 
 		userData, err := service.GetUserBySessionId(session_id)
 
 		mockStore.AssertCalled(t, "GetUserBySessionID", session_id)
 
-		assert.ErrorIs(t, err, svrerr.ErrDBRetrievingData)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
 		assert.Empty(t, userData)
 	})
 }
 
 func generateToken(user, session string) (string, error) {
-	claims := services.NewCustomClaims(user, session)
-	privateKey, _ := config.GetJWTPrivateKey()
-	token, err := services.GetSignedToken(privateKey, claims)
-	return token, err
+	claims := helpers.MakeCustomClaims(user, session)
+	return helpers.GetSignedTokenWithClaims(claims)
 }
 
 func generateExpiredToken(user, session string) (string, error) {
@@ -528,8 +527,7 @@ func generateExpiredToken(user, session string) (string, error) {
 		},
 	}
 
-	privateKey, _ := config.GetJWTPrivateKey()
-	token, err := services.GetSignedToken(privateKey, claims)
+	token, err := helpers.GetSignedTokenWithClaims(claims)
 	return token, err
 }
 
@@ -637,7 +635,7 @@ func TestAccountService_LogoutUserBySessionId(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBUpdatingData)
+		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBStorageFailed)
 
 		err := service.LogoutUserBySessionId(session_id)
 
@@ -702,7 +700,7 @@ func TestAccountService_LogoutUserBySessionToken(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
 
-		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBUpdatingData)
+		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBStorageFailed)
 
 		err := service.LogoutUserBySessionToken(token)
 

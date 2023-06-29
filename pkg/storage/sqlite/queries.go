@@ -1,13 +1,5 @@
 package sqlite
 
-import (
-	"github.com/adharshmk96/stk/utils"
-)
-
-var (
-	SQLITE_FILEPATH = utils.GetEnvOrDefault("DATABASE_CONNECTION_STRING", "./auth_database.db")
-)
-
 const (
 	ACCOUNT_USER_TABLE_NAME = "auth_user_accounts"
 

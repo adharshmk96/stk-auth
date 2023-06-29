@@ -8,7 +8,7 @@ import (
 	migdbFs "github.com/adharshmk96/migdb/pkg/storage/fs"
 	migdbSqlite "github.com/adharshmk96/migdb/pkg/storage/sqlite"
 	migdbUtils "github.com/adharshmk96/migdb/pkg/utils"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk/db"
 	"github.com/spf13/cobra"
 )
@@ -18,10 +18,12 @@ const (
 	DATABASE              = migdbEntities.DBsqlite3
 )
 
-func executeUpMigration(numberOfMigrationsToApply int) {
-	// TODO: change hardcoded value to a config
+var config = infra.GetConfig()
 
-	conn := db.GetSqliteConnection(sqlite.SQLITE_FILEPATH)
+func executeUpMigration(numberOfMigrationsToApply int) {
+	// TODO: add support for other databases
+
+	conn := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
 
 	fsRepo := migdbFs.NewFileSystemRepo(MITRATION_FOLDER_PATH, DATABASE)
 	dbRepo := migdbSqlite.NewSqliteRepo(conn)

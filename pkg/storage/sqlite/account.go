@@ -6,24 +6,26 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
-	"github.com/adharshmk96/stk-auth/pkg/storage"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/db"
 )
 
 var logger = infra.GetLogger()
+var config = infra.GetConfig()
 
 type sqliteStorage struct {
 	conn *sql.DB
 }
 
-func NewAccountStorage() storage.AccountStore {
-	connection := db.GetSqliteConnection(SQLITE_FILEPATH)
+func NewAccountStorage() entities.AccountStore {
+	connection := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
 	return &sqliteStorage{
 		conn: connection,
 	}
 }
 
+// SaveUser Stores User in the db
+// ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 	result, err := s.conn.Exec(
@@ -40,19 +42,21 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return svrerr.ErrDBDuplicateEntry
 		}
-		logger.Error("error inserting user into database: ", err)
-		return svrerr.ErrDBStoringData
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
-	_, err = result.RowsAffected()
-	if err != nil {
-		logger.Error(err)
-		return svrerr.ErrDBStoringData
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
 	return nil
 }
 
+// GetUserByEmail Retrieves User from the db by email
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) {
 
 	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_EMAIL, email)
@@ -76,18 +80,20 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrDBRetrievingData
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
-		return nil, err
+		return nil, svrerr.ErrParsingUserID
 	}
 
 	return &user, nil
 }
 
+// GetUserByUsername Retrieves User from the db by username
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, error) {
 
 	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_USERNAME, username)
@@ -111,18 +117,20 @@ func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, e
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrDBRetrievingData
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
-		return nil, err
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	return &user, nil
 }
 
+// GetUserByUserID Retrieves User from the db by user id
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 
 	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_ID, uid)
@@ -146,7 +154,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrDBRetrievingData
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
@@ -158,6 +166,8 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 	return &user, nil
 }
 
+// SaveSession Stores Session in the db
+// ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_INSERT_SESSION_QUERY,
@@ -171,19 +181,21 @@ func (s *sqliteStorage) SaveSession(session *entities.Session) error {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return svrerr.ErrDBDuplicateEntry
 		}
-		logger.Error("error inserting user into database: ", err)
-		return svrerr.ErrDBStoringData
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
-	_, err = result.RowsAffected()
-	if err != nil {
-		logger.Error(err)
-		return svrerr.ErrDBStoringData
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
 	return nil
 }
 
+// GetSessionByID Retrieves Valid Sessions from the db by session id
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, error) {
 	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_SESSION_BY_ID, sessionID)
 
@@ -204,18 +216,20 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrDBRetrievingData
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	session.UserID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
-		return nil, err
+		return nil, svrerr.ErrParsingUserID
 	}
 
 	return &session, nil
 }
 
+// GetUserBySessionID Retrieves Session from the db by user id
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account, error) {
 	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_USER_BY_SESSION_ID, sessionId)
 
@@ -236,7 +250,7 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 		}
 
 		logger.Error("error retrieving user from database: ", err)
-		return nil, svrerr.ErrDBRetrievingData
+		return nil, svrerr.ErrDBStorageFailed
 	}
 
 	user.ID, err = entities.ParseUserId(userId)
@@ -248,14 +262,16 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 	return &user, nil
 }
 
+// InvalidateSessionByID Invalidates Session in the db by session id
+// ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
 func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_INVALIDATE_SESSION_ID,
 		sessionId,
 	)
 	if err != nil {
-		logger.Error("error invalidating session: ", err)
-		return svrerr.ErrDBUpdatingData
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
 	rows, err := result.RowsAffected()
@@ -264,8 +280,8 @@ func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
 		return svrerr.ErrDBEntryNotFound
 	}
 	if err != nil {
-		logger.Error(err)
-		return svrerr.ErrDBStoringData
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
 	}
 
 	return nil

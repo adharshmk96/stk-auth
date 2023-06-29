@@ -1,6 +1,8 @@
 # Development
 
-This document contains the details about the development setup of the server. [Back to Readme](../README.md)
+[back to main](../README.md)
+
+This document describes the development setup.
 
 ## Requirements
 - [go](https://golang.org/)

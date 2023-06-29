@@ -1,19 +1,20 @@
 package transport
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/adharshmk96/stk"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
+
+var config = infra.GetConfig()
 
 func GetSessionOrTokenFromCookie(ctx stk.Context) (*http.Cookie, *http.Cookie, error) {
 	sessionCookie, scerr := ctx.GetCookie(config.SESSION_COOKIE_NAME)
 	sessionToken, sterr := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
 	if (scerr != nil && sterr != nil) || (scerr == nil && sessionCookie.Value == "") || (sterr == nil && sessionToken.Value == "") {
-		return nil, nil, errors.New("Unauthorized")
+		return nil, nil, svrerr.ErrInvalidCredentials
 	}
 	return sessionCookie, sessionToken, nil
 }
