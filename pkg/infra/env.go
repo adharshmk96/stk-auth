@@ -53,23 +53,38 @@ func LoadConfigFromEnv() {
 
 	viper.AutomaticEnv()
 
-	// Server
+	// TYPE: Server
+
+	// SERVER_MODE: `SERVER_DEV_MODE` or `SERVER_PROD_MODE` (default `SERVER_DEV_MODE`)
 	config.SERVER_MODE = viper.GetString(constants.ENV_SERVER_MODE)
 
-	// Session
+	// TYPE: Session
+
+	// SESSION_COOKIE_NAME: name of the session cookie (default `stk_session`)
 	config.SESSION_COOKIE_NAME = viper.GetString(constants.ENV_SESSION_COOKIE_NAME)
+	// JWT_SESSION_COOKIE_NAME: name of the jwt session cookie (default `stk_jwt_session`)
 	config.JWT_SESSION_COOKIE_NAME = viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME)
 
-	// JWT
+	// TYPE: JWT
+
+	// JWT_EDCA_PRIVATE_KEY: private key for the jwt token (default `""`)
 	config.JWT_EDCA_PRIVATE_KEY = viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY)
+	// JWT_EDCA_PUBLIC_KEY: public key for the jwt token (default `""`)
 	config.JWT_EDCA_PUBLIC_KEY = viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)
+	// JWT_EDCA_PRIVATE_KEY_PATH: path to the private key for the jwt token (default `./keys/private.pem`)
 	config.JWT_EDCA_PRIVATE_KEY_PATH = viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY_PATH)
+	// JWT_EDCA_PUBLIC_KEY_PATH: path to the public key for the jwt token (default `./keys/public.pem`)
 	config.JWT_EDCA_PUBLIC_KEY_PATH = viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH)
+	// JWT_EXPIRATION_DURATION: duration of the jwt token (default `1h`)
 	config.JWT_EXPIRATION_DURATION = time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION)
+	// JWT_SUBJECT: subject of the jwt token (default `stk-auth`)
 	config.JWT_SUBJECT = viper.GetString(constants.ENV_JWT_ISSUER)
+	// JWT_ISSUER: issuer of the jwt token (default `stk-auth`)
 	config.JWT_ISSUER = viper.GetString(constants.ENV_JWT_SUBJECT)
 
-	// Storage
+	// TYPE: Storage
+
+	// SQLITE_FILE_PATH: sqlite file path (default `./db.sqlite`)
 	config.SQLITE_FILE_PATH = viper.GetString(constants.ENV_SQLITE_FILE)
 
 }
