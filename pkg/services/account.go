@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -148,8 +149,8 @@ func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, 
 		return "", err
 	}
 
-	claims := MakeCustomClaims(userId.String(), newSessionId)
-	signedToken, err := GetSignedTokenWithClaims(claims)
+	claims := helpers.MakeCustomClaims(userId.String(), newSessionId)
+	signedToken, err := helpers.GetSignedTokenWithClaims(claims)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +190,7 @@ ERRORS:
 // TODO: refactor this
 func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
 
-	claims, err := VerifyToken(sessionToken)
+	claims, err := helpers.VerifyToken(sessionToken)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			user, err := u.storage.GetUserBySessionID(claims.SessionID)
@@ -202,8 +203,8 @@ func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.A
 
 			logger.Info("token expired, session is valid, refreshing token")
 
-			claims := MakeCustomClaims(claims.UserID, claims.SessionID)
-			signedToken, err := GetSignedTokenWithClaims(claims)
+			claims := helpers.MakeCustomClaims(claims.UserID, claims.SessionID)
+			signedToken, err := helpers.GetSignedTokenWithClaims(claims)
 			if err != nil {
 				return nil, err
 			}
@@ -265,7 +266,7 @@ ERRORS:
 */
 func (u *accountService) LogoutUserBySessionToken(sessionToken string) error {
 
-	claims, err := VerifyToken(sessionToken)
+	claims, err := helpers.VerifyToken(sessionToken)
 	if err != nil {
 		if !errors.Is(err, jwt.ErrTokenExpired) {
 			return svrerr.ErrInvalidToken

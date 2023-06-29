@@ -1,14 +1,17 @@
-package services
+package helpers
 
 import (
 	"crypto/rsa"
 	"os"
 	"time"
 
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/config"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+var logger = infra.GetLogger()
 
 type customClaims struct {
 	SessionID string `json:"session_id"`

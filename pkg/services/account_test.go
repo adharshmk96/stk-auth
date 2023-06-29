@@ -8,6 +8,7 @@ import (
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services"
+	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
@@ -498,8 +499,8 @@ func TestAccountService_GetUserBySessionID(t *testing.T) {
 }
 
 func generateToken(user, session string) (string, error) {
-	claims := services.MakeCustomClaims(user, session)
-	return services.GetSignedTokenWithClaims(claims)
+	claims := helpers.MakeCustomClaims(user, session)
+	return helpers.GetSignedTokenWithClaims(claims)
 }
 
 func generateExpiredToken(user, session string) (string, error) {
@@ -524,7 +525,7 @@ func generateExpiredToken(user, session string) (string, error) {
 		},
 	}
 
-	token, err := services.GetSignedTokenWithClaims(claims)
+	token, err := helpers.GetSignedTokenWithClaims(claims)
 	return token, err
 }
 
