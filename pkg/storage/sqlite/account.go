@@ -11,13 +11,14 @@ import (
 )
 
 var logger = infra.GetLogger()
+var config = infra.GetConfig()
 
 type sqliteStorage struct {
 	conn *sql.DB
 }
 
 func NewAccountStorage() entities.AccountStore {
-	connection := db.GetSqliteConnection(sqlitePath)
+	connection := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
 	return &sqliteStorage{
 		conn: connection,
 	}

@@ -8,9 +8,12 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
+
+var config = infra.GetConfig()
 
 /*
 RegisterUser registers a new user
@@ -75,7 +78,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		return
 	}
 
-	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.SESSION_COOKIE_NAME,
 		Value:    sessionData.SessionID,
@@ -115,7 +118,7 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 		return
 	}
 
-	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.JWT_SESSION_COOKIE_NAME,
 		Value:    jwtToken,
@@ -214,7 +217,7 @@ func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 		CreatedAt: userWithToken.CreatedAt,
 		UpdatedAt: userWithToken.UpdatedAt,
 	}
-	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     config.JWT_SESSION_COOKIE_NAME,
 		Value:    userWithToken.Token,
@@ -254,7 +257,7 @@ func (h *accountHandler) LogoutUser(ctx stk.Context) {
 		cookieName = config.JWT_SESSION_COOKIE_NAME
 	}
 
-	secureCookie := config.SERVER_MODE == config.SERVER_PROD_MODE
+	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     cookieName,
 		Value:    "",

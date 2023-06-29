@@ -6,14 +6,12 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/infra"
-	svrconfig "github.com/adharshmk96/stk-auth/pkg/infra/config"
-	"github.com/adharshmk96/stk/utils"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 var logger = infra.GetLogger()
 
-var config = svrconfig.GetConfig()
+var config = infra.GetConfig()
 
 type customClaims struct {
 	SessionID string `json:"session_id"`
@@ -92,8 +90,8 @@ func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, erro
 ReadPrivateKey reads the private key from the environment variable or the file and returns as byte array
 */
 func ReadPrivateKey() []byte {
-	JWT_EDCA_PRIVATE_KEY := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY", "")
-	JWT_EDCA_PRIVATE_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PRIVATE_KEY_PATH", svrconfig.DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH)
+	JWT_EDCA_PRIVATE_KEY := config.JWT_EDCA_PRIVATE_KEY
+	JWT_EDCA_PRIVATE_KEY_PATH := config.JWT_EDCA_PRIVATE_KEY_PATH
 	if JWT_EDCA_PRIVATE_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PRIVATE_KEY_PATH)
 		if err != nil {
@@ -108,8 +106,8 @@ func ReadPrivateKey() []byte {
 ReadPublicKey reads the public key from the environment variable or the file and returns as byte array
 */
 func ReadPublicKey() []byte {
-	JWT_EDCA_PUBLIC_KEY := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY", "")
-	JWT_EDCA_PUBLIC_KEY_PATH := utils.GetEnvOrDefault("JWT_EDCA_PUBLIC_KEY_PATH", svrconfig.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
+	JWT_EDCA_PUBLIC_KEY := config.JWT_EDCA_PUBLIC_KEY
+	JWT_EDCA_PUBLIC_KEY_PATH := config.JWT_EDCA_PUBLIC_KEY_PATH
 	if JWT_EDCA_PUBLIC_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PUBLIC_KEY_PATH)
 		if err != nil {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
@@ -247,6 +248,7 @@ func setupKeysDir() (string, string) {
 
 	os.Setenv("JWT_EDCA_PRIVATE_KEY", string(privateKeyPEM))
 	os.Setenv("JWT_EDCA_PUBLIC_KEY", string(publicKeyPEM))
+	infra.LoadConfigFromEnv()
 
 	return string(privateKeyPEM), string(publicKeyPEM)
 }

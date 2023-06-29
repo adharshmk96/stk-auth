@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/adharshmk96/stk"
-	"github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
+
+var config = infra.GetConfig()
 
 func GetSessionOrTokenFromCookie(ctx stk.Context) (*http.Cookie, *http.Cookie, error) {
 	sessionCookie, scerr := ctx.GetCookie(config.SESSION_COOKIE_NAME)

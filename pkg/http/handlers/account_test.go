@@ -13,12 +13,14 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
-	svrconfig "github.com/adharshmk96/stk-auth/pkg/infra/config"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+var config = infra.GetConfig()
 
 func TestRegisterUser(t *testing.T) {
 
@@ -48,11 +50,11 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	t.Run("returns 201 and user data if user data is stored", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -83,11 +85,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 400 if validation fails on data", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		body := []byte(`{ whatever }`)
 
@@ -106,11 +108,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 if there is storage error", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -131,11 +133,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 when passing userid in request body, fails decoding.", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		newUserId := uuid.NewString()
 
@@ -157,11 +159,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 400 for invalid email", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
 
@@ -219,11 +221,11 @@ func TestLoginUserSession(t *testing.T) {
 	}
 
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -248,7 +250,7 @@ func TestLoginUserSession(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, svrconfig.SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, config.SESSION_COOKIE_NAME)
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sid, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -270,11 +272,11 @@ func TestLoginUserSessionToken(t *testing.T) {
 	sessionToken := "header.claims.signature"
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -298,7 +300,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, svrconfig.JWT_SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, config.JWT_SESSION_COOKIE_NAME)
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sessionToken, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -334,11 +336,11 @@ func TestGetSessionUser(t *testing.T) {
 	// 	Valid:     true,
 	// }
 
-	config := &stk.ServerConfig{
+	stkconfig := &stk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(config)
+	s := stk.NewServer(stkconfig)
 
 	t.Run("returns 200 and user details if session id is present in the cookie", func(t *testing.T) {
 
@@ -351,7 +353,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Name:  config.SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -389,7 +391,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Name:  config.SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -411,7 +413,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Name:  config.SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -455,11 +457,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 		Token:   "abcdefg-asdfasdf",
 	}
 
-	config := &stk.ServerConfig{
+	stkconfig := &stk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(config)
+	s := stk.NewServer(stkconfig)
 
 	t.Run("returns 200 and user details if valid session token is present in the cookie", func(t *testing.T) {
 
@@ -472,7 +474,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -487,7 +489,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, svrconfig.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
 		assert.NotEmpty(t, wcookie)
 		assert.Equal(t, accountWithToken.Token, wcookie.Value)
 		assert.True(t, wcookie.HttpOnly)
@@ -519,7 +521,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -544,7 +546,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -569,7 +571,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -586,11 +588,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 func TestLogoutUser(t *testing.T) {
 
-	config := &stk.ServerConfig{
+	stkconfig := &stk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(config)
+	s := stk.NewServer(stkconfig)
 
 	t.Run("returns 200 service validates the session id in the cookie", func(t *testing.T) {
 
@@ -603,7 +605,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Name:  config.SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -619,7 +621,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, svrconfig.SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, config.SESSION_COOKIE_NAME)
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -634,7 +636,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -650,7 +652,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, svrconfig.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -680,7 +682,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.SESSION_COOKIE_NAME,
+			Name:  config.SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -706,7 +708,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  svrconfig.JWT_SESSION_COOKIE_NAME,
+			Name:  config.JWT_SESSION_COOKIE_NAME,
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -747,11 +749,11 @@ func TestCommonErrors(t *testing.T) {
 		Valid:     true,
 	}
 
-	config := &stk.ServerConfig{
+	stkconfig := &stk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(config)
+	s := stk.NewServer(stkconfig)
 
 	t.Run("returns 400 if request body is nil", func(t *testing.T) {
 
@@ -888,11 +890,11 @@ func TestCommonErrors(t *testing.T) {
 	})
 
 	t.Run("returns 500 if storage fails for some reason", func(t *testing.T) {
-		config := &stk.ServerConfig{
+		stkconfig := &stk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(config)
+		s := stk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
