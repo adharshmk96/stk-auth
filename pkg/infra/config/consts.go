@@ -5,10 +5,6 @@ const (
 	// server
 	SERVER_DEV_MODE  = "SERVER_DEV_MODE"
 	SERVER_PROD_MODE = "SERVER_PROD_MODE"
-
-	// JWT
-	JWT_SUBJECT = "authentication"
-	JWT_ISSUER  = "stk-auth-server"
 )
 
 // #ENVIRONMENT VARIABLES
@@ -26,6 +22,8 @@ const (
 	ENV_SQLITE_FILE = "SQLITE_FILE"
 
 	// JWT
+	ENV_JWT_ISSUER  = "JWT_ISSUER"
+	ENV_JWT_SUBJECT = "JWT_SUBJECT"
 
 	ENV_JWT_EXPIRATION_DURATION   = "JWT_EXPIRATION_DURATION"
 	ENV_JWT_EDCA_PRIVATE_KEY      = "JWT_EDCA_PRIVATE_KEY"
@@ -47,4 +45,6 @@ const (
 	DEFAULT_JWT_EXPIRATION_DURATION   = 1440
 	DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH = ".keys/private_key.pem"
 	DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH  = ".keys/public_key.pem"
+	DEFAULT_JWT_ISSUER                = "stk-auth-server"
+	DEFAULT_JWT_SUBJECT               = "authentication"
 )

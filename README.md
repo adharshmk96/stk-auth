@@ -15,10 +15,9 @@ stk-auth serve -p 8080
 refer [dev docs](docs/dev.md) for general overview
 
 References.
+- [architecture](docs/architecture.md)
 - [server](docs/server.md)
-- [account services](docs/services/account.md)
-- [storage](docs/storage/storage.md)
-- [sqlite storage](docs/storage/sqlite.md)
+- [config](docs/config.md)
 
 
 ## About

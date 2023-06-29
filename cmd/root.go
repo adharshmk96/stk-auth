@@ -6,8 +6,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/ory/viper"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var version = "v0.1.0"
