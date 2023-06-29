@@ -104,3 +104,9 @@ clean:
 	@rm -f auth_database.db
 	@rm -f coverage.out
 	
+##########################
+### STK Stuff
+##########################
+
+mkdocs:
+	@python ./scripts/docgen.py

@@ -1,6 +1,6 @@
 import re
 
-def create_documentation(filename):
+def create_config_docs(filename):
     with open(filename, 'r') as go_file:
         content = go_file.readlines()
 
@@ -31,8 +31,13 @@ def create_documentation(filename):
 
     return output
 
-def write_to_markdown(data_structure, filename):
+def write_config_docs(data_structure, filename):
     with open(filename, "w") as doc_file:
+
+        doc_file.write("# Configurations\n\n")
+        doc_file.write("[back to main](../README.md)\n\n")
+        doc_file.write("This document describes the configuration options for the server\n\n")
+
         for entry in data_structure:
             doc_file.write(f"## {entry['type']}\n")
             for content in entry['content']:
@@ -41,5 +46,5 @@ def write_to_markdown(data_structure, filename):
 
 
 
-document_structure = create_documentation("pkg\infra\env.go")
-write_to_markdown(document_structure, "docs\config2.md")
+document_structure = create_config_docs("pkg\infra\env.go")
+write_config_docs(document_structure, "docs\config.md")

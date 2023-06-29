@@ -2,7 +2,7 @@
 
 [back to main](../README.md)
 
-This document describes the configuration options for the server 
+This document describes the configuration options for the server
 
 ## Server
 **SERVER_MODE**: `SERVER_DEV_MODE` or `SERVER_PROD_MODE` (default `SERVER_DEV_MODE`)
