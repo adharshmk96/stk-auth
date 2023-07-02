@@ -13,7 +13,8 @@ const (
 // config name
 const (
 	// Server
-	ENV_SERVER_MODE = "server.mode"
+	ENV_SERVER_MODE   = "server.mode"
+	ENV_SERVER_DOMAIN = "server.domain"
 
 	// Session
 	ENV_SESSION_COOKIE_NAME     = "server.cookie.session.name"
@@ -37,6 +38,7 @@ const (
 
 // config defaults
 const (
+	DEFAULT_SERVER_DOMAIN = "localhost:8080"
 	// Session
 	DEFAULT_SESSION_COOKIE_NAME     = "stk_session"
 	DEFAULT_SESSION_JWT_COOKIE_NAME = "stk_session_token"

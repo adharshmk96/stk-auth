@@ -91,6 +91,7 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
 	response := gsk.Map{
@@ -126,7 +127,13 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 		return
 	}
 
-	jwtToken, err := h.userService.LoginUserSessionToken(userLogin)
+	sessionData, err := h.userService.LoginUserSession(userLogin)
+	if err != nil {
+		transport.HandleLoginError(err, ctx)
+		return
+	}
+
+	jwt, err := h.userService.GenerateJWT(userLogin, sessionData)
 	if err != nil {
 		transport.HandleLoginError(err, ctx)
 		return
@@ -135,10 +142,11 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
-		Value:    jwtToken,
+		Value:    jwt,
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
 	response := gsk.Map{

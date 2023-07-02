@@ -1,6 +1,9 @@
 package server
 
-import "github.com/adharshmk96/stk/gsk"
+import (
+	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk/gsk"
+)
 
 func StartServer(port string) *gsk.Server {
 
@@ -10,6 +13,8 @@ func StartServer(port string) *gsk.Server {
 	}
 
 	server := gsk.NewServer(serverConfig)
+
+	infra.LoadDefaultConfig()
 
 	setupRoutes(server)
 

@@ -1,45 +1,16 @@
 package infra
 
 import (
-	"time"
-
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/spf13/viper"
 )
 
-// server
-
-// JWT
-
-type Config struct {
-	// Server
-	SERVER_MODE string
-
-	// Session
-	SESSION_COOKIE_NAME     string
-	JWT_SESSION_COOKIE_NAME string
-
-	// JWT
-	JWT_EDCA_PRIVATE_KEY_PATH string
-	JWT_EDCA_PUBLIC_KEY_PATH  string
-	JWT_EDCA_PUBLIC_KEY       string
-	JWT_EDCA_PRIVATE_KEY      string
-	JWT_EXPIRATION_DURATION   time.Duration
-	JWT_SUBJECT               string
-	JWT_ISSUER                string
-
-	// Storage
-	SQLITE_FILE_PATH    string
-	MIGRATION_FILE_PATH string
-}
-
-var config = &Config{}
-
 // Configurations are loaded from the environment variables using viper.
 // callin this function will reLoad the config. (useful for testing)
 // WARN: this will reload all the config.
-func LoadConfigFromEnv() {
+func LoadDefaultConfig() {
 
+	viper.SetDefault(constants.ENV_SERVER_DOMAIN, constants.DEFAULT_SERVER_DOMAIN)
 	viper.SetDefault(constants.ENV_SERVER_MODE, constants.SERVER_DEV_MODE)
 
 	viper.SetDefault(constants.ENV_SESSION_COOKIE_NAME, constants.DEFAULT_SESSION_COOKIE_NAME)
@@ -82,12 +53,4 @@ func LoadConfigFromEnv() {
 
 	// MIGRATION_FILE_PATH: migration file path (default `./migrations`)
 
-}
-
-func GetConfig() *Config {
-	return config
-}
-
-func init() {
-	LoadConfigFromEnv()
 }

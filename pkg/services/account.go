@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 )
 
 // RegisterUser stores user details and returns the stored user details
@@ -85,6 +87,7 @@ func (u *accountService) ValidateLogin(login *entities.Account) error {
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
 func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Session, error) {
+	// TODO: Move this to handler and change this to generate session
 	err := u.ValidateLogin(user)
 	if err != nil {
 		return nil, err
@@ -109,44 +112,40 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 	return session, nil
 }
 
-// LoginUserSessionToken creates a new session for the user and returns a signed JWT token
-// - Calls the storage layer to retrieve the user information
-// - Verifies the password
-// - Generates a new session id
-// - Calls the storage layer to store the session information
-// - Generates a signed JWT token
+// GenerateJWT generates a signed JWT token
+// - Generates a new JWT token
+// - Signs the token with the private key
 // ERRORS:
-// - service: ErrInvalidCredentials
-// - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
-	err := u.ValidateLogin(user)
-	if err != nil {
-		return "", err
-	}
+// - service: ErrJWTPrivateKey
+func (u *accountService) GenerateJWT(user *entities.Account, session *entities.Session) (string, error) {
+	userId := user.ID.String()
+	sessionId := session.SessionID
 
-	userId := user.ID
-	newSessionId := uuid.New().String()
-	currentTimestamp := time.Now()
+	timeNow := time.Now()
 
-	session := &entities.Session{
+	claims := customClaims{
+		SessionID: sessionId,
 		UserID:    userId,
-		SessionID: newSessionId,
-		CreatedAt: currentTimestamp,
-		UpdatedAt: currentTimestamp,
-		Valid:     true,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userId,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
+			IssuedAt:  jwt.NewNumericDate(timeNow),
+			ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION))),
+		},
 	}
 
-	if err = u.storage.SaveSession(session); err != nil {
-		return "", err
-	}
-
-	claims := helpers.MakeCustomClaims(userId.String(), newSessionId)
-	signedToken, err := helpers.GetSignedTokenWithClaims(claims)
+	privateKey, err := helpers.GetJWTPrivateKey()
 	if err != nil {
+		logger.Error("error getting private key: ", err)
 		return "", err
 	}
-
-	return signedToken, nil
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	signedToken, err := token.SignedString(privateKey)
+	if err != nil {
+		logger.Error("error signing token: ", err)
+		return "", err
+	}
+	return signedToken, err
 }
 
 // GetUserBySessionId retrieves and returns the user information by sesion id

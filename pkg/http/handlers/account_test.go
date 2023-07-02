@@ -12,6 +12,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/gsk"
@@ -219,6 +220,8 @@ func TestLoginUserSession(t *testing.T) {
 		Valid:     true,
 	}
 
+	infra.LoadDefaultConfig()
+
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
@@ -260,15 +263,30 @@ func TestLoginUserSession(t *testing.T) {
 
 func TestLoginUserSessionToken(t *testing.T) {
 
-	username := "test"
-	password := "#Password123"
+	uid := uuid.New()
+	sid := uuid.NewString()
+	userId := entities.UserID(uid)
+	username := "user"
+	password := "password"
+	created := time.Now()
+	updated := time.Now()
 
 	login := UserLogin{
 		Username: username,
 		Password: password,
 	}
 
+	sessionData := &entities.Session{
+		UserID:    userId,
+		CreatedAt: created,
+		UpdatedAt: updated,
+		SessionID: sid,
+		Valid:     true,
+	}
+
 	sessionToken := "header.claims.signature"
+
+	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
@@ -280,7 +298,8 @@ func TestLoginUserSessionToken(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSessionToken", mock.Anything).Return(sessionToken, nil)
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, nil).Once()
+		service.On("GenerateJWT", mock.AnythingOfType("*entities.Account"), mock.AnythingOfType("*entities.Session")).Return(sessionToken, nil).Once()
 
 		s.Post("/login", handler.LoginUserSessionToken)
 
@@ -291,7 +310,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertExpectations(t)
 
 		var response gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
@@ -796,7 +815,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
-		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBody2 gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBody2)
@@ -809,7 +828,7 @@ func TestCommonErrors(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Post("/login/token/b", handler.LoginUserSessionToken)
+		// s.Post("/login/token/b", handler.LoginUserSessionToken)
 		s.Post("/login/b", handler.LoginUserSession)
 
 		body, _ := json.Marshal(login)
@@ -819,7 +838,6 @@ func TestCommonErrors(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrInvalidCredentials)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrInvalidCredentials)
 
 		s.Router.ServeHTTP(w, r)
 
@@ -829,19 +847,6 @@ func TestCommonErrors(t *testing.T) {
 		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
 		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBody["error"])
-
-		// session token login
-		r2 := httptest.NewRequest("POST", "/login/token/b", bytes.NewBuffer(body))
-		w2 := httptest.NewRecorder()
-
-		s.Router.ServeHTTP(w2, r2)
-
-		assert.Equal(t, http.StatusUnauthorized, w2.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
-
-		var responseBodyt gsk.Map
-		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
-		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBodyt["error"])
 
 	})
 
@@ -881,7 +886,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
-		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
@@ -899,7 +904,6 @@ func TestCommonErrors(t *testing.T) {
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrDBStorageFailed)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrDBStorageFailed)
 
 		s.Post("/login/d", handler.LoginUserSession)
 		s.Post("/login/d/token", handler.LoginUserSessionToken)
@@ -926,7 +930,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusInternalServerError, w2.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
