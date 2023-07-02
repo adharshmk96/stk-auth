@@ -66,11 +66,33 @@ func HandleValidationError(errorMessages map[string]string, ctx gsk.Context) {
 }
 
 func HandleLogoutError(err error, ctx gsk.Context) {
+	if err == svrerr.ErrInvalidToken {
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			"error": ERROR_UNAUTHORIZED,
+		})
+	}
 	if err == svrerr.ErrInvalidSession {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"error": ERROR_UNAUTHORIZED,
 		})
 	} else {
+		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"error": INTERNAL_SERVER_ERROR,
+		})
+	}
+}
+
+func HandleGetUserError(err error, ctx gsk.Context) {
+	switch err {
+	case svrerr.ErrDBEntryNotFound, svrerr.ErrInvalidSession:
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			"error": ERROR_UNAUTHORIZED,
+		})
+	case svrerr.ErrInvalidCredentials:
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			"error": INVALID_CREDENTIALS,
+		})
+	default:
 		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 			"error": INTERNAL_SERVER_ERROR,
 		})
