@@ -22,7 +22,9 @@ func setupRoutes(server *gsk.Server) {
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
 	server.Post("/api/auth/session/login/token", userHandler.LoginUserSessionToken)
 
-	server.Post("/api/oidc/login", userHandler.LoginUserSessionToken)
+	// server.Post("/api/auth/token/login", userHandler.LoginUserSessionToken) // issues access and refresh tokens(refresh expiry = loggedout)
+	// server.Post("/api/auth/token/access/validate", userHandler.LoginUserSessionToken) // validates access token
+	// server.Post("/api/auth/token/access/refresh", userHandler.LoginUserSessionToken) // issues new access token
 
 	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
 	server.Get("/api/auth/session/user/token", userHandler.GetSessionTokenUser)
