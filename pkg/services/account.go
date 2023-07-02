@@ -123,7 +123,7 @@ func (u *accountService) GenerateJWT(user *entities.Account, session *entities.S
 
 	timeNow := time.Now()
 
-	claims := customClaims{
+	claims := CustomClaims{
 		SessionID: sessionId,
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{

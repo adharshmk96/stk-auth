@@ -6,6 +6,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
@@ -248,7 +249,6 @@ func setupKeysDir() (string, string) {
 
 	viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, string(privateKeyPEM))
 	viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY, string(publicKeyPEM))
-	viper.AutomaticEnv()
 
 	return string(privateKeyPEM), string(publicKeyPEM)
 }
@@ -350,6 +350,7 @@ func generateExpiredToken(user, session string) (string, error) {
 func TestAccountService_GetUserBySessionToken(t *testing.T) {
 
 	setupKeysDir()
+	infra.LoadDefaultConfig()
 
 	user_name := "testuser"
 	user_email := "user@email.com"
@@ -359,8 +360,8 @@ func TestAccountService_GetUserBySessionToken(t *testing.T) {
 	user_id := entities.UserID(uuid.New())
 	session_id := uuid.NewString()
 
-	// token, err := generateToken(user_id.String(), session_id)
-	// assert.NoError(t, err)
+	token, err := generateToken(user_id.String(), session_id)
+	assert.NoError(t, err)
 
 	expired_token, err := generateExpiredToken(user_id.String(), session_id)
 	assert.NoError(t, err)
@@ -380,24 +381,23 @@ func TestAccountService_GetUserBySessionToken(t *testing.T) {
 		Token:   "",
 	}
 
-	// TODO FIX THIS TEST
-	// t.Run("returns user data if session token is valid and not expired", func(t *testing.T) {
-	// 	mockStore := mocks.NewAccountStore(t)
-	// 	service := services.NewAccountService(mockStore)
+	t.Run("returns user data if session token is valid and not expired", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
 
-	// 	mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil)
+		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil)
 
-	// 	userData, err := service.GetUserBySessionToken(token)
+		userData, err := service.GetUserBySessionToken(token)
 
-	// 	mockStore.AssertCalled(t, "GetUserByUserID", user_id.String())
-	// 	mockStore.AssertNotCalled(t, "GetUserBySessionID", user_id.String())
+		mockStore.AssertCalled(t, "GetUserByUserID", user_id.String())
+		mockStore.AssertNotCalled(t, "GetUserBySessionID", user_id.String())
 
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, accountWithToken.Account, userData.Account)
-	// 	assert.NotEmpty(t, userData.Token)
-	// 	assert.Equal(t, token, userData.Token)
+		assert.NoError(t, err)
+		assert.Equal(t, accountWithToken.Account, userData.Account)
+		assert.NotEmpty(t, userData.Token)
+		assert.Equal(t, token, userData.Token)
 
-	// })
+	})
 
 	t.Run("returns user data and updated token if session token is valid but expired", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
@@ -534,5 +534,73 @@ func TestAccountService_LogoutUserBySessionToken(t *testing.T) {
 		mockStore.AssertCalled(t, "InvalidateSessionByID", session_id)
 
 		assert.ErrorIs(t, err, svrerr.ErrInvalidSession)
+	})
+}
+
+func parseToken(token string) (*services.CustomClaims, error) {
+
+	claims := services.CustomClaims{}
+
+	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return jwt.ParseRSAPublicKeyFromPEM([]byte(viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)))
+	})
+	return &claims, err
+}
+
+func TestAccountService_TestGenerateJWT(t *testing.T) {
+
+	t.Run("generates a valid token", func(t *testing.T) {
+		_, _ = setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		user := &entities.Account{
+			ID:       entities.UserID(uuid.New()),
+			Username: "test",
+			Password: "test",
+		}
+
+		session := &entities.Session{
+			SessionID: uuid.NewString(),
+			UserID:    user.ID,
+		}
+
+		token, err := service.GenerateJWT(user, session)
+		assert.NoError(t, err)
+
+		claims, _ := parseToken(token)
+		assert.NoError(t, err)
+
+		assert.Equal(t, user.ID.String(), claims.UserID)
+		assert.Equal(t, session.SessionID, claims.SessionID)
+	})
+
+	t.Run("returns error if key is invalid", func(t *testing.T) {
+		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, "")
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		user := &entities.Account{
+			ID:       entities.UserID(uuid.New()),
+			Username: "test",
+			Password: "test",
+		}
+
+		session := &entities.Session{
+			SessionID: uuid.NewString(),
+			UserID:    user.ID,
+		}
+
+		token, err := service.GenerateJWT(user, session)
+		assert.Error(t, err)
+
+		assert.Empty(t, token)
+
 	})
 }

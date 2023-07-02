@@ -12,7 +12,7 @@ type accountService struct {
 	storage entities.AccountStore
 }
 
-type customClaims struct {
+type CustomClaims struct {
 	SessionID string `json:"session_id"`
 	UserID    string `json:"user_id"`
 	jwt.RegisteredClaims
