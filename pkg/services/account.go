@@ -123,7 +123,7 @@ func (u *accountService) GenerateJWT(user *entities.Account, session *entities.S
 
 	timeNow := time.Now()
 
-	claims := CustomClaims{
+	claims := &entities.CustomClaims{
 		SessionID: sessionId,
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -176,32 +176,34 @@ func (u *accountService) GetUserBySessionId(sessionId string) (*entities.Account
 func (u *accountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
 	// TODO: refactor this
 
-	claims, err := helpers.VerifyToken(sessionToken)
+	claims, err := u.ValidateJWT(sessionToken)
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenExpired) {
-			user, err := u.storage.GetUserBySessionID(claims.SessionID)
-			if err != nil {
-				if err == svrerr.ErrDBEntryNotFound {
-					return nil, svrerr.ErrInvalidSession
-				}
-				return nil, err
-			}
-
-			logger.Info("token expired, session is valid, refreshing token")
-
-			claims := helpers.MakeCustomClaims(claims.UserID, claims.SessionID)
-			signedToken, err := helpers.GetSignedTokenWithClaims(claims)
-			if err != nil {
-				return nil, err
-			}
-
-			accountWithToken := &entities.AccountWithToken{
-				Account: *user,
-				Token:   signedToken,
-			}
-			return accountWithToken, nil
+		if !errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, svrerr.ErrInvalidToken
 		}
-		return nil, svrerr.ErrInvalidToken
+
+		user, err := u.storage.GetUserBySessionID(claims.SessionID)
+		if err != nil {
+			if err == svrerr.ErrDBEntryNotFound {
+				return nil, svrerr.ErrInvalidSession
+			}
+			return nil, err
+		}
+
+		logger.Info("token expired, session is valid, refreshing token")
+
+		claims := helpers.MakeCustomClaims(claims.UserID, claims.SessionID)
+		signedToken, err := helpers.GetSignedTokenWithClaims(claims)
+		if err != nil {
+			return nil, err
+		}
+
+		accountWithToken := &entities.AccountWithToken{
+			Account: *user,
+			Token:   signedToken,
+		}
+		return accountWithToken, nil
+
 	}
 
 	userId := claims.UserID
@@ -240,6 +242,26 @@ func (u *accountService) LogoutUserBySessionId(sessionId string) error {
 	return nil
 }
 
+// ValidateJWT validates the JWT token
+// - Retrieves the public key
+// - Validates the token
+func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, error) {
+	publicKey, err := helpers.GetJWTPublicKey()
+	if err != nil {
+		logger.Error("error getting public key: ", err)
+		return nil, err
+	}
+	claims := &entities.CustomClaims{}
+	_, err = jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return publicKey, nil
+	})
+	if err != nil {
+		logger.Error("error verifying token: ", err)
+		return nil, err
+	}
+	return claims, nil
+}
+
 // LogoutUserBySessionToken invalidates the session token
 // - Validates the token, and retrieves the session_id claim
 // - Calls the storage layer to set the session validity
@@ -248,7 +270,7 @@ func (u *accountService) LogoutUserBySessionId(sessionId string) error {
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
 func (u *accountService) LogoutUserBySessionToken(sessionToken string) error {
 
-	claims, err := helpers.VerifyToken(sessionToken)
+	claims, err := u.ValidateJWT(sessionToken)
 	if err != nil {
 		if !errors.Is(err, jwt.ErrTokenExpired) {
 			return svrerr.ErrInvalidToken

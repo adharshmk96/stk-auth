@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/golang-jwt/jwt/v5"
@@ -12,12 +13,6 @@ import (
 )
 
 var logger = infra.GetLogger()
-
-type customClaims struct {
-	SessionID string `json:"session_id"`
-	UserID    string `json:"user_id"`
-	jwt.RegisteredClaims
-}
 
 func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
 
@@ -34,24 +29,10 @@ func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
 	return signedToken, err
 }
 
-func VerifyToken(token string) (*customClaims, error) {
-	publicKey, err := GetJWTPublicKey()
-	if err != nil {
-		logger.Error("error getting public key: ", err)
-		return nil, err
-	}
-	claims, err := verifyToken(publicKey, token)
-	if err != nil {
-		logger.Error("error verifying token: ", err)
-		return claims, err
-	}
-	return claims, nil
-}
-
 func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	timeNow := time.Now()
 
-	claims := customClaims{
+	claims := entities.CustomClaims{
 		SessionID: sessionId,
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -63,17 +44,6 @@ func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	}
 
 	return claims
-}
-
-func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) {
-	claims := &customClaims{}
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return publicKey, nil
-	})
-	if err != nil {
-		return claims, err
-	}
-	return claims, nil
 }
 
 func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, error) {

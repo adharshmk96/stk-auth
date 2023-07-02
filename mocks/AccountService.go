@@ -168,6 +168,32 @@ func (_m *AccountService) RegisterUser(user *entities.Account) (*entities.Accoun
 	return r0, r1
 }
 
+// ValidateJWT provides a mock function with given fields: token
+func (_m *AccountService) ValidateJWT(token string) (*entities.CustomClaims, error) {
+	ret := _m.Called(token)
+
+	var r0 *entities.CustomClaims
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*entities.CustomClaims, error)); ok {
+		return rf(token)
+	}
+	if rf, ok := ret.Get(0).(func(string) *entities.CustomClaims); ok {
+		r0 = rf(token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.CustomClaims)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(token)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ValidateLogin provides a mock function with given fields: login
 func (_m *AccountService) ValidateLogin(login *entities.Account) error {
 	ret := _m.Called(login)

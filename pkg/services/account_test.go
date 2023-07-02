@@ -537,9 +537,9 @@ func TestAccountService_LogoutUserBySessionToken(t *testing.T) {
 	})
 }
 
-func parseToken(token string) (*services.CustomClaims, error) {
+func parseToken(token string) (*entities.CustomClaims, error) {
 
-	claims := services.CustomClaims{}
+	claims := entities.CustomClaims{}
 
 	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return jwt.ParseRSAPublicKeyFromPEM([]byte(viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)))
