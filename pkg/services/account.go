@@ -43,6 +43,39 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 	return user, nil
 }
 
+// ValidateLogin validates the user login information
+// - Retrieves the user from the storage layer
+// - Verifies the password
+// ERRORS:
+// - service: ErrInvalidCredentials
+// - storage: ErrDBEntryNotFound, ErrDBStorageFailed
+func (u *accountService) ValidateLogin(login *entities.Account) error {
+	var userRecord *entities.Account
+	var err error
+	if login.Email == "" {
+		userRecord, err = u.storage.GetUserByUsername(login.Username)
+	} else {
+		userRecord, err = u.storage.GetUserByEmail(login.Email)
+	}
+	if err != nil {
+		if err == svrerr.ErrDBEntryNotFound {
+			return svrerr.ErrInvalidCredentials
+		}
+		return err
+	}
+
+	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, login.Password)
+	if err != nil {
+		logger.Error("error verifying password: ", err)
+		return err
+	}
+	if !valid {
+		return svrerr.ErrInvalidCredentials
+	}
+	login.ID = userRecord.ID
+	return nil
+}
+
 // LoginUserSession creates a new session for the user and returns the session id
 // - Retrieves the user from the storage layer
 // - Verifies the password
@@ -52,34 +85,17 @@ func (u *accountService) RegisterUser(user *entities.Account) (*entities.Account
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
 func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Session, error) {
-	var userRecord *entities.Account
-	var err error
-	if user.Email == "" {
-		userRecord, err = u.storage.GetUserByUsername(user.Username)
-	} else {
-		userRecord, err = u.storage.GetUserByEmail(user.Email)
-	}
+	err := u.ValidateLogin(user)
 	if err != nil {
-		if err == svrerr.ErrDBEntryNotFound {
-			return nil, svrerr.ErrInvalidCredentials
-		}
 		return nil, err
 	}
 
-	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
-	if err != nil {
-		logger.Error("error verifying password: ", err)
-		return nil, err
-	}
-	if !valid {
-		return nil, svrerr.ErrInvalidCredentials
-	}
-
+	userId := user.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 
 	session := &entities.Session{
-		UserID:    userRecord.ID,
+		UserID:    userId,
 		SessionID: newSessionId,
 		CreatedAt: currentTimestamp,
 		UpdatedAt: currentTimestamp,
@@ -103,31 +119,12 @@ func (u *accountService) LoginUserSession(user *entities.Account) (*entities.Ses
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
 func (u *accountService) LoginUserSessionToken(user *entities.Account) (string, error) {
-	// TODO: refactor this
-	var userRecord *entities.Account
-	var err error
-	if user.Email == "" {
-		userRecord, err = u.storage.GetUserByUsername(user.Username)
-	} else {
-		userRecord, err = u.storage.GetUserByEmail(user.Email)
-	}
+	err := u.ValidateLogin(user)
 	if err != nil {
-		if err == svrerr.ErrDBEntryNotFound {
-			return "", svrerr.ErrInvalidCredentials
-		}
 		return "", err
 	}
 
-	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, user.Password)
-	if err != nil {
-		logger.Error("error verifying password: ", err)
-		return "", err
-	}
-	if !valid {
-		return "", svrerr.ErrInvalidCredentials
-	}
-
-	userId := userRecord.ID
+	userId := user.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 

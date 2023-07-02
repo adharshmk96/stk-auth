@@ -13,6 +13,7 @@ type AccountHandler interface {
 
 type AccountService interface {
 	RegisterUser(user *Account) (*Account, error)
+	ValidateLogin(login *Account) error
 	LoginUserSession(user *Account) (*Session, error)
 	LoginUserSessionToken(user *Account) (string, error)
 	GetUserBySessionId(sessionId string) (*Account, error)
