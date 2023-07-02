@@ -40,8 +40,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/adharshmk96/migdb v0.2.9 h1:iCoZofj4K04KKNE1IkT/di2+kWkgDLE48B01N32kYpY=
 github.com/adharshmk96/migdb v0.2.9/go.mod h1:w+4U0SeKD52DvIzoYwXqJlg7Xz/MN4qQoIlfrku5++8=
-github.com/adharshmk96/stk v0.3.2 h1:VV4IF/MY2zx7olBNiV2RK5Zqbwcb5T8H3cl+UN5bftQ=
-github.com/adharshmk96/stk v0.3.2/go.mod h1:suKVz9EA9Jqil3rfxgagNjvnG3Sgh5sBqDf/IfqNk+s=
+github.com/adharshmk96/stk v0.4.0 h1:TthkPt/ScJ3OLKo99HOaqxTksGgxFVM5BjV6yqh76Ro=
+github.com/adharshmk96/stk v0.4.0/go.mod h1:r/6wFCsSibwGWcv7/WHfATW6J+k/h+QottkJBvzxhtY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=

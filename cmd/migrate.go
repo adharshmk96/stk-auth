@@ -9,7 +9,7 @@ import (
 	migdbSqlite "github.com/adharshmk96/migdb/pkg/storage/sqlite"
 	migdbUtils "github.com/adharshmk96/migdb/pkg/utils"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
-	"github.com/adharshmk96/stk/db"
+	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/spf13/cobra"
 )
 

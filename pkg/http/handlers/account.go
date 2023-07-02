@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/adharshmk96/stk"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk/gsk"
 )
 
 var config = infra.GetConfig()
@@ -23,7 +23,7 @@ var config = infra.GetConfig()
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *accountHandler) RegisterUser(ctx stk.Context) {
+func (h *accountHandler) RegisterUser(ctx gsk.Context) {
 	var user *entities.Account
 
 	err := ctx.DecodeJSONBody(&user)
@@ -65,7 +65,7 @@ func (h *accountHandler) RegisterUser(ctx stk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSession(ctx stk.Context) {
+func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 	var userLogin *entities.Account
 
 	err := ctx.DecodeJSONBody(&userLogin)
@@ -95,7 +95,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 		Path:     "/",
 	}
 
-	response := stk.Map{
+	response := gsk.Map{
 		"message": transport.SUCCESS_LOGIN,
 	}
 
@@ -113,7 +113,7 @@ func (h *accountHandler) LoginUserSession(ctx stk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
+func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 	var userLogin *entities.Account
 
 	err := ctx.DecodeJSONBody(&userLogin)
@@ -143,7 +143,7 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 		Path:     "/",
 	}
 
-	response := stk.Map{
+	response := gsk.Map{
 		"message": transport.SUCCESS_LOGIN,
 	}
 
@@ -159,17 +159,17 @@ func (h *accountHandler) LoginUserSessionToken(ctx stk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionUser(ctx stk.Context) {
+func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.SESSION_COOKIE_NAME)
 	if err != nil {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
 	}
 
 	if sessionCookie == nil || sessionCookie.Value == "" {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -178,11 +178,11 @@ func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
 	if err != nil {
 		if err == svrerr.ErrInvalidSession {
-			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
 		} else {
-			ctx.Status(http.StatusInternalServerError).JSONResponse(stk.Map{
+			ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 				"message": transport.INTERNAL_SERVER_ERROR,
 			})
 		}
@@ -208,17 +208,17 @@ func (h *accountHandler) GetSessionUser(ctx stk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
+func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 	sessionCookie, err := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
 	if err != nil {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
 	}
 
 	if sessionCookie == nil || sessionCookie.Value == "" {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -227,15 +227,15 @@ func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 	userWithToken, err := h.userService.GetUserBySessionToken(sessionCookie.Value)
 	if err != nil {
 		if err == svrerr.ErrInvalidToken {
-			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
 		} else if err == svrerr.ErrInvalidSession {
-			ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
 		} else {
-			ctx.Status(http.StatusInternalServerError).JSONResponse(stk.Map{
+			ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 				"message": transport.INTERNAL_SERVER_ERROR,
 			})
 		}
@@ -271,10 +271,10 @@ func (h *accountHandler) GetSessionTokenUser(ctx stk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) LogoutUser(ctx stk.Context) {
+func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 	sessionCookie, sessionToken, err := transport.GetSessionOrTokenFromCookie(ctx)
 	if err != nil {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(stk.Map{
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -309,7 +309,7 @@ func (h *accountHandler) LogoutUser(ctx stk.Context) {
 
 	ctx.SetCookie(cookie)
 
-	ctx.Status(http.StatusOK).JSONResponse(stk.Map{
+	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,
 	})
 }

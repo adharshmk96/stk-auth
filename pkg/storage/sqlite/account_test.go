@@ -8,7 +8,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
-	"github.com/adharshmk96/stk/db"
+	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

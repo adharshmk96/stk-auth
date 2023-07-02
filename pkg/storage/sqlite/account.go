@@ -7,7 +7,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
-	"github.com/adharshmk96/stk/db"
+	"github.com/adharshmk96/stk/pkg/db"
 )
 
 var logger = infra.GetLogger()

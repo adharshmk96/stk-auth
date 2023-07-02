@@ -3,7 +3,7 @@ module github.com/adharshmk96/stk-auth
 go 1.20
 
 require (
-	github.com/adharshmk96/stk v0.3.2
+	github.com/adharshmk96/stk v0.4.0
 	github.com/google/uuid v1.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.3
