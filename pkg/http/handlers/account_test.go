@@ -8,13 +8,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/adharshmk96/stk"
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk/gsk"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -50,11 +50,11 @@ func TestRegisterUser(t *testing.T) {
 	}
 
 	t.Run("returns 201 and user data if user data is stored", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -85,11 +85,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 400 if validation fails on data", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		body := []byte(`{ whatever }`)
 
@@ -108,11 +108,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 if there is storage error", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -133,11 +133,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 when passing userid in request body, fails decoding.", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		newUserId := uuid.NewString()
 
@@ -159,11 +159,11 @@ func TestRegisterUser(t *testing.T) {
 	})
 
 	t.Run("returns 400 for invalid email", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
 
@@ -221,11 +221,11 @@ func TestLoginUserSession(t *testing.T) {
 	}
 
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -244,7 +244,7 @@ func TestLoginUserSession(t *testing.T) {
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
 		// check if response has "message"
-		var response stk.Map
+		var response gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
 
@@ -272,11 +272,11 @@ func TestLoginUserSessionToken(t *testing.T) {
 	sessionToken := "header.claims.signature"
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -294,7 +294,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var response stk.Map
+		var response gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
 
@@ -336,11 +336,11 @@ func TestGetSessionUser(t *testing.T) {
 	// 	Valid:     true,
 	// }
 
-	stkconfig := &stk.ServerConfig{
+	stkconfig := &gsk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(stkconfig)
+	s := gsk.NewServer(stkconfig)
 
 	t.Run("returns 200 and user details if session id is present in the cookie", func(t *testing.T) {
 
@@ -457,11 +457,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 		Token:   "abcdefg-asdfasdf",
 	}
 
-	stkconfig := &stk.ServerConfig{
+	stkconfig := &gsk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(stkconfig)
+	s := gsk.NewServer(stkconfig)
 
 	t.Run("returns 200 and user details if valid session token is present in the cookie", func(t *testing.T) {
 
@@ -588,11 +588,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 func TestLogoutUser(t *testing.T) {
 
-	stkconfig := &stk.ServerConfig{
+	stkconfig := &gsk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(stkconfig)
+	s := gsk.NewServer(stkconfig)
 
 	t.Run("returns 200 service validates the session id in the cookie", func(t *testing.T) {
 
@@ -749,11 +749,11 @@ func TestCommonErrors(t *testing.T) {
 		Valid:     true,
 	}
 
-	stkconfig := &stk.ServerConfig{
+	stkconfig := &gsk.ServerConfig{
 		Port:           "8080",
 		RequestLogging: false,
 	}
-	s := stk.NewServer(stkconfig)
+	s := gsk.NewServer(stkconfig)
 
 	t.Run("returns 400 if request body is nil", func(t *testing.T) {
 
@@ -773,7 +773,7 @@ func TestCommonErrors(t *testing.T) {
 		service.AssertNotCalled(t, "RegisterUser", mock.Anything)
 		assert.Equal(t, http.StatusBadRequest, w3.Code)
 
-		var responseBody3 stk.Map
+		var responseBody3 gsk.Map
 		json.Unmarshal(w3.Body.Bytes(), &responseBody3)
 		assert.Equal(t, transport.INVALID_BODY, responseBody3["error"])
 
@@ -786,7 +786,7 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
 
-		var responseBody stk.Map
+		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
 		assert.Equal(t, transport.INVALID_BODY, responseBody["error"])
 
@@ -799,7 +799,7 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var responseBody2 stk.Map
+		var responseBody2 gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBody2)
 		assert.Equal(t, transport.INVALID_BODY, responseBody2["error"])
 
@@ -827,7 +827,7 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
-		var responseBody stk.Map
+		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
 		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBody["error"])
 
@@ -840,7 +840,7 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w2.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var responseBodyt stk.Map
+		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
 		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBodyt["error"])
 
@@ -871,7 +871,7 @@ func TestCommonErrors(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 
-		var responseBody stk.Map
+		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
 		assert.Equal(t, svrerr.ErrValidationFailed.Error(), responseBody["error"])
 
@@ -884,17 +884,17 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var responseBodyt stk.Map
+		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
 		assert.Equal(t, svrerr.ErrValidationFailed.Error(), responseBodyt["error"])
 	})
 
 	t.Run("returns 500 if storage fails for some reason", func(t *testing.T) {
-		stkconfig := &stk.ServerConfig{
+		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
 			RequestLogging: false,
 		}
-		s := stk.NewServer(stkconfig)
+		s := gsk.NewServer(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -916,9 +916,9 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		service.AssertCalled(t, "LoginUserSession", mock.Anything)
 
-		var responseBody stk.Map
+		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
-		assert.Equal(t, stk.ErrInternalServer.Error(), responseBody["error"])
+		assert.Equal(t, gsk.ErrInternalServer.Error(), responseBody["error"])
 
 		// session token login
 		r2 := httptest.NewRequest("POST", "/login/d/token", bytes.NewBuffer(body))
@@ -929,9 +929,9 @@ func TestCommonErrors(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w2.Code)
 		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
 
-		var responseBodyt stk.Map
+		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
-		assert.Equal(t, stk.ErrInternalServer.Error(), responseBodyt["error"])
+		assert.Equal(t, gsk.ErrInternalServer.Error(), responseBodyt["error"])
 
 	})
 }

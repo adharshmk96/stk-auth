@@ -1,15 +1,15 @@
 package server
 
-import "github.com/adharshmk96/stk"
+import "github.com/adharshmk96/stk/gsk"
 
-func StartServer(port string) *stk.Server {
+func StartServer(port string) *gsk.Server {
 
-	serverConfig := &stk.ServerConfig{
+	serverConfig := &gsk.ServerConfig{
 		Port:           port,
 		RequestLogging: true,
 	}
 
-	server := stk.NewServer(serverConfig)
+	server := gsk.NewServer(serverConfig)
 
 	setupRoutes(server)
 

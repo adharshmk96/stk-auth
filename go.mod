@@ -3,21 +3,19 @@ module github.com/adharshmk96/stk-auth
 go 1.20
 
 require (
-	github.com/adharshmk96/stk v0.3.2
+	github.com/adharshmk96/stk v0.4.0
 	github.com/google/uuid v1.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.3
 )
 
 require (
-	github.com/adharshmk96/migdb v0.2.9
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/spf13/viper v1.16.0
 )
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

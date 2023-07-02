@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	stk "github.com/adharshmk96/stk"
+	gsk "github.com/adharshmk96/stk/gsk"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,32 +13,32 @@ type AccountHandler struct {
 }
 
 // GetSessionTokenUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetSessionTokenUser(ctx stk.Context) {
+func (_m *AccountHandler) GetSessionTokenUser(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
 // GetSessionUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetSessionUser(ctx stk.Context) {
+func (_m *AccountHandler) GetSessionUser(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
 // LoginUserSession provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSession(ctx stk.Context) {
+func (_m *AccountHandler) LoginUserSession(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
 // LoginUserSessionToken provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSessionToken(ctx stk.Context) {
+func (_m *AccountHandler) LoginUserSessionToken(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
 // LogoutUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) LogoutUser(ctx stk.Context) {
+func (_m *AccountHandler) LogoutUser(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
 // RegisterUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) RegisterUser(ctx stk.Context) {
+func (_m *AccountHandler) RegisterUser(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 

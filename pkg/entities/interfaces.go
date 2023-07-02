@@ -1,14 +1,14 @@
 package entities
 
-import "github.com/adharshmk96/stk"
+import "github.com/adharshmk96/stk/gsk"
 
 type AccountHandler interface {
-	RegisterUser(ctx stk.Context)
-	LoginUserSession(ctx stk.Context)
-	LoginUserSessionToken(ctx stk.Context)
-	GetSessionUser(ctx stk.Context)
-	GetSessionTokenUser(ctx stk.Context)
-	LogoutUser(ctx stk.Context)
+	RegisterUser(ctx gsk.Context)
+	LoginUserSession(ctx gsk.Context)
+	LoginUserSessionToken(ctx gsk.Context)
+	GetSessionUser(ctx gsk.Context)
+	GetSessionTokenUser(ctx gsk.Context)
+	LogoutUser(ctx gsk.Context)
 }
 
 type AccountService interface {

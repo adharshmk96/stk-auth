@@ -29,7 +29,8 @@ type Config struct {
 	JWT_ISSUER                string
 
 	// Storage
-	SQLITE_FILE_PATH string
+	SQLITE_FILE_PATH    string
+	MIGRATION_FILE_PATH string
 }
 
 var config = &Config{}
@@ -86,6 +87,11 @@ func LoadConfigFromEnv() {
 
 	// SQLITE_FILE_PATH: sqlite file path (default `./db.sqlite`)
 	config.SQLITE_FILE_PATH = viper.GetString(constants.ENV_SQLITE_FILE)
+
+	// TYPE: Migration
+
+	// MIGRATION_FILE_PATH: migration file path (default `./migrations`)
+	config.MIGRATION_FILE_PATH = viper.GetString("migrator.workdir")
 
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
-	"github.com/adharshmk96/stk/utils"
+	"github.com/adharshmk96/stk/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )

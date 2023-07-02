@@ -1,0 +1,5 @@
+migrator:
+    database: sqlite3
+    sqlite:
+        filepath: stk.db
+    workdir: ./stk-migrations
