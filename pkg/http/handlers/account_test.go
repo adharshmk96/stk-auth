@@ -12,15 +12,14 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var config = infra.GetConfig()
 
 func TestRegisterUser(t *testing.T) {
 
@@ -250,7 +249,7 @@ func TestLoginUserSession(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, config.SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sid, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -300,7 +299,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, config.JWT_SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sessionToken, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -353,7 +352,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -391,7 +390,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -413,7 +412,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -474,7 +473,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -489,7 +488,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, wcookie)
 		assert.Equal(t, accountWithToken.Token, wcookie.Value)
 		assert.True(t, wcookie.HttpOnly)
@@ -521,7 +520,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -546,7 +545,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -571,7 +570,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -605,7 +604,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -621,7 +620,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -636,7 +635,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -652,7 +651,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -682,7 +681,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -708,7 +707,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 

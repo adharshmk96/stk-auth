@@ -3,8 +3,9 @@ package constants
 // constant values
 const (
 	// server
-	SERVER_DEV_MODE  = "SERVER_DEV_MODE"
-	SERVER_PROD_MODE = "SERVER_PROD_MODE"
+	SERVER_DEV_MODE     = "dev"
+	SERVER_STAGING_MODE = "stage"
+	SERVER_PROD_MODE    = "prod"
 )
 
 // #ENVIRONMENT VARIABLES
@@ -12,24 +13,26 @@ const (
 // config name
 const (
 	// Server
-	ENV_SERVER_MODE = "SERVER_MODE"
+	ENV_SERVER_MODE = "server.mode"
 
 	// Session
-	ENV_SESSION_COOKIE_NAME     = "SESSION_COOKIE_NAME"
-	ENV_JWT_SESSION_COOKIE_NAME = "JWT_SESSION_COOKIE_NAME"
+	ENV_SESSION_COOKIE_NAME     = "server.cookie.session.name"
+	ENV_JWT_SESSION_COOKIE_NAME = "server.cookie.jwt_session.name"
 
 	// Storage
-	ENV_SQLITE_FILE = "SQLITE_FILE"
+	ENV_SQLITE_FILE = "server.storage.sqlite.file"
+
+	ENV_MIGRATOR_DIR = "migrator.workdir"
 
 	// JWT
-	ENV_JWT_ISSUER  = "JWT_ISSUER"
-	ENV_JWT_SUBJECT = "JWT_SUBJECT"
+	ENV_JWT_ISSUER  = "server.jwt.issuer"
+	ENV_JWT_SUBJECT = "server.jwt.subject"
 
-	ENV_JWT_EXPIRATION_DURATION   = "JWT_EXPIRATION_DURATION"
-	ENV_JWT_EDCA_PRIVATE_KEY      = "JWT_EDCA_PRIVATE_KEY"
-	ENV_JWT_EDCA_PUBLIC_KEY       = "JWT_EDCA_PUBLIC_KEY"
-	ENV_JWT_EDCA_PRIVATE_KEY_PATH = "JWT_EDCA_PRIVATE_KEY_PATH"
-	ENV_JWT_EDCA_PUBLIC_KEY_PATH  = "JWT_EDCA_PUBLIC_KEY_PATH"
+	ENV_JWT_EXPIRATION_DURATION   = "server.jwt.expiry"
+	ENV_JWT_EDCA_PRIVATE_KEY      = "server.jwt.private_key"
+	ENV_JWT_EDCA_PUBLIC_KEY       = "server.jwt.public_key"
+	ENV_JWT_EDCA_PRIVATE_KEY_PATH = "server.jwt.private_key_path"
+	ENV_JWT_EDCA_PUBLIC_KEY_PATH  = "server.jwt.public_key_path"
 )
 
 // config defaults

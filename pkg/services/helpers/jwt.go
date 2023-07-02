@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 var logger = infra.GetLogger()
-
-var config = infra.GetConfig()
 
 type customClaims struct {
 	SessionID string `json:"session_id"`
@@ -56,9 +56,9 @@ func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userId,
-			Issuer:    config.JWT_ISSUER,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
 			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(timeNow.Add(config.JWT_EXPIRATION_DURATION)),
+			ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION))),
 		},
 	}
 
@@ -90,8 +90,8 @@ func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, erro
 ReadPrivateKey reads the private key from the environment variable or the file and returns as byte array
 */
 func ReadPrivateKey() []byte {
-	JWT_EDCA_PRIVATE_KEY := config.JWT_EDCA_PRIVATE_KEY
-	JWT_EDCA_PRIVATE_KEY_PATH := config.JWT_EDCA_PRIVATE_KEY_PATH
+	JWT_EDCA_PRIVATE_KEY := viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY)
+	JWT_EDCA_PRIVATE_KEY_PATH := viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY_PATH)
 	if JWT_EDCA_PRIVATE_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PRIVATE_KEY_PATH)
 		if err != nil {
@@ -106,8 +106,8 @@ func ReadPrivateKey() []byte {
 ReadPublicKey reads the public key from the environment variable or the file and returns as byte array
 */
 func ReadPublicKey() []byte {
-	JWT_EDCA_PUBLIC_KEY := config.JWT_EDCA_PUBLIC_KEY
-	JWT_EDCA_PUBLIC_KEY_PATH := config.JWT_EDCA_PUBLIC_KEY_PATH
+	JWT_EDCA_PUBLIC_KEY := viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)
+	JWT_EDCA_PUBLIC_KEY_PATH := viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH)
 	if JWT_EDCA_PUBLIC_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PUBLIC_KEY_PATH)
 		if err != nil {

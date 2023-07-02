@@ -3,16 +3,15 @@ package transport
 import (
 	"net/http"
 
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/gsk"
+	"github.com/spf13/viper"
 )
 
-var config = infra.GetConfig()
-
 func GetSessionOrTokenFromCookie(ctx gsk.Context) (*http.Cookie, *http.Cookie, error) {
-	sessionCookie, scerr := ctx.GetCookie(config.SESSION_COOKIE_NAME)
-	sessionToken, sterr := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
+	sessionCookie, scerr := ctx.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
+	sessionToken, sterr := ctx.GetCookie(viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 	if (scerr != nil && sterr != nil) || (scerr == nil && sessionCookie.Value == "") || (sterr == nil && sessionToken.Value == "") {
 		return nil, nil, svrerr.ErrInvalidCredentials
 	}
