@@ -445,3 +445,72 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 
 	})
 }
+
+func TestAccountService_ValidateJWT(t *testing.T) {
+
+	t.Run("returns no error if token is valid", func(t *testing.T) {
+		_, _ = setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		userId := uuid.NewString()
+		sessionId := uuid.NewString()
+
+		claims := &entities.CustomClaims{
+			UserID:    userId,
+			SessionID: sessionId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
+		assert.NoError(t, err)
+
+		validatedClaims, err := service.ValidateJWT(token)
+		assert.NoError(t, err)
+
+		assert.Equal(t, userId, validatedClaims.UserID)
+	})
+
+	t.Run("returns error if token is invalid", func(t *testing.T) {
+		_, _ = setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		userId := uuid.NewString()
+		sessionId := uuid.NewString()
+
+		claims := &entities.CustomClaims{
+			UserID:    userId,
+			SessionID: sessionId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
+		assert.NoError(t, err)
+
+		invalidToken := token + "invalid"
+
+		_, err = service.ValidateJWT(invalidToken)
+		assert.Error(t, err)
+
+	})
+
+}

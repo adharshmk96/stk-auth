@@ -182,7 +182,7 @@ func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, erro
 		return publicKey, nil
 	})
 	if err != nil {
-		if errors.Is(err, jwt.ErrSignatureInvalid) {
+		if errors.Is(err, jwt.ErrTokenExpired) {
 			return claims, err
 		}
 		logger.Error("error verifying token: ", err)
