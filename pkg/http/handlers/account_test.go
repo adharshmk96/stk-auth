@@ -403,9 +403,9 @@ func TestGetSessionUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/b", handler.GetSessionUser)
+		s.Get("/user/ba", handler.GetSessionUser)
 
-		r := httptest.NewRequest("GET", "/user/b", nil)
+		r := httptest.NewRequest("GET", "/user/ba", nil)
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{

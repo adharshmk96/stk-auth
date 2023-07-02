@@ -38,7 +38,7 @@ const (
 
 // config defaults
 const (
-	DEFAULT_SERVER_DOMAIN = "localhost:8080"
+	DEFAULT_SERVER_DOMAIN = "localhost"
 	// Session
 	DEFAULT_SESSION_COOKIE_NAME     = "stk_session"
 	DEFAULT_SESSION_JWT_COOKIE_NAME = "stk_session_token"

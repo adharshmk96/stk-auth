@@ -257,7 +257,7 @@ func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, erro
 	})
 	if err != nil {
 		logger.Error("error verifying token: ", err)
-		return nil, err
+		return claims, err
 	}
 	return claims, nil
 }
