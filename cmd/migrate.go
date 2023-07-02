@@ -1,56 +1,78 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"path/filepath"
+	"strconv"
 
-	migdbEntities "github.com/adharshmk96/migdb/pkg/entities"
-	migdbService "github.com/adharshmk96/migdb/pkg/service"
-	migdbFs "github.com/adharshmk96/migdb/pkg/storage/fs"
-	migdbSqlite "github.com/adharshmk96/migdb/pkg/storage/sqlite"
-	migdbUtils "github.com/adharshmk96/migdb/pkg/utils"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk/pkg/db"
+	"github.com/adharshmk96/stk/pkg/migrator"
+	"github.com/adharshmk96/stk/pkg/migrator/dbrepo"
+	"github.com/adharshmk96/stk/pkg/migrator/fsrepo"
 	"github.com/spf13/cobra"
-)
-
-const (
-	MITRATION_FOLDER_PATH = "./migrations"
-	DATABASE              = migdbEntities.DBsqlite3
+	"github.com/spf13/viper"
 )
 
 var config = infra.GetConfig()
 
-func executeUpMigration(numberOfMigrationsToApply int) {
-	// TODO: add support for other databases
-
-	conn := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
-
-	fsRepo := migdbFs.NewFileSystemRepo(MITRATION_FOLDER_PATH, DATABASE)
-	dbRepo := migdbSqlite.NewSqliteRepo(conn)
-
-	migrator, err := migdbService.NewDBMigratorService(dbRepo, fsRepo)
-	if err != nil {
-		fmt.Printf("Error initializing migrator: %v\n", err)
-		return
+func getNumberFromArgs(args []string, defaultValue int) int {
+	if len(args) == 0 {
+		return defaultValue
 	}
-
-	fmt.Println("Running migration up on...")
-	migrator.MigrateUp(numberOfMigrationsToApply)
-	fmt.Println("Done.")
+	num, err := strconv.Atoi(args[0])
+	if err != nil {
+		return defaultValue
+	}
+	return num
 }
 
+// migrateCmd represents the mkconfig command
 var migrateCmd = &cobra.Command{
-	Use:   "migrate [number]",
-	Short: "Perform the foward migration ( runs all files after the previously applied migrations )",
+	Use:   "migrate",
+	Short: "Perform forward migration from the files in the migrations folder",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		rootDirectory := viper.GetString("migrator.workdir")
+		dbChoice := viper.GetString("migrator.database")
+		log.Println("selected database: ", dbChoice)
 
-		numberOfMigrationsToApply := migdbUtils.GetNumberFromArgs(args, 0)
+		dryRun := cmd.Flag("dry-run").Value.String() == "true"
 
-		executeUpMigration(numberOfMigrationsToApply)
+		numToMigrate := getNumberFromArgs(args, 0)
+
+		// Select based on the database
+		dbType := migrator.SelectDatabase(dbChoice)
+
+		extention := migrator.SelectExtention(dbType)
+		subDirectory := migrator.SelectSubDirectory(dbType)
+		fsRepo := fsrepo.NewFSRepo(filepath.Join(rootDirectory, subDirectory), extention)
+
+		conn := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
+		dbRepo := dbrepo.NewSQLiteRepo(conn)
+
+		log.Println("Applying migrations up...")
+
+		config := &migrator.MigratorConfig{
+			NumToMigrate: numToMigrate,
+			DryRun:       dryRun,
+
+			FSRepo: fsRepo,
+			DBRepo: dbRepo,
+		}
+
+		_, err := migrator.MigrateUp(config)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		log.Println("Migrated to database successfully.")
+
 	},
 }
 
 func init() {
+	migrateCmd.Flags().Bool("dry-run", false, "dry run, do not generate files")
 	rootCmd.AddCommand(migrateCmd)
 }
