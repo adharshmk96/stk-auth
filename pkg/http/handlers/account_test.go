@@ -399,6 +399,26 @@ func TestGetSessionUser(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
+	t.Run("returns 401 if session id is empty in the cookie", func(t *testing.T) {
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Get("/user/b", handler.GetSessionUser)
+
+		r := httptest.NewRequest("GET", "/user/b", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
+			Value: "",
+		}
+
+		r.AddCookie(cookie)
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+
 	t.Run("returns 401 if session id is not valid", func(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
