@@ -8,4 +8,6 @@ var (
 
 	ErrInvalidSession = errors.New("invalid_session")
 	ErrInvalidToken   = errors.New("invalid_token")
+
+	ErrJWTExpired = errors.New("jwt_expired")
 )

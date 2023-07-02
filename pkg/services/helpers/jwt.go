@@ -5,19 +5,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 var logger = infra.GetLogger()
-
-var config = infra.GetConfig()
-
-type customClaims struct {
-	SessionID string `json:"session_id"`
-	UserID    string `json:"user_id"`
-	jwt.RegisteredClaims
-}
 
 func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
 
@@ -34,46 +29,21 @@ func GetSignedTokenWithClaims(claims jwt.Claims) (string, error) {
 	return signedToken, err
 }
 
-func VerifyToken(token string) (*customClaims, error) {
-	publicKey, err := GetJWTPublicKey()
-	if err != nil {
-		logger.Error("error getting public key: ", err)
-		return nil, err
-	}
-	claims, err := verifyToken(publicKey, token)
-	if err != nil {
-		logger.Error("error verifying token: ", err)
-		return claims, err
-	}
-	return claims, nil
-}
-
 func MakeCustomClaims(userId, sessionId string) jwt.Claims {
 	timeNow := time.Now()
 
-	claims := customClaims{
+	claims := entities.CustomClaims{
 		SessionID: sessionId,
 		UserID:    userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userId,
-			Issuer:    config.JWT_ISSUER,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
 			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(timeNow.Add(config.JWT_EXPIRATION_DURATION)),
+			ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION))),
 		},
 	}
 
 	return claims
-}
-
-func verifyToken(publicKey *rsa.PublicKey, token string) (*customClaims, error) {
-	claims := &customClaims{}
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return publicKey, nil
-	})
-	if err != nil {
-		return claims, err
-	}
-	return claims, nil
 }
 
 func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, error) {
@@ -90,8 +60,8 @@ func getSignedToken(privateKey *rsa.PrivateKey, claims jwt.Claims) (string, erro
 ReadPrivateKey reads the private key from the environment variable or the file and returns as byte array
 */
 func ReadPrivateKey() []byte {
-	JWT_EDCA_PRIVATE_KEY := config.JWT_EDCA_PRIVATE_KEY
-	JWT_EDCA_PRIVATE_KEY_PATH := config.JWT_EDCA_PRIVATE_KEY_PATH
+	JWT_EDCA_PRIVATE_KEY := viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY)
+	JWT_EDCA_PRIVATE_KEY_PATH := viper.GetString(constants.ENV_JWT_EDCA_PRIVATE_KEY_PATH)
 	if JWT_EDCA_PRIVATE_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PRIVATE_KEY_PATH)
 		if err != nil {
@@ -106,8 +76,8 @@ func ReadPrivateKey() []byte {
 ReadPublicKey reads the public key from the environment variable or the file and returns as byte array
 */
 func ReadPublicKey() []byte {
-	JWT_EDCA_PUBLIC_KEY := config.JWT_EDCA_PUBLIC_KEY
-	JWT_EDCA_PUBLIC_KEY_PATH := config.JWT_EDCA_PUBLIC_KEY_PATH
+	JWT_EDCA_PUBLIC_KEY := viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)
+	JWT_EDCA_PUBLIC_KEY_PATH := viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH)
 	if JWT_EDCA_PUBLIC_KEY == "" {
 		data, err := os.ReadFile(JWT_EDCA_PUBLIC_KEY_PATH)
 		if err != nil {

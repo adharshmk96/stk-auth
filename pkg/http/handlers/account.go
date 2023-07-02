@@ -7,13 +7,11 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
-	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/gsk"
+	"github.com/spf13/viper"
 )
-
-var config = infra.GetConfig()
 
 // RegisterUser registers a new user
 // - Decodes and Validates the user information from body
@@ -86,13 +84,14 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 		return
 	}
 
-	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
+	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.SESSION_COOKIE_NAME,
+		Name:     viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 		Value:    sessionData.SessionID,
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
 	response := gsk.Map{
@@ -128,19 +127,26 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 		return
 	}
 
-	jwtToken, err := h.userService.LoginUserSessionToken(userLogin)
+	sessionData, err := h.userService.LoginUserSession(userLogin)
 	if err != nil {
 		transport.HandleLoginError(err, ctx)
 		return
 	}
 
-	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
+	jwt, err := h.userService.GenerateJWT(userLogin, sessionData)
+	if err != nil {
+		transport.HandleLoginError(err, ctx)
+		return
+	}
+
+	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.JWT_SESSION_COOKIE_NAME,
-		Value:    jwtToken,
+		Name:     viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
+		Value:    jwt,
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
 	response := gsk.Map{
@@ -160,7 +166,7 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
 func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
-	sessionCookie, err := ctx.GetCookie(config.SESSION_COOKIE_NAME)
+	sessionCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
@@ -209,7 +215,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
 func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
-	sessionCookie, err := ctx.GetCookie(config.JWT_SESSION_COOKIE_NAME)
+	sessionCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 	if err != nil {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
@@ -249,9 +255,9 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 		CreatedAt: userWithToken.CreatedAt,
 		UpdatedAt: userWithToken.UpdatedAt,
 	}
-	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
+	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
-		Name:     config.JWT_SESSION_COOKIE_NAME,
+		Name:     viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 		Value:    userWithToken.Token,
 		HttpOnly: true,
 		Secure:   secureCookie,
@@ -287,17 +293,17 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 			transport.HandleLogoutError(err, ctx)
 			return
 		}
-		cookieName = config.SESSION_COOKIE_NAME
+		cookieName = viper.GetString(constants.ENV_SESSION_COOKIE_NAME)
 	} else {
 		err := h.userService.LogoutUserBySessionToken(sessionToken.Value)
 		if err != nil {
 			transport.HandleLogoutError(err, ctx)
 			return
 		}
-		cookieName = config.JWT_SESSION_COOKIE_NAME
+		cookieName = viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME)
 	}
 
-	secureCookie := config.SERVER_MODE == constants.SERVER_PROD_MODE
+	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	cookie := &http.Cookie{
 		Name:     cookieName,
 		Value:    "",

@@ -12,6 +12,30 @@ type AccountService struct {
 	mock.Mock
 }
 
+// GenerateJWT provides a mock function with given fields: user, session
+func (_m *AccountService) GenerateJWT(user *entities.Account, session *entities.Session) (string, error) {
+	ret := _m.Called(user, session)
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*entities.Account, *entities.Session) (string, error)); ok {
+		return rf(user, session)
+	}
+	if rf, ok := ret.Get(0).(func(*entities.Account, *entities.Session) string); ok {
+		r0 = rf(user, session)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(*entities.Account, *entities.Session) error); ok {
+		r1 = rf(user, session)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserBySessionId provides a mock function with given fields: sessionId
 func (_m *AccountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
 	ret := _m.Called(sessionId)
@@ -90,30 +114,6 @@ func (_m *AccountService) LoginUserSession(user *entities.Account) (*entities.Se
 	return r0, r1
 }
 
-// LoginUserSessionToken provides a mock function with given fields: user
-func (_m *AccountService) LoginUserSessionToken(user *entities.Account) (string, error) {
-	ret := _m.Called(user)
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) (string, error)); ok {
-		return rf(user)
-	}
-	if rf, ok := ret.Get(0).(func(*entities.Account) string); ok {
-		r0 = rf(user)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(*entities.Account) error); ok {
-		r1 = rf(user)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // LogoutUserBySessionId provides a mock function with given fields: sessionId
 func (_m *AccountService) LogoutUserBySessionId(sessionId string) error {
 	ret := _m.Called(sessionId)
@@ -166,6 +166,46 @@ func (_m *AccountService) RegisterUser(user *entities.Account) (*entities.Accoun
 	}
 
 	return r0, r1
+}
+
+// ValidateJWT provides a mock function with given fields: token
+func (_m *AccountService) ValidateJWT(token string) (*entities.CustomClaims, error) {
+	ret := _m.Called(token)
+
+	var r0 *entities.CustomClaims
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*entities.CustomClaims, error)); ok {
+		return rf(token)
+	}
+	if rf, ok := ret.Get(0).(func(string) *entities.CustomClaims); ok {
+		r0 = rf(token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.CustomClaims)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(token)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ValidateLogin provides a mock function with given fields: login
+func (_m *AccountService) ValidateLogin(login *entities.Account) error {
+	ret := _m.Called(login)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+		r0 = rf(login)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 type mockConstructorTestingTNewAccountService interface {

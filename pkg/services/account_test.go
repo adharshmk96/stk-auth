@@ -1,19 +1,20 @@
 package services_test
 
 import (
-	"os"
 	"testing"
 	"time"
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -246,195 +247,10 @@ func setupKeysDir() (string, string) {
 		return "", ""
 	}
 
-	os.Setenv("JWT_EDCA_PRIVATE_KEY", string(privateKeyPEM))
-	os.Setenv("JWT_EDCA_PUBLIC_KEY", string(publicKeyPEM))
-	infra.LoadConfigFromEnv()
+	viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, string(privateKeyPEM))
+	viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY, string(publicKeyPEM))
 
 	return string(privateKeyPEM), string(publicKeyPEM)
-}
-
-func tearDownKeysDir() {
-	os.Unsetenv("JWT_EDCA_PRIVATE_KEY")
-	os.Unsetenv("JWT_EDCA_PUBLIC_KEY")
-}
-
-func TestAccountService_LoginSessionUserToken(t *testing.T) {
-
-	_, publicKey := setupKeysDir()
-	defer tearDownKeysDir()
-
-	assert.NotEmpty(t, publicKey)
-
-	user_id := entities.UserID(uuid.New())
-	user_name := "testuser"
-	user_email := "user@email.com"
-	user_password := "testpassword"
-	created := time.Now()
-	updated := time.Now()
-
-	salt, _ := utils.GenerateSalt()
-	hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
-
-	storedData := &entities.Account{
-		ID:        user_id,
-		Username:  "testuser",
-		Password:  hashedPassword,
-		Email:     user_email,
-		Salt:      hashedSalt,
-		CreatedAt: created,
-		UpdatedAt: updated,
-	}
-
-	testJwtClaims := func(userToken string) {
-		// check jwt token
-		claims := jwt.MapClaims{}
-		token, err := jwt.ParseWithClaims(userToken, claims, func(token *jwt.Token) (interface{}, error) {
-			key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(publicKey))
-			return key, err
-		})
-
-		assert.NoError(t, err)
-		assert.True(t, token.Valid)
-		assert.NotNil(t, claims["iat"])
-		assert.NotNil(t, claims["session_id"])
-		assert.Equal(t, claims["user_id"], user_id.String())
-		assert.NotNil(t, claims["sub"])
-		assert.NotNil(t, claims["exp"])
-	}
-
-	t.Run("valid username and password returns token with userid and session id", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByUsername", user_name).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(nil)
-
-		requestData := &entities.Account{
-			Username: user_name,
-			Password: user_password,
-		}
-		userToken, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
-		mockStore.AssertCalled(t, "GetUserByUsername", user_name)
-		mockStore.AssertNotCalled(t, "GetUserByEmail", mock.Anything)
-
-		assert.NoError(t, err)
-		assert.NotEmpty(t, userToken)
-
-		if userToken != "" {
-			testJwtClaims(userToken)
-		}
-
-	})
-
-	t.Run("valid email and password returns token with userid and session id", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByEmail", user_email).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(nil)
-
-		requestData := &entities.Account{
-			Email:    user_email,
-			Password: user_password,
-		}
-		userToken, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
-		mockStore.AssertCalled(t, "GetUserByEmail", user_email)
-		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
-
-		assert.NoError(t, err)
-		assert.NotEmpty(t, userToken)
-
-		if userToken != "" {
-			testJwtClaims(userToken)
-		}
-	})
-
-	t.Run("returns error if password is incorrect", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByEmail", user_email).Return(storedData, nil)
-
-		requestData := &entities.Account{
-			Email:    user_email,
-			Password: "wrongpassword",
-		}
-		userToken, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "GetUserByEmail", user_email)
-		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
-		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
-
-		assert.ErrorIs(t, err, svrerr.ErrInvalidCredentials)
-		assert.Empty(t, userToken)
-	})
-
-	t.Run("returns retrieve data error if account retrieving failed", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByEmail", user_email).Return(nil, svrerr.ErrDBStorageFailed)
-
-		requestData := &entities.Account{
-			Email:    user_email,
-			Password: user_password,
-		}
-		userToken, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "GetUserByEmail", user_email)
-		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
-		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
-
-		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
-		assert.Empty(t, userToken)
-	})
-
-	t.Run("returns storage error if session store failed", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByEmail", user_email).Return(storedData, nil)
-		mockStore.On("SaveSession", mock.Anything).Return(svrerr.ErrDBStorageFailed)
-
-		requestData := &entities.Account{
-			Email:    user_email,
-			Password: user_password,
-		}
-		userSession, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "GetUserByEmail", user_email)
-		mockStore.AssertCalled(t, "SaveSession", mock.Anything)
-		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
-
-		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
-		assert.Empty(t, userSession)
-	})
-
-	t.Run("returns invalid credential error if user entry not found", func(t *testing.T) {
-		mockStore := mocks.NewAccountStore(t)
-		service := services.NewAccountService(mockStore)
-
-		mockStore.On("GetUserByEmail", user_email).Return(nil, svrerr.ErrDBEntryNotFound)
-
-		requestData := &entities.Account{
-			Email:    user_email,
-			Password: user_password,
-		}
-		userToken, err := service.LoginUserSessionToken(requestData)
-
-		mockStore.AssertCalled(t, "GetUserByEmail", user_email)
-		mockStore.AssertNotCalled(t, "GetUserByUsername", mock.Anything)
-		mockStore.AssertNotCalled(t, "SaveSession", mock.Anything)
-
-		assert.ErrorIs(t, err, svrerr.ErrInvalidCredentials)
-		assert.Empty(t, userToken)
-	})
 }
 
 func TestAccountService_GetUserBySessionID(t *testing.T) {
@@ -534,7 +350,7 @@ func generateExpiredToken(user, session string) (string, error) {
 func TestAccountService_GetUserBySessionToken(t *testing.T) {
 
 	setupKeysDir()
-	defer tearDownKeysDir()
+	infra.LoadDefaultConfig()
 
 	user_name := "testuser"
 	user_email := "user@email.com"
@@ -659,7 +475,6 @@ func TestAccountService_LogoutUserBySessionId(t *testing.T) {
 
 func TestAccountService_LogoutUserBySessionToken(t *testing.T) {
 	_, _ = setupKeysDir()
-	defer tearDownKeysDir()
 
 	user_id := entities.UserID(uuid.New())
 	session_id := uuid.NewString()
@@ -719,5 +534,73 @@ func TestAccountService_LogoutUserBySessionToken(t *testing.T) {
 		mockStore.AssertCalled(t, "InvalidateSessionByID", session_id)
 
 		assert.ErrorIs(t, err, svrerr.ErrInvalidSession)
+	})
+}
+
+func parseToken(token string) (*entities.CustomClaims, error) {
+
+	claims := entities.CustomClaims{}
+
+	_, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return jwt.ParseRSAPublicKeyFromPEM([]byte(viper.GetString(constants.ENV_JWT_EDCA_PUBLIC_KEY)))
+	})
+	return &claims, err
+}
+
+func TestAccountService_TestGenerateJWT(t *testing.T) {
+
+	t.Run("generates a valid token", func(t *testing.T) {
+		_, _ = setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		user := &entities.Account{
+			ID:       entities.UserID(uuid.New()),
+			Username: "test",
+			Password: "test",
+		}
+
+		session := &entities.Session{
+			SessionID: uuid.NewString(),
+			UserID:    user.ID,
+		}
+
+		token, err := service.GenerateJWT(user, session)
+		assert.NoError(t, err)
+
+		claims, _ := parseToken(token)
+		assert.NoError(t, err)
+
+		assert.Equal(t, user.ID.String(), claims.UserID)
+		assert.Equal(t, session.SessionID, claims.SessionID)
+	})
+
+	t.Run("returns error if key is invalid", func(t *testing.T) {
+		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, "")
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAccountStore(t)
+		service := services.NewAccountService(dbStorage)
+
+		user := &entities.Account{
+			ID:       entities.UserID(uuid.New()),
+			Username: "test",
+			Password: "test",
+		}
+
+		session := &entities.Session{
+			SessionID: uuid.NewString(),
+			UserID:    user.ID,
+		}
+
+		token, err := service.GenerateJWT(user, session)
+		assert.Error(t, err)
+
+		assert.Empty(t, token)
+
 	})
 }

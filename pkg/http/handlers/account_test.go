@@ -13,14 +13,14 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var config = infra.GetConfig()
 
 func TestRegisterUser(t *testing.T) {
 
@@ -220,6 +220,8 @@ func TestLoginUserSession(t *testing.T) {
 		Valid:     true,
 	}
 
+	infra.LoadDefaultConfig()
+
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
@@ -250,7 +252,7 @@ func TestLoginUserSession(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, config.SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sid, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -261,15 +263,30 @@ func TestLoginUserSession(t *testing.T) {
 
 func TestLoginUserSessionToken(t *testing.T) {
 
-	username := "test"
-	password := "#Password123"
+	uid := uuid.New()
+	sid := uuid.NewString()
+	userId := entities.UserID(uid)
+	username := "user"
+	password := "password"
+	created := time.Now()
+	updated := time.Now()
 
 	login := UserLogin{
 		Username: username,
 		Password: password,
 	}
 
+	sessionData := &entities.Session{
+		UserID:    userId,
+		CreatedAt: created,
+		UpdatedAt: updated,
+		SessionID: sid,
+		Valid:     true,
+	}
+
 	sessionToken := "header.claims.signature"
+
+	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
@@ -281,7 +298,8 @@ func TestLoginUserSessionToken(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		service.On("LoginUserSessionToken", mock.Anything).Return(sessionToken, nil)
+		service.On("LoginUserSession", mock.Anything).Return(sessionData, nil).Once()
+		service.On("GenerateJWT", mock.AnythingOfType("*entities.Account"), mock.AnythingOfType("*entities.Session")).Return(sessionToken, nil).Once()
 
 		s.Post("/login", handler.LoginUserSessionToken)
 
@@ -292,7 +310,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		s.Router.ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertExpectations(t)
 
 		var response gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
@@ -300,7 +318,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()
-		cookie := getCookie(cookies, config.JWT_SESSION_COOKIE_NAME)
+		cookie := getCookie(cookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, cookie)
 		assert.Equal(t, sessionToken, cookie.Value)
 		assert.True(t, cookie.HttpOnly)
@@ -353,7 +371,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -381,6 +399,26 @@ func TestGetSessionUser(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
+	t.Run("returns 401 if session id is empty in the cookie", func(t *testing.T) {
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Get("/user/ba", handler.GetSessionUser)
+
+		r := httptest.NewRequest("GET", "/user/ba", nil)
+		w := httptest.NewRecorder()
+
+		cookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
+			Value: "",
+		}
+
+		r.AddCookie(cookie)
+		s.Router.ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+
 	t.Run("returns 401 if session id is not valid", func(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -391,7 +429,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -413,7 +451,7 @@ func TestGetSessionUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -474,7 +512,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -489,7 +527,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.NotEmpty(t, wcookie)
 		assert.Equal(t, accountWithToken.Token, wcookie.Value)
 		assert.True(t, wcookie.HttpOnly)
@@ -521,7 +559,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -546,7 +584,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -571,7 +609,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -605,7 +643,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -621,7 +659,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -636,7 +674,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -652,7 +690,7 @@ func TestLogoutUser(t *testing.T) {
 
 		// check if cookie is set
 		wcookies := w.Result().Cookies()
-		wcookie := getCookie(wcookies, config.JWT_SESSION_COOKIE_NAME)
+		wcookie := getCookie(wcookies, viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
 		assert.Empty(t, wcookie.Value)
 	})
 
@@ -682,7 +720,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -708,7 +746,7 @@ func TestLogoutUser(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		cookie := &http.Cookie{
-			Name:  config.JWT_SESSION_COOKIE_NAME,
+			Name:  viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 
@@ -797,7 +835,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
-		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBody2 gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBody2)
@@ -810,7 +848,7 @@ func TestCommonErrors(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Post("/login/token/b", handler.LoginUserSessionToken)
+		// s.Post("/login/token/b", handler.LoginUserSessionToken)
 		s.Post("/login/b", handler.LoginUserSession)
 
 		body, _ := json.Marshal(login)
@@ -820,7 +858,6 @@ func TestCommonErrors(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrInvalidCredentials)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrInvalidCredentials)
 
 		s.Router.ServeHTTP(w, r)
 
@@ -830,19 +867,6 @@ func TestCommonErrors(t *testing.T) {
 		var responseBody gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &responseBody)
 		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBody["error"])
-
-		// session token login
-		r2 := httptest.NewRequest("POST", "/login/token/b", bytes.NewBuffer(body))
-		w2 := httptest.NewRecorder()
-
-		s.Router.ServeHTTP(w2, r2)
-
-		assert.Equal(t, http.StatusUnauthorized, w2.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
-
-		var responseBodyt gsk.Map
-		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
-		assert.Equal(t, transport.INVALID_CREDENTIALS, responseBodyt["error"])
 
 	})
 
@@ -882,7 +906,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
-		service.AssertNotCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
@@ -900,7 +924,6 @@ func TestCommonErrors(t *testing.T) {
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("LoginUserSession", mock.Anything).Return(sessionData, svrerr.ErrDBStorageFailed)
-		service.On("LoginUserSessionToken", mock.Anything).Return("", svrerr.ErrDBStorageFailed)
 
 		s.Post("/login/d", handler.LoginUserSession)
 		s.Post("/login/d/token", handler.LoginUserSessionToken)
@@ -927,7 +950,7 @@ func TestCommonErrors(t *testing.T) {
 		s.Router.ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusInternalServerError, w2.Code)
-		service.AssertCalled(t, "LoginUserSessionToken", mock.Anything)
+		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 
 		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/adharshmk96/stk/pkg/migrator"
 	"github.com/adharshmk96/stk/pkg/migrator/dbrepo"
@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var config = infra.GetConfig()
 
 func getNumberFromArgs(args []string, defaultValue int) int {
 	if len(args) == 0 {
@@ -33,7 +31,7 @@ var migrateCmd = &cobra.Command{
 	Short: "Perform forward migration from the files in the migrations folder",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		rootDirectory := viper.GetString("migrator.workdir")
+		rootDirectory := viper.GetString(constants.ENV_MIGRATOR_DIR)
 		dbChoice := viper.GetString("migrator.database")
 		log.Println("selected database: ", dbChoice)
 
@@ -48,7 +46,7 @@ var migrateCmd = &cobra.Command{
 		subDirectory := migrator.SelectSubDirectory(dbType)
 		fsRepo := fsrepo.NewFSRepo(filepath.Join(rootDirectory, subDirectory), extention)
 
-		conn := db.GetSqliteConnection(config.SQLITE_FILE_PATH)
+		conn := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 		dbRepo := dbrepo.NewSQLiteRepo(conn)
 
 		log.Println("Applying migrations up...")
