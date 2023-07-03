@@ -9,4 +9,8 @@ type AccountHandler interface {
 	GetSessionUser(ctx gsk.Context)
 	GetSessionTokenUser(ctx gsk.Context)
 	LogoutUser(ctx gsk.Context)
+	// Token flow
+	// LoginUserToken(ctx gsk.Context)
+	// ValidateToken(ctx gsk.Context)
+	// RefreshToken(ctx gsk.Context)
 }

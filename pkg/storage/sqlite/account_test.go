@@ -61,7 +61,7 @@ func tearDownDatabase() {
 
 func TestUserStorage_EmptyDatabase(t *testing.T) {
 
-	setupDatabase()
+	conn := setupDatabase()
 	defer tearDownDatabase()
 
 	userId := entities.UserID(uuid.New())
@@ -77,7 +77,7 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 		UpdatedAt: time_now,
 	}
 
-	userStorage := sqlite.NewAccountStorage()
+	userStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("GetUserByEmail returns error when email is not found in empty db", func(t *testing.T) {
 		presaveUser, err := userStorage.GetUserByEmail(user.Email)
@@ -171,7 +171,7 @@ func TestUserStorage_GetUserByX(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log("User inserted successfully")
 
-	userStorage := sqlite.NewAccountStorage()
+	userStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("GetUserByEmail retrieves user by email", func(t *testing.T) {
 		retrievedUser, err := userStorage.GetUserByEmail(user.Email)
@@ -253,7 +253,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 		session.Valid,
 	)
 
-	userStorage := sqlite.NewAccountStorage()
+	userStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("GetSessionByID returns error when session is not found in empty db", func(t *testing.T) {
 		presaveSession, err := userStorage.GetSessionByID("test")
@@ -355,7 +355,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 		session.Valid,
 	)
 
-	userStorage := sqlite.NewAccountStorage()
+	userStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("GetUserBySessionID retrieves user by session id", func(t *testing.T) {
 		retrievedUser, err := userStorage.GetUserBySessionID(sessionId)

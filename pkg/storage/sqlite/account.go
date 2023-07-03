@@ -6,10 +6,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/infra"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
-	"github.com/adharshmk96/stk/pkg/db"
-	"github.com/spf13/viper"
 )
 
 var logger = infra.GetLogger()
@@ -18,10 +15,9 @@ type sqliteStorage struct {
 	conn *sql.DB
 }
 
-func NewAccountStorage() entities.AccountStore {
-	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
+func NewAccountStorage(conn *sql.DB) entities.AccountStore {
 	return &sqliteStorage{
-		conn: connection,
+		conn: conn,
 	}
 }
 

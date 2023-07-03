@@ -21,8 +21,9 @@ server:
         expiry: 1440
         issuer: stk-auth-server
         private_key_path: .keys/private_key.pem
+        public_key_path: .keys/public_key.pem
         subject: authentication
-    mode: SERVER_DEV_MODE
+    mode: "dev"
     storage:
         sqlite:
             file: auth_database.db
