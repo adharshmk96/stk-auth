@@ -1376,17 +1376,19 @@ func TestChangePassword(t *testing.T) {
 		service.AssertExpectations(t)
 	})
 
-	t.Run("returns 401 authentication failed", func(t *testing.T) {
+	t.Run("returns 401 if authentication failed", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/change-password/b", handler.ChangePassword)
 
-		r := httptest.NewRequest("POST", "/change-password/b", nil)
+		body, _ := json.Marshal(changeRequest)
+
+		r := httptest.NewRequest("POST", "/change-password/b", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
 
