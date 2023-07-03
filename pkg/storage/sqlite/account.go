@@ -21,6 +21,16 @@ func NewAccountStorage(conn *sql.DB) entities.AccountStore {
 	}
 }
 
+func NewNullString(s string) sql.NullString {
+	if len(s) == 0 {
+		return sql.NullString{}
+	}
+	return sql.NullString{
+		String: s,
+		Valid:  true,
+	}
+}
+
 // SaveUser Stores User in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
@@ -28,7 +38,7 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_INSERT_USER_QUERY,
 		user.ID.String(),
-		user.Username,
+		NewNullString(user.Username),
 		user.Password,
 		user.Salt,
 		user.Email,
