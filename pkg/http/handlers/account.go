@@ -145,39 +145,7 @@ func (h *accountHandler) LoginUserToken(ctx gsk.Context) {
 	userId := userLogin.ID.String()
 	requestHost := ctx.GetRequest().Host
 
-	timeNow := time.Now()
-	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
-	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
-
-	atClaims := &entities.CustomClaims{
-		UserID: userId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,
-			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
-			Audience:  jwt.ClaimStrings{requestHost},
-			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(accessExpiry),
-		},
-	}
-
-	rtClaims := &entities.CustomClaims{
-		UserID: userId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,
-			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
-			Audience:  jwt.ClaimStrings{requestHost},
-			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(refreshExpiry),
-		},
-	}
-
-	atjwt, err := h.userService.GenerateJWT(atClaims)
-	if err != nil {
-		transport.HandleLoginError(err, ctx)
-		return
-	}
-
-	rtjwt, err := h.userService.GenerateJWT(rtClaims)
+	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.userService)
 	if err != nil {
 		transport.HandleLoginError(err, ctx)
 		return
@@ -209,6 +177,45 @@ func (h *accountHandler) LoginUserToken(ctx gsk.Context) {
 	ctx.SetCookie(atCookie)
 	ctx.SetCookie(rtCookie)
 	ctx.Status(http.StatusOK).JSONResponse(response)
+}
+
+func generateTokens(userId, requestHost string, svc entities.AccountService) (string, string, error) {
+	timeNow := time.Now()
+	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
+	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
+
+	atClaims := &entities.CustomClaims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userId,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
+			Audience:  jwt.ClaimStrings{requestHost},
+			IssuedAt:  jwt.NewNumericDate(timeNow),
+			ExpiresAt: jwt.NewNumericDate(accessExpiry),
+		},
+	}
+
+	rtClaims := &entities.CustomClaims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userId,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
+			Audience:  jwt.ClaimStrings{requestHost},
+			IssuedAt:  jwt.NewNumericDate(timeNow),
+			ExpiresAt: jwt.NewNumericDate(refreshExpiry),
+		},
+	}
+
+	atjwt, err := svc.GenerateJWT(atClaims)
+	if err != nil {
+		return "", "", err
+	}
+
+	rtjwt, err := svc.GenerateJWT(rtClaims)
+	if err != nil {
+		return "", "", err
+	}
+	return atjwt, rtjwt, nil
 }
 
 // GetSessionUser returns the user information from session id
