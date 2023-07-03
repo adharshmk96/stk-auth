@@ -778,7 +778,6 @@ func TestGetSessionUser(t *testing.T) {
 func TestGetTokenUser(t *testing.T) {
 
 	uid := uuid.NewString()
-	sid := uuid.NewString()
 	userId, _ := entities.ParseUserId(uid)
 	username := "user"
 	email := "user@email.com"
@@ -802,8 +801,7 @@ func TestGetTokenUser(t *testing.T) {
 	// }
 
 	claims := &entities.CustomClaims{
-		UserID:    uid,
-		SessionID: sid,
+		UserID: uid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -816,7 +814,8 @@ func TestGetTokenUser(t *testing.T) {
 	}
 	s := gsk.NewServer(stkconfig)
 
-	token := "abcdefg-asdfasdf"
+	accessToken := "access"
+	refreshToken := "refresh"
 
 	infra.LoadDefaultConfig()
 
@@ -825,18 +824,24 @@ func TestGetTokenUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/a", handler.GetSessionTokenUser)
+		s.Get("/user/a", handler.GetTokenUser)
 
 		r := httptest.NewRequest("GET", "/user/a", nil)
 		w := httptest.NewRecorder()
 
-		cookie := &http.Cookie{
+		atcookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-			Value: token,
+			Value: accessToken,
 		}
 
-		r.AddCookie(cookie)
-		service.On("ValidateJWT", token).Return(claims, nil).Once()
+		rtcookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+			Value: refreshToken,
+		}
+
+		r.AddCookie(atcookie)
+		r.AddCookie(rtcookie)
+		service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
@@ -858,28 +863,37 @@ func TestGetTokenUser(t *testing.T) {
 		assert.Equal(t, username, respBody["username"])
 		assert.Equal(t, email, respBody["email"])
 		service.AssertExpectations(t)
+
+		service.AssertNotCalled(t, "ValidateJWT", refreshToken)
 	})
 
-	// TODO FIX ME
 	t.Run("return 200 and cookie is access token expired", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/ab", handler.GetSessionTokenUser)
+		s.Get("/user/ab", handler.GetTokenUser)
 
 		r := httptest.NewRequest("GET", "/user/ab", nil)
 		w := httptest.NewRecorder()
 
-		cookie := &http.Cookie{
+		atcookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-			Value: token,
+			Value: accessToken,
 		}
+
+		rtcookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+			Value: refreshToken,
+		}
+
+		r.AddCookie(atcookie)
+		r.AddCookie(rtcookie)
 
 		newToken := "new-token"
 
-		r.AddCookie(cookie)
-		service.On("ValidateJWT", token).Return(claims, jwt.ErrTokenExpired).Once()
+		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
+		service.On("ValidateJWT", refreshToken).Return(claims, nil)
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(newToken, nil).Once()
 
@@ -909,7 +923,7 @@ func TestGetTokenUser(t *testing.T) {
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/b", handler.GetSessionTokenUser)
+		s.Get("/user/b", handler.GetTokenUser)
 
 		r := httptest.NewRequest("GET", "/user/b", nil)
 		w := httptest.NewRecorder()
@@ -922,23 +936,30 @@ func TestGetTokenUser(t *testing.T) {
 		service.AssertNotCalled(t, "ValidateJWT", mock.Anything)
 	})
 
-	t.Run("returns 401 if token is invalid", func(t *testing.T) {
+	t.Run("returns 401 if access token is invalid", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/c", handler.GetSessionTokenUser)
+		s.Get("/user/c", handler.GetTokenUser)
 
 		r := httptest.NewRequest("GET", "/user/c", nil)
 		w := httptest.NewRecorder()
 
-		cookie := &http.Cookie{
+		atcookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-			Value: token,
+			Value: accessToken,
 		}
 
-		r.AddCookie(cookie)
-		service.On("ValidateJWT", token).Return(nil, svrerr.ErrInvalidToken)
+		rtcookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+			Value: refreshToken,
+		}
+
+		r.AddCookie(atcookie)
+		r.AddCookie(rtcookie)
+
+		service.On("ValidateJWT", accessToken).Return(nil, svrerr.ErrInvalidToken)
 
 		s.GetRouter().ServeHTTP(w, r)
 
@@ -947,27 +968,35 @@ func TestGetTokenUser(t *testing.T) {
 		service.AssertExpectations(t)
 		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
+		service.AssertNotCalled(t, "ValidateJWT", refreshToken)
 	})
 
-	// TODO FIX ME
-	t.Run("returns 401 if refresh token is invalid", func(t *testing.T) {
+	t.Run("returns 401 if refresh token is expired", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Get("/user/d", handler.GetSessionTokenUser)
+		s.Get("/user/d", handler.GetTokenUser)
 
 		r := httptest.NewRequest("GET", "/user/d", nil)
 		w := httptest.NewRecorder()
 
-		cookie := &http.Cookie{
+		atcookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-			Value: "abcdefg-asdfasdf",
+			Value: accessToken,
 		}
 
-		r.AddCookie(cookie)
-		service.On("ValidateJWT", token).Return(claims, nil).Once()
-		service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound).Once()
+		rtcookie := &http.Cookie{
+			Name:  viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+			Value: refreshToken,
+		}
+
+		r.AddCookie(atcookie)
+		r.AddCookie(rtcookie)
+
+		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
+		service.On("ValidateJWT", refreshToken).Return(claims, jwt.ErrTokenExpired)
+		service.On("GetUserByID", uid).Return(userData, nil).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
 
@@ -983,18 +1012,18 @@ func TestGetTokenUser(t *testing.T) {
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
 
-			s.Get("/user/ac", handler.GetSessionTokenUser)
+			s.Get("/user/ac", handler.GetTokenUser)
 
 			r := httptest.NewRequest("GET", "/user/ac", nil)
 			w := httptest.NewRecorder()
 
 			cookie := &http.Cookie{
 				Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-				Value: token,
+				Value: accessToken,
 			}
 
 			r.AddCookie(cookie)
-			service.On("ValidateJWT", token).Return(nil, jwt.ErrInvalidKey)
+			service.On("ValidateJWT", accessToken).Return(nil, jwt.ErrInvalidKey)
 
 			s.GetRouter().ServeHTTP(w, r)
 
@@ -1009,18 +1038,18 @@ func TestGetTokenUser(t *testing.T) {
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
 
-			s.Get("/user/ad", handler.GetSessionTokenUser)
+			s.Get("/user/ad", handler.GetTokenUser)
 
 			r := httptest.NewRequest("GET", "/user/ad", nil)
 			w := httptest.NewRecorder()
 
 			cookie := &http.Cookie{
 				Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-				Value: "abcdefg-asdfasdf",
+				Value: accessToken,
 			}
 
 			r.AddCookie(cookie)
-			service.On("ValidateJWT", token).Return(claims, nil).Once()
+			service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
 			s.GetRouter().ServeHTTP(w, r)
@@ -1036,18 +1065,26 @@ func TestGetTokenUser(t *testing.T) {
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
 
-			s.Get("/user/bd", handler.GetSessionTokenUser)
+			s.Get("/user/bd", handler.GetTokenUser)
 
 			r := httptest.NewRequest("GET", "/user/bd", nil)
 			w := httptest.NewRecorder()
 
-			cookie := &http.Cookie{
+			atcookie := &http.Cookie{
 				Name:  viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
-				Value: "abcdefg-asdfasdf",
+				Value: accessToken,
 			}
 
-			r.AddCookie(cookie)
-			service.On("ValidateJWT", token).Return(claims, jwt.ErrTokenExpired).Once()
+			rtcookie := &http.Cookie{
+				Name:  viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+				Value: refreshToken,
+			}
+
+			r.AddCookie(atcookie)
+			r.AddCookie(rtcookie)
+
+			service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired).Once()
+			service.On("ValidateJWT", refreshToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(userData, nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey)
 
@@ -1071,7 +1108,6 @@ func TestLogoutUser(t *testing.T) {
 	token := "abcdefg-asdfasdf"
 
 	uid := uuid.NewString()
-	sid := uuid.NewString()
 
 	// sessionData := &entities.Session{
 	// 	UserID:    userId,
@@ -1082,8 +1118,7 @@ func TestLogoutUser(t *testing.T) {
 	// }
 
 	claims := &entities.CustomClaims{
-		UserID:    uid,
-		SessionID: sid,
+		UserID: uid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -1119,7 +1154,7 @@ func TestLogoutUser(t *testing.T) {
 		assert.Empty(t, wcookie.Value)
 	})
 
-	t.Run("returns 200 if valid session token is present in the cookie", func(t *testing.T) {
+	t.Run("returns 200 if valid access token is present in the cookie", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -1136,7 +1171,6 @@ func TestLogoutUser(t *testing.T) {
 
 		r.AddCookie(cookie)
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
-		service.On("LogoutUserBySessionId", mock.Anything).Return(nil)
 
 		s.GetRouter().ServeHTTP(w, r)
 

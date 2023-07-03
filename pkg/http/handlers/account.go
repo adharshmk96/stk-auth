@@ -112,7 +112,7 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 
 // LoginUserToken creates a new session for the user and sets the session id in cookie
 // - Decodes and Validates the user information from body
-// - Calls the service layer to authenticate, store the session information and generate jwt token with session id as claim
+// - Calls the service layer to authenticate, generate access and refresh tokens
 // - Sets the session token in cookie
 // ERRORS:
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
@@ -260,7 +260,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
-// GetSessionTokenUser returns the user information from access token
+// GetTokenUser returns the user information from access token
 // - Gets the session token from cookie
 // - Calls the service layer to validate token and get the user information
 // - Returns the user information
@@ -268,7 +268,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
+func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 	accessTokenCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -305,14 +305,38 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 
 	if refreshToken {
 		// TODO: check if refresh token is valid
+		refreshTokenCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME))
+		if err != nil || refreshTokenCookie == nil || refreshTokenCookie.Value == "" {
+			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+				"message": transport.ERROR_UNAUTHORIZED,
+			})
+			return
+		}
+
+		rtClaims, err := h.userService.ValidateJWT(refreshTokenCookie.Value)
+		if err != nil {
+			if err == svrerr.ErrInvalidToken || err == jwt.ErrTokenExpired {
+				ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+					"message": transport.ERROR_UNAUTHORIZED,
+				})
+			} else {
+				ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+					"message": transport.INTERNAL_SERVER_ERROR,
+				})
+			}
+			return
+		}
+
 		userId := userData.ID.String()
-		sessionId := claims.SessionID
 		timeNow := time.Now()
 		accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 
-		claims := &entities.CustomClaims{
-			SessionID: sessionId,
-			UserID:    userId,
+		if rtClaims.ExpiresAt.Time.Before(accessExpiry) {
+			accessExpiry = rtClaims.ExpiresAt.Time
+		}
+
+		atClaims := &entities.CustomClaims{
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				Subject:   userId,
 				Issuer:    viper.GetString(constants.ENV_SERVER_DOMAIN),
@@ -321,7 +345,7 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 			},
 		}
 
-		accessToken, err := h.userService.GenerateJWT(claims)
+		accessToken, err := h.userService.GenerateJWT(atClaims)
 		if err != nil {
 			transport.HandleLoginError(err, ctx)
 			return
@@ -360,7 +384,7 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
 func (h *accountHandler) LogoutUser(ctx gsk.Context) {
-	sessionCookie, sessionToken, err := transport.GetSessionOrTokenFromCookie(ctx)
+	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(ctx)
 	if err != nil {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
@@ -368,40 +392,46 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 		return
 	}
 
-	var cookieName string
 	if sessionCookie != nil && sessionCookie.Value != "" {
 		err := h.userService.LogoutUserBySessionId(sessionCookie.Value)
 		if err != nil {
 			transport.HandleLogoutError(err, ctx)
 			return
 		}
-		cookieName = viper.GetString(constants.ENV_SESSION_COOKIE_NAME)
 	} else {
-		claims, err := h.userService.ValidateJWT(sessionToken.Value)
+		_, err := h.userService.ValidateJWT(refreshToken.Value)
 		if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
 			transport.HandleLogoutError(err, ctx)
 			return
 		}
 
-		err = h.userService.LogoutUserBySessionId(claims.SessionID)
-		if err != nil {
-			transport.HandleLogoutError(err, ctx)
-			return
-		}
-		cookieName = viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME)
 	}
 
-	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
-	cookie := &http.Cookie{
-		Name:     cookieName,
-		Value:    "",
-		HttpOnly: true,
-		Secure:   secureCookie,
-		Path:     "/",
-		Expires:  time.Now().AddDate(0, 0, -1),
+	sessionCookieName := viper.GetString(constants.ENV_SESSION_COOKIE_NAME)
+	atCookieName := viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME)
+	rtCookieName := viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME)
+
+	newSessionCookie := &http.Cookie{
+		Name:   sessionCookieName,
+		Value:  "",
+		MaxAge: -1,
 	}
 
-	ctx.SetCookie(cookie)
+	atCookie := &http.Cookie{
+		Name:   atCookieName,
+		Value:  "",
+		MaxAge: -1,
+	}
+
+	rtCookie := &http.Cookie{
+		Name:   rtCookieName,
+		Value:  "",
+		MaxAge: -1,
+	}
+
+	ctx.SetCookie(newSessionCookie)
+	ctx.SetCookie(atCookie)
+	ctx.SetCookie(rtCookie)
 
 	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,

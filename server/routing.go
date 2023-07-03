@@ -29,7 +29,7 @@ func setupRoutes(server gsk.Server) {
 	// server.Post("/api/auth/token/access/refresh", userHandler.LoginUserSessionToken) // issues new access token
 
 	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
-	server.Get("/api/auth/session/user/token", userHandler.GetSessionTokenUser)
+	server.Get("/api/auth/session/user/token", userHandler.GetTokenUser)
 
 	server.Post("/api/auth/logout", userHandler.LogoutUser)
 

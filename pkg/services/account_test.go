@@ -456,11 +456,9 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -476,7 +474,6 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, userId, parsedClaims.UserID)
-		assert.Equal(t, sessionId, parsedClaims.SessionID)
 	})
 
 	t.Run("returns error if key is invalid", func(t *testing.T) {
@@ -487,11 +484,9 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -520,11 +515,9 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -552,11 +545,9 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),

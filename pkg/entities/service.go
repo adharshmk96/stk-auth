@@ -3,8 +3,7 @@ package entities
 import "github.com/golang-jwt/jwt/v5"
 
 type CustomClaims struct {
-	SessionID string `json:"session_id"`
-	UserID    string `json:"user_id"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
