@@ -269,6 +269,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
 func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
+	// TODO split to validate and refresh ?
 	accessTokenCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -435,5 +436,41 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 
 	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,
+	})
+}
+
+func (h *accountHandler) ChangePassword(ctx gsk.Context) {
+	var credentials *transport.NewCredentials
+
+	err := ctx.DecodeJSONBody(&credentials)
+	if err != nil {
+		ctx.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_BODY,
+		})
+		return
+	}
+
+	user := &entities.Account{
+		Username: credentials.Username,
+		Email:    credentials.Email,
+		Password: credentials.OldPassword,
+	}
+
+	err = h.userService.Authenticate(user)
+	if err != nil {
+		transport.HandleChangePasswordError(err, ctx)
+		return
+	}
+
+	user.Password = credentials.NewPassword
+
+	err = h.userService.ChangePassword(user)
+	if err != nil {
+		transport.HandleChangePasswordError(err, ctx)
+		return
+	}
+
+	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
+		"message": transport.SUCCESS_CHANGED_PASSWORD,
 	})
 }

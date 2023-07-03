@@ -24,12 +24,11 @@ func setupRoutes(server gsk.Server) {
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
 	server.Post("/api/auth/token/login", userHandler.LoginUserToken)
 
-	// server.Post("/api/auth/token/login", userHandler.LoginUserSessionToken) // issues access and refresh tokens(refresh expiry = loggedout)
-	// server.Post("/api/auth/token/access/validate", userHandler.LoginUserSessionToken) // validates access token
-	// server.Post("/api/auth/token/access/refresh", userHandler.LoginUserSessionToken) // issues new access token
-
 	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
-	server.Get("/api/auth/session/user/token", userHandler.GetTokenUser)
+	server.Get("/api/auth/token/user", userHandler.GetTokenUser)
+
+	server.Post("/api/auth/update/password", userHandler.ChangePassword)
+	// server.Post("/api/auth/update/credentials", userHandler.ChangeCredentials) // maybe one route for all updates
 
 	server.Post("/api/auth/logout", userHandler.LogoutUser)
 

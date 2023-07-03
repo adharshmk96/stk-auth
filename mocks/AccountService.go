@@ -26,6 +26,20 @@ func (_m *AccountService) Authenticate(login *entities.Account) error {
 	return r0
 }
 
+// ChangePassword provides a mock function with given fields: user
+func (_m *AccountService) ChangePassword(user *entities.Account) error {
+	ret := _m.Called(user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateSession provides a mock function with given fields: user
 func (_m *AccountService) CreateSession(user *entities.Account) (*entities.Session, error) {
 	ret := _m.Called(user)

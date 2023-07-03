@@ -108,3 +108,16 @@ func HandleGetUserError(err error, ctx gsk.Context) {
 		})
 	}
 }
+
+func HandleChangePasswordError(err error, ctx gsk.Context) {
+	switch err {
+	case svrerr.ErrInvalidCredentials:
+		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			"error": INVALID_CREDENTIALS,
+		})
+	default:
+		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"error": INTERNAL_SERVER_ERROR,
+		})
+	}
+}

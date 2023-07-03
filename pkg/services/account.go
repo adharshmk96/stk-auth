@@ -203,6 +203,28 @@ func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, erro
 	return claims, nil
 }
 
+func (u *accountService) ChangePassword(user *entities.Account) error {
+	salt, err := utils.GenerateSalt()
+	if err != nil {
+		logger.Error("error generating salt: ", err)
+		return svrerr.ErrHasingPassword
+	}
+
+	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
+
+	currentTimestamp := time.Now()
+
+	user.UpdatedAt = currentTimestamp
+	user.Password = hashedPassword
+	user.Salt = hashedSalt
+
+	if err = u.storage.UpdateUserByID(user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Session.
 // NOTE:
 // - For a session based authentication, the invalidated session ID can't be used anymore.

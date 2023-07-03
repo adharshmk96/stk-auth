@@ -184,6 +184,20 @@ func (_m *AccountStore) SaveUser(user *entities.Account) error {
 	return r0
 }
 
+// UpdateUserByID provides a mock function with given fields: user
+func (_m *AccountStore) UpdateUserByID(user *entities.Account) error {
+	ret := _m.Called(user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 type mockConstructorTestingTNewAccountStore interface {
 	mock.TestingT
 	Cleanup(func())

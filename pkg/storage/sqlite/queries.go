@@ -8,6 +8,8 @@ const (
 	ACCOUNT_GET_USER_BY_ID       = "SELECT id, username, password, salt, email, created_at, updated_at FROM " + ACCOUNT_USER_TABLE_NAME + " WHERE id = ?"
 	ACCOUNT_GET_USER_BY_EMAIL    = "SELECT id, username, password, salt, email, created_at, updated_at FROM " + ACCOUNT_USER_TABLE_NAME + " WHERE email = ?"
 	ACCOUNT_GET_USER_BY_USERNAME = "SELECT id, username, password, salt, email, created_at, updated_at FROM " + ACCOUNT_USER_TABLE_NAME + " WHERE username = ?"
+
+	ACCOUNT_UPDATE_USER_BY_ID = "UPDATE " + ACCOUNT_USER_TABLE_NAME + " SET username = ?, email = ?, password = ?, salt = ?, updated_at = ? WHERE id = ?"
 )
 
 const (

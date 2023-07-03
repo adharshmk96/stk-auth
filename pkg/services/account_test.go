@@ -567,3 +567,44 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 	})
 
 }
+
+func TestAccountService_ChangePassword(t *testing.T) {
+
+	email := "user@email.com"
+	new_password := "new_password"
+	lastHour := time.Now().Add(-1 * time.Hour)
+	created_at := lastHour
+	updated_at := lastHour
+
+	inputUser := &entities.Account{
+		Email:     email,
+		Password:  new_password,
+		CreatedAt: created_at,
+		UpdatedAt: updated_at,
+	}
+
+	t.Run("returns no error if password is changed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("UpdateUserByID", inputUser).Return(nil).Once()
+
+		err := service.ChangePassword(inputUser)
+
+		assert.NoError(t, err)
+		assert.NotEqual(t, inputUser.Password, new_password)
+		assert.NotEqual(t, inputUser.UpdatedAt.Unix(), lastHour.Unix())
+		assert.Equal(t, inputUser.CreatedAt.Unix(), lastHour.Unix())
+	})
+
+	t.Run("returns error if password is not changed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("UpdateUserByID", inputUser).Return(svrerr.ErrDBStorageFailed).Once()
+
+		err := service.ChangePassword(inputUser)
+
+		assert.Error(t, err)
+	})
+}

@@ -1336,3 +1336,104 @@ func TestCommonErrors(t *testing.T) {
 	})
 
 }
+
+func TestChangePassword(t *testing.T) {
+
+	stkconfig := &gsk.ServerConfig{
+		Port:           "8080",
+		RequestLogging: false,
+	}
+	s := gsk.NewServer(stkconfig)
+
+	changeRequest := struct {
+		Email       string `json:"email"`
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}{
+		Email:       "user@email.com",
+		OldPassword: "old_password",
+		NewPassword: "new_password",
+	}
+
+	t.Run("returns 200 if password is changed successfully", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/change-password/a", handler.ChangePassword)
+
+		body, _ := json.Marshal(changeRequest)
+
+		r := httptest.NewRequest("POST", "/change-password/a", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+
+		s.GetRouter().ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		service.AssertExpectations(t)
+	})
+
+	t.Run("returns 401 authentication failed", func(t *testing.T) {
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/change-password/b", handler.ChangePassword)
+
+		r := httptest.NewRequest("POST", "/change-password/b", nil)
+		w := httptest.NewRecorder()
+
+		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+
+		s.GetRouter().ServeHTTP(w, r)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+		service.AssertExpectations(t)
+	})
+
+	t.Run("returns 500 if change password fails", func(t *testing.T) {
+		t.Run("authentication failed", func(t *testing.T) {
+
+			service := mocks.NewAccountService(t)
+			handler := handlers.NewAccountHandler(service)
+
+			s.Post("/change-password/c", handler.ChangePassword)
+
+			body, _ := json.Marshal(changeRequest)
+
+			r := httptest.NewRequest("POST", "/change-password/c", bytes.NewBuffer(body))
+			w := httptest.NewRecorder()
+
+			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+
+			s.GetRouter().ServeHTTP(w, r)
+
+			assert.Equal(t, http.StatusInternalServerError, w.Code)
+			service.AssertExpectations(t)
+		})
+
+		t.Run("change password failed", func(t *testing.T) {
+			service := mocks.NewAccountService(t)
+			handler := handlers.NewAccountHandler(service)
+
+			s.Post("/change-password/d", handler.ChangePassword)
+
+			body, _ := json.Marshal(changeRequest)
+
+			r := httptest.NewRequest("POST", "/change-password/d", bytes.NewBuffer(body))
+			w := httptest.NewRecorder()
+
+			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+			service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+
+			s.GetRouter().ServeHTTP(w, r)
+
+			assert.Equal(t, http.StatusInternalServerError, w.Code)
+			service.AssertExpectations(t)
+		})
+	})
+
+}

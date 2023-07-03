@@ -13,7 +13,7 @@ POST http://localhost:8080/api/auth/session/login
 Content-Type: application/json
 
 {
-    "username": "test",
+    "username": "test1",
     "password": "#Password123"
 }
 
@@ -39,3 +39,20 @@ Content-Type: application/json
 ###
 
 POST http://localhost:8080/api/auth/logout
+
+###
+
+POST http://localhost:8080/api/auth/update/password
+Content-Type: application/json
+
+{
+    "credentials": {
+        "username": "test",
+        "password": "#Password123"
+    },
+    "update": {
+        "username": "user",
+        "email": "user2@email.com",
+        "password": "#Password123",
+    }
+}

@@ -2,6 +2,7 @@ package transport
 
 const SUCCESS_LOGIN = "login_successful"
 const SUCCESS_LOGOUT = "logout_successful"
+const SUCCESS_CHANGED_PASSWORD = "password_changed_successfully"
 
 // Error message
 // User input
