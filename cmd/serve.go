@@ -16,7 +16,9 @@ var serveCmd = &cobra.Command{
 	Short: "Start the auth server",
 	Run: func(cmd *cobra.Command, args []string) {
 		startAddr := "0.0.0.0:"
-		server.StartServer(startAddr + startingPort)
+		_, done := server.StartHttpServer(startAddr + startingPort)
+		<-done
+
 	},
 }
 

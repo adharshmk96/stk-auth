@@ -69,7 +69,7 @@ func TestRegisterUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusCreated, w.Code)
 
@@ -101,7 +101,7 @@ func TestRegisterUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "CreateUser", mock.Anything)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -126,7 +126,7 @@ func TestRegisterUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		service.AssertExpectations(t)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -151,7 +151,7 @@ func TestRegisterUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "CreateUser", mock.Anything)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
@@ -175,7 +175,7 @@ func TestRegisterUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		service.AssertNotCalled(t, "CreateUser", mock.Anything)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -241,7 +241,7 @@ func TestLoginUserSession(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		service.AssertExpectations(t)
@@ -278,7 +278,7 @@ func TestLoginUserSession(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertExpectations(t)
@@ -314,7 +314,7 @@ func TestLoginUserSession(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		service.AssertExpectations(t)
@@ -351,7 +351,7 @@ func TestLoginUserSession(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		service.AssertExpectations(t)
@@ -384,7 +384,7 @@ func TestLoginUserSession(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		service.AssertExpectations(t)
@@ -451,7 +451,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 		service.AssertExpectations(t)
@@ -488,7 +488,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertExpectations(t)
@@ -527,7 +527,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 			r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 			w := httptest.NewRecorder()
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 			service.AssertExpectations(t)
@@ -565,7 +565,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 			r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 			w := httptest.NewRecorder()
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 			service.AssertExpectations(t)
@@ -603,7 +603,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 			r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 			w := httptest.NewRecorder()
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 			service.AssertExpectations(t)
@@ -640,7 +640,7 @@ func TestLoginUserSessionToken(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login", bytes.NewBuffer(body))
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		service.AssertExpectations(t)
@@ -715,7 +715,7 @@ func TestGetSessionUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("GetUserBySessionId", mock.Anything).Return(userData, nil)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
@@ -731,7 +731,7 @@ func TestGetSessionUser(t *testing.T) {
 		r := httptest.NewRequest("GET", "/user/b", nil)
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
@@ -751,7 +751,7 @@ func TestGetSessionUser(t *testing.T) {
 		}
 
 		r.AddCookie(cookie)
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
@@ -773,7 +773,7 @@ func TestGetSessionUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrInvalidSession)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
@@ -795,7 +795,7 @@ func TestGetSessionUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
@@ -865,7 +865,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
 		service.On("GetUserBySessionId", sid).Return(userData, nil).Once()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
@@ -908,7 +908,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		service.On("GetUserBySessionId", sid).Return(userData, nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(newToken, nil).Once()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
@@ -939,7 +939,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		r := httptest.NewRequest("GET", "/user/b", nil)
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
@@ -965,7 +965,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("ValidateJWT", token).Return(nil, svrerr.ErrInvalidToken)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
@@ -993,7 +993,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrInvalidSession).Once()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
@@ -1020,7 +1020,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 			r.AddCookie(cookie)
 			service.On("ValidateJWT", token).Return(nil, jwt.ErrInvalidKey)
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 
@@ -1047,7 +1047,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 			service.On("ValidateJWT", token).Return(claims, nil).Once()
 			service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 
@@ -1074,7 +1074,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 			service.On("GetUserBySessionId", mock.Anything).Return(userData, nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey)
 
-			s.Router.ServeHTTP(w, r)
+			s.GetRouter().ServeHTTP(w, r)
 
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 
@@ -1132,7 +1132,7 @@ func TestLogoutUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("LogoutUserBySessionId", token).Return(nil)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
@@ -1161,7 +1161,7 @@ func TestLogoutUser(t *testing.T) {
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
 		service.On("LogoutUserBySessionId", mock.Anything).Return(nil)
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusOK, w.Code)
 
@@ -1183,7 +1183,7 @@ func TestLogoutUser(t *testing.T) {
 		r := httptest.NewRequest("POST", "/logout/b", nil)
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
@@ -1206,7 +1206,7 @@ func TestLogoutUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("LogoutUserBySessionId", mock.Anything).Return(svrerr.ErrInvalidSession).Once()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertExpectations(t)
@@ -1230,7 +1230,7 @@ func TestLogoutUser(t *testing.T) {
 		r.AddCookie(cookie)
 		service.On("LogoutUserBySessionId", cookie.Value).Return(svrerr.ErrDBStorageFailed).Once()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 
@@ -1259,7 +1259,7 @@ func TestCommonErrors(t *testing.T) {
 		r3 := httptest.NewRequest("POST", "/register/a", nil)
 		w3 := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w3, r3)
+		s.GetRouter().ServeHTTP(w3, r3)
 
 		service.AssertNotCalled(t, "CreateUser", mock.Anything)
 		assert.Equal(t, http.StatusBadRequest, w3.Code)
@@ -1272,7 +1272,7 @@ func TestCommonErrors(t *testing.T) {
 		r := httptest.NewRequest("POST", "/login/a", nil)
 		w := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w, r)
+		s.GetRouter().ServeHTTP(w, r)
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		service.AssertNotCalled(t, "LoginUserSession", mock.Anything)
@@ -1285,7 +1285,7 @@ func TestCommonErrors(t *testing.T) {
 		r2 := httptest.NewRequest("POST", "/login/a/token", nil)
 		w2 := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w2, r2)
+		s.GetRouter().ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
@@ -1314,7 +1314,7 @@ func TestCommonErrors(t *testing.T) {
 		r2 := httptest.NewRequest("POST", "/login/c/token", bytes.NewBuffer(body))
 		w2 := httptest.NewRecorder()
 
-		s.Router.ServeHTTP(w2, r2)
+		s.GetRouter().ServeHTTP(w2, r2)
 
 		assert.Equal(t, http.StatusBadRequest, w2.Code)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)

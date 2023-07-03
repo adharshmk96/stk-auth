@@ -10,13 +10,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-func setupRoutes(server *gsk.Server) {
+func setupRoutes(server gsk.Server) {
+
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
 	userStorage := sqlite.NewAccountStorage(connection)
 	userService := services.NewAccountService(userStorage)
 	userHandler := handlers.NewAccountHandler(userService)
 
+	// User authentication
 	server.Post("/api/auth/register", userHandler.RegisterUser)
 
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
@@ -30,4 +32,7 @@ func setupRoutes(server *gsk.Server) {
 	server.Get("/api/auth/session/user/token", userHandler.GetSessionTokenUser)
 
 	server.Post("/api/auth/logout", userHandler.LogoutUser)
+
+	// Health check
+	server.Get("/health", handlers.HealthCheckHandler)
 }
