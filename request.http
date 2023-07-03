@@ -2,8 +2,8 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "test",
-    "email": "user@email.com",
+    "username": "test1",
+    "email": "user1@email.com",
     "password": "#Password123"
 }
 
@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/api/auth/session/login/token
+POST http://localhost:8080/api/auth/token/login
 Content-Type: application/json
 
 {

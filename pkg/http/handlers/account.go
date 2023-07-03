@@ -110,7 +110,7 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
-// LoginUserSessionToken creates a new session for the user and sets the session id in cookie
+// LoginUserToken creates a new session for the user and sets the session id in cookie
 // - Decodes and Validates the user information from body
 // - Calls the service layer to authenticate, store the session information and generate jwt token with session id as claim
 // - Sets the session token in cookie
@@ -120,7 +120,7 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
+func (h *accountHandler) LoginUserToken(ctx gsk.Context) {
 	var userLogin *entities.Account
 
 	err := ctx.DecodeJSONBody(&userLogin)
@@ -141,38 +141,61 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 		return
 	}
 
-	sessionData, err := h.userService.CreateSession(userLogin)
+	// Generate Access Token
+	userId := userLogin.ID.String()
+	requestHost := ctx.GetRequest().Host
+
+	timeNow := time.Now()
+	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
+	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
+
+	atClaims := &entities.CustomClaims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userId,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
+			Audience:  jwt.ClaimStrings{requestHost},
+			IssuedAt:  jwt.NewNumericDate(timeNow),
+			ExpiresAt: jwt.NewNumericDate(accessExpiry),
+		},
+	}
+
+	rtClaims := &entities.CustomClaims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   userId,
+			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
+			Audience:  jwt.ClaimStrings{requestHost},
+			IssuedAt:  jwt.NewNumericDate(timeNow),
+			ExpiresAt: jwt.NewNumericDate(refreshExpiry),
+		},
+	}
+
+	atjwt, err := h.userService.GenerateJWT(atClaims)
 	if err != nil {
 		transport.HandleLoginError(err, ctx)
 		return
 	}
 
-	userId := userLogin.ID.String()
-	sessionId := sessionData.SessionID
-
-	timeNow := time.Now()
-
-	claims := &entities.CustomClaims{
-		SessionID: sessionId,
-		UserID:    userId,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,
-			Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
-			IssuedAt:  jwt.NewNumericDate(timeNow),
-			ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION))),
-		},
-	}
-
-	jwt, err := h.userService.GenerateJWT(claims)
+	rtjwt, err := h.userService.GenerateJWT(rtClaims)
 	if err != nil {
 		transport.HandleLoginError(err, ctx)
 		return
 	}
 
 	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
-	cookie := &http.Cookie{
-		Name:     viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
-		Value:    jwt,
+	atCookie := &http.Cookie{
+		Name:     viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
+		Value:    atjwt,
+		HttpOnly: true,
+		Secure:   secureCookie,
+		Path:     "/",
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
+	}
+
+	rtCookie := &http.Cookie{
+		Name:     viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME),
+		Value:    rtjwt,
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
@@ -183,7 +206,8 @@ func (h *accountHandler) LoginUserSessionToken(ctx gsk.Context) {
 		"message": transport.SUCCESS_LOGIN,
 	}
 
-	ctx.SetCookie(cookie)
+	ctx.SetCookie(atCookie)
+	ctx.SetCookie(rtCookie)
 	ctx.Status(http.StatusOK).JSONResponse(response)
 }
 
@@ -238,7 +262,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
 func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
-	sessionCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME))
+	sessionCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
@@ -284,7 +308,7 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 				Subject:   userId,
 				Issuer:    viper.GetString(constants.ENV_JWT_SUBJECT),
 				IssuedAt:  jwt.NewNumericDate(timeNow),
-				ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_JWT_EXPIRATION_DURATION))),
+				ExpiresAt: jwt.NewNumericDate(timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))),
 			},
 		}
 
@@ -296,7 +320,7 @@ func (h *accountHandler) GetSessionTokenUser(ctx gsk.Context) {
 
 		secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 		cookie := &http.Cookie{
-			Name:     viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME),
+			Name:     viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
 			Value:    jwt,
 			HttpOnly: true,
 			Secure:   secureCookie,
@@ -355,7 +379,7 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 			transport.HandleLogoutError(err, ctx)
 			return
 		}
-		cookieName = viper.GetString(constants.ENV_JWT_SESSION_COOKIE_NAME)
+		cookieName = viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME)
 	}
 
 	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
