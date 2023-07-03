@@ -19,6 +19,10 @@ import (
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
 func (u *accountService) CreateUser(user *entities.Account) (*entities.Account, error) {
+	if user.Email == "" {
+		return nil, svrerr.ErrValidationFailed
+	}
+
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)

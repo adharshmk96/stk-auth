@@ -57,6 +57,22 @@ func TestAccountService_CreateUser(t *testing.T) {
 		assert.NotEmpty(t, user.UpdatedAt)
 	})
 
+	t.Run("returns error if email is empty", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		newUserData := &entities.Account{
+			Username: "testuser",
+			Password: user_password,
+		}
+
+		// Test invalid registration
+		user, err := service.CreateUser(newUserData)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrValidationFailed)
+		assert.Nil(t, user)
+	})
+
 	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)

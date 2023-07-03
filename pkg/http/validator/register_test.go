@@ -28,8 +28,7 @@ func TestValidateUser(t *testing.T) {
 				Password: "Test$123",
 			},
 			expected: map[string]string{
-				"username": EmailOrUsernameRequired,
-				"email":    EmailOrUsernameRequired,
+				"email": EmailIsRequired,
 			},
 		},
 		{
@@ -47,6 +46,7 @@ func TestValidateUser(t *testing.T) {
 			name: "Invalid username",
 			user: &entities.Account{
 				Username: "a",
+				Email:    "test@email.com",
 				Password: "Test$123",
 			},
 			expected: map[string]string{
@@ -56,7 +56,7 @@ func TestValidateUser(t *testing.T) {
 		{
 			name: "Empty password",
 			user: &entities.Account{
-				Username: "test",
+				Email:    "test@email.com",
 				Password: "",
 			},
 			expected: map[string]string{
@@ -66,11 +66,21 @@ func TestValidateUser(t *testing.T) {
 		{
 			name: "invalid password",
 			user: &entities.Account{
-				Username: "test",
+				Email:    "test@email.com",
 				Password: "test",
 			},
 			expected: map[string]string{
 				"password": PasswordMustBeValid,
+			},
+		},
+		{
+			name: "Empty email",
+			user: &entities.Account{
+				Username: "test",
+				Password: "Test$123",
+			},
+			expected: map[string]string{
+				"email": EmailIsRequired,
 			},
 		},
 	}

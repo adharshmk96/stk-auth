@@ -84,6 +84,29 @@ func TestRegisterUser(t *testing.T) {
 
 	})
 
+	t.Run("returns 400 if email is empty", func(t *testing.T) {
+		stkconfig := &gsk.ServerConfig{
+			Port:           "8080",
+			RequestLogging: false,
+		}
+		s := gsk.NewServer(stkconfig)
+
+		body := []byte(`{ "username": "` + username + `", "password": "` + password + `" }`)
+
+		service := mocks.NewAccountService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/register", handler.RegisterUser)
+
+		r := httptest.NewRequest("POST", "/register", bytes.NewBuffer(body))
+		w := httptest.NewRecorder()
+
+		s.GetRouter().ServeHTTP(w, r)
+
+		service.AssertNotCalled(t, "CreateUser", mock.Anything)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
 	t.Run("returns 400 if validation fails on data", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
 			Port:           "8080",
