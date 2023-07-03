@@ -19,6 +19,10 @@ import (
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
 func (u *accountService) CreateUser(user *entities.Account) (*entities.Account, error) {
+	if user.Email == "" {
+		return nil, svrerr.ErrValidationFailed
+	}
+
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
@@ -79,6 +83,14 @@ func (u *accountService) Authenticate(login *entities.Account) error {
 	login.CreatedAt = userRecord.CreatedAt
 	login.UpdatedAt = userRecord.UpdatedAt
 	return nil
+}
+
+func (u *accountService) GetUserByID(userId string) (*entities.Account, error) {
+	user, err := u.storage.GetUserByUserID(userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // CreateSession creates a new session for the user and returns the session id
@@ -189,6 +201,28 @@ func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, erro
 		return claims, svrerr.ErrInvalidToken
 	}
 	return claims, nil
+}
+
+func (u *accountService) ChangePassword(user *entities.Account) error {
+	salt, err := utils.GenerateSalt()
+	if err != nil {
+		logger.Error("error generating salt: ", err)
+		return svrerr.ErrHasingPassword
+	}
+
+	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
+
+	currentTimestamp := time.Now()
+
+	user.UpdatedAt = currentTimestamp
+	user.Password = hashedPassword
+	user.Salt = hashedSalt
+
+	if err = u.storage.UpdateUserByID(user); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Session.

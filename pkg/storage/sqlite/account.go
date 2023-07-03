@@ -283,3 +283,36 @@ func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
 
 	return nil
 }
+
+// UpdateUserByID Updates User in the db by user id
+// ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
+func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
+	result, err := s.conn.Exec(
+		ACCOUNT_UPDATE_USER_BY_ID,
+		user.Username,
+		user.Email,
+		user.Password,
+		user.Salt,
+		user.UpdatedAt,
+		user.ID.String(),
+	)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return svrerr.ErrDBDuplicateEntry
+		}
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	rows, err := result.RowsAffected()
+	if rows == 0 {
+		logger.Error("user not found")
+		return svrerr.ErrDBEntryNotFound
+	}
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	return nil
+}

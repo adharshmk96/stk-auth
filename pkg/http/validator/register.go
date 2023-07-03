@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	EmailOrUsernameRequired = "Username or Email is required"
-	PasswordRequired        = "Password is required"
-	EmailMustBeValid        = "Email must be a valid format user@email.com"
-	UsernameMustBeValid     = "Username must be at least 3 characters"
-	PasswordMustBeValid     = "Password must have at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character"
+	EmailIsRequired     = "Email is required"
+	PasswordRequired    = "Password is required"
+	EmailMustBeValid    = "Email must be a valid format user@email.com"
+	UsernameMustBeValid = "Username must be at least 3 characters"
+	PasswordMustBeValid = "Password must have at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character"
 )
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
@@ -65,9 +65,8 @@ func registrationEmail(email string) error {
 func ValidateRegistration(user *entities.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
-	if user.Username == "" && user.Email == "" {
-		errorMessages["username"] = EmailOrUsernameRequired
-		errorMessages["email"] = EmailOrUsernameRequired
+	if user.Email == "" {
+		errorMessages["email"] = EmailIsRequired
 	} else {
 		if user.Username != "" {
 			if err := registrationUsername(user.Username); err != nil {

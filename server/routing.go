@@ -10,24 +10,28 @@ import (
 	"github.com/spf13/viper"
 )
 
-func setupRoutes(server *gsk.Server) {
+func setupRoutes(server gsk.Server) {
+
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
 	userStorage := sqlite.NewAccountStorage(connection)
 	userService := services.NewAccountService(userStorage)
 	userHandler := handlers.NewAccountHandler(userService)
 
+	// User authentication
 	server.Post("/api/auth/register", userHandler.RegisterUser)
 
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
-	server.Post("/api/auth/session/login/token", userHandler.LoginUserSessionToken)
-
-	// server.Post("/api/auth/token/login", userHandler.LoginUserSessionToken) // issues access and refresh tokens(refresh expiry = loggedout)
-	// server.Post("/api/auth/token/access/validate", userHandler.LoginUserSessionToken) // validates access token
-	// server.Post("/api/auth/token/access/refresh", userHandler.LoginUserSessionToken) // issues new access token
+	server.Post("/api/auth/token/login", userHandler.LoginUserToken)
 
 	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
-	server.Get("/api/auth/session/user/token", userHandler.GetSessionTokenUser)
+	server.Get("/api/auth/token/user", userHandler.GetTokenUser)
+
+	server.Post("/api/auth/update/password", userHandler.ChangePassword)
+	// server.Post("/api/auth/update/credentials", userHandler.ChangeCredentials) // maybe one route for all updates
 
 	server.Post("/api/auth/logout", userHandler.LogoutUser)
+
+	// Health check
+	server.Get("/health", handlers.HealthCheckHandler)
 }

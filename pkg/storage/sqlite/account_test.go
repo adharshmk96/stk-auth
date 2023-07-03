@@ -378,3 +378,132 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 func TestUserStorage_InvalidateSessionByID(t *testing.T) {
 
 }
+
+func generateRandomUser() *entities.Account {
+	userId := entities.UserID(uuid.New())
+	username := "test" + uuid.NewString()
+	email := "u" + uuid.NewString() + "@mail.com"
+	password := "test" + uuid.NewString()
+	salt := "test" + uuid.NewString()
+	time_now := time.Now()
+
+	user := &entities.Account{
+		ID:        userId,
+		Username:  username,
+		Password:  password,
+		Salt:      salt,
+		Email:     email,
+		CreatedAt: time_now,
+		UpdatedAt: time_now,
+	}
+
+	return user
+}
+
+func TestUserStorage_UpdateUserByID(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	userId := entities.UserID(uuid.New())
+	username := "test"
+	email := "test@user.com"
+	password := "test"
+	salt := "test"
+	time_now := time.Now()
+
+	user := &entities.Account{
+		ID:        userId,
+		Username:  username,
+		Password:  password,
+		Salt:      salt,
+		Email:     email,
+		CreatedAt: time_now,
+		UpdatedAt: time_now,
+	}
+	conn.Exec(
+		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		user.ID.String(),
+		user.Username,
+		user.Password,
+		user.Salt,
+		user.Email,
+		user.CreatedAt,
+		user.UpdatedAt,
+	)
+
+	t.Run("UpdateUserByID updates user succesfully", func(t *testing.T) {
+		userStorage := sqlite.NewAccountStorage(conn)
+
+		newUsername := "newUsername"
+		newEmail := "user@email.com"
+		newPassword := "newPassword"
+		newSalt := "newSalt"
+		newUpdatedAt := time.Now()
+
+		newUser := &entities.Account{
+			ID:        userId,
+			Username:  newUsername,
+			Email:     newEmail,
+			Password:  newPassword,
+			Salt:      newSalt,
+			UpdatedAt: newUpdatedAt,
+		}
+
+		err := userStorage.UpdateUserByID(newUser)
+
+		assert.NoError(t, err)
+
+		retrievedUser, err := userStorage.GetUserByUserID(userId.String())
+
+		assert.NoError(t, err)
+		assert.Equal(t, newUser.ID.String(), retrievedUser.ID.String())
+		assert.Equal(t, newUser.Username, retrievedUser.Username)
+		assert.Equal(t, newUser.Email, retrievedUser.Email)
+		assert.Equal(t, newUser.Password, retrievedUser.Password)
+		assert.Equal(t, newUser.Salt, retrievedUser.Salt)
+		assert.Equal(t, newUser.UpdatedAt.Unix(), retrievedUser.UpdatedAt.Unix())
+		assert.Equal(t, time_now.Unix(), retrievedUser.CreatedAt.Unix())
+	})
+
+	t.Run("UpdateUserByID returns error when user is not found in populated db", func(t *testing.T) {
+		userStorage := sqlite.NewAccountStorage(conn)
+
+		newUsername := "newUsername"
+		newEmail := "newEmail"
+		newPassword := "newPassword"
+		newSalt := "newSalt"
+		newUpdatedAt := time.Now()
+
+		newUser := &entities.Account{
+			ID:        entities.UserID(uuid.New()),
+			Username:  newUsername,
+			Email:     newEmail,
+			Password:  newPassword,
+			Salt:      newSalt,
+			UpdatedAt: newUpdatedAt,
+		}
+
+		err := userStorage.UpdateUserByID(newUser)
+
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+	})
+
+	t.Run("error when same email is found in for different user in db", func(t *testing.T) {
+		newUser := generateRandomUser()
+
+		userStorage := sqlite.NewAccountStorage(conn)
+		userStorage.SaveUser(newUser)
+
+		collissionUser := generateRandomUser()
+		userStorage.SaveUser(collissionUser)
+
+		retrievedUser, err := userStorage.GetUserByUserID(collissionUser.ID.String())
+		assert.NoError(t, err)
+		assert.Equal(t, collissionUser.ID.String(), retrievedUser.ID.String())
+
+		collissionUser.Email = newUser.Email
+		err = userStorage.UpdateUserByID(collissionUser)
+
+		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
+	})
+}

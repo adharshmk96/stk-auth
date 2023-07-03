@@ -26,6 +26,20 @@ func (_m *AccountService) Authenticate(login *entities.Account) error {
 	return r0
 }
 
+// ChangePassword provides a mock function with given fields: user
+func (_m *AccountService) ChangePassword(user *entities.Account) error {
+	ret := _m.Called(user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateSession provides a mock function with given fields: user
 func (_m *AccountService) CreateSession(user *entities.Account) (*entities.Session, error) {
 	ret := _m.Called(user)
@@ -102,6 +116,32 @@ func (_m *AccountService) GenerateJWT(claims *entities.CustomClaims) (string, er
 	return r0, r1
 }
 
+// GetUserByID provides a mock function with given fields: userId
+func (_m *AccountService) GetUserByID(userId string) (*entities.Account, error) {
+	ret := _m.Called(userId)
+
+	var r0 *entities.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+		return rf(userId)
+	}
+	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+		r0 = rf(userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserBySessionId provides a mock function with given fields: sessionId
 func (_m *AccountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
 	ret := _m.Called(sessionId)
@@ -128,32 +168,6 @@ func (_m *AccountService) GetUserBySessionId(sessionId string) (*entities.Accoun
 	return r0, r1
 }
 
-// GetUserBySessionToken provides a mock function with given fields: sessionToken
-func (_m *AccountService) GetUserBySessionToken(sessionToken string) (*entities.AccountWithToken, error) {
-	ret := _m.Called(sessionToken)
-
-	var r0 *entities.AccountWithToken
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.AccountWithToken, error)); ok {
-		return rf(sessionToken)
-	}
-	if rf, ok := ret.Get(0).(func(string) *entities.AccountWithToken); ok {
-		r0 = rf(sessionToken)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.AccountWithToken)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(sessionToken)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // LogoutUserBySessionId provides a mock function with given fields: sessionId
 func (_m *AccountService) LogoutUserBySessionId(sessionId string) error {
 	ret := _m.Called(sessionId)
@@ -161,20 +175,6 @@ func (_m *AccountService) LogoutUserBySessionId(sessionId string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(sessionId)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// LogoutUserBySessionToken provides a mock function with given fields: sessionToken
-func (_m *AccountService) LogoutUserBySessionToken(sessionToken string) error {
-	ret := _m.Called(sessionToken)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(sessionToken)
 	} else {
 		r0 = ret.Error(0)
 	}

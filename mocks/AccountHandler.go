@@ -12,8 +12,8 @@ type AccountHandler struct {
 	mock.Mock
 }
 
-// GetSessionTokenUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetSessionTokenUser(ctx gsk.Context) {
+// ChangePassword provides a mock function with given fields: ctx
+func (_m *AccountHandler) ChangePassword(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
@@ -22,13 +22,18 @@ func (_m *AccountHandler) GetSessionUser(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
+// GetTokenUser provides a mock function with given fields: ctx
+func (_m *AccountHandler) GetTokenUser(ctx gsk.Context) {
+	_m.Called(ctx)
+}
+
 // LoginUserSession provides a mock function with given fields: ctx
 func (_m *AccountHandler) LoginUserSession(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
-// LoginUserSessionToken provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSessionToken(ctx gsk.Context) {
+// LoginUserToken provides a mock function with given fields: ctx
+func (_m *AccountHandler) LoginUserToken(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 

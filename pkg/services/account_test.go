@@ -57,6 +57,22 @@ func TestAccountService_CreateUser(t *testing.T) {
 		assert.NotEmpty(t, user.UpdatedAt)
 	})
 
+	t.Run("returns error if email is empty", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		newUserData := &entities.Account{
+			Username: "testuser",
+			Password: user_password,
+		}
+
+		// Test invalid registration
+		user, err := service.CreateUser(newUserData)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrValidationFailed)
+		assert.Nil(t, user)
+	})
+
 	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAccountStore(t)
 		service := services.NewAccountService(mockStore)
@@ -193,6 +209,52 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, svrerr.ErrInvalidCredentials)
+	})
+}
+
+func TestAccountService_GetUserByID(t *testing.T) {
+	user_id := entities.UserID(uuid.New())
+	user_name := "testuser"
+	user_email := "user@email.com"
+	created := time.Now()
+	updated := time.Now()
+
+	storedData := &entities.Account{
+		ID:        user_id,
+		Username:  user_name,
+		Email:     user_email,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	t.Run("valid user id returns user data", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil).Once()
+
+		user, err := service.GetUserByID(user_id.String())
+
+		mockStore.AssertExpectations(t)
+		assert.NoError(t, err)
+		assert.Equal(t, storedData.ID.String(), user.ID.String())
+		assert.Equal(t, storedData.Username, user.Username)
+		assert.Equal(t, storedData.Email, user.Email)
+		assert.Equal(t, storedData.CreatedAt, user.CreatedAt)
+		assert.Equal(t, storedData.UpdatedAt, user.UpdatedAt)
+	})
+
+	t.Run("invalid user id returns error", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByUserID", user_id.String()).Return(nil, svrerr.ErrDBEntryNotFound)
+
+		user, err := service.GetUserByID(user_id.String())
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrDBEntryNotFound)
+		assert.Nil(t, user)
 	})
 }
 
@@ -394,11 +456,9 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -414,7 +474,6 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, userId, parsedClaims.UserID)
-		assert.Equal(t, sessionId, parsedClaims.SessionID)
 	})
 
 	t.Run("returns error if key is invalid", func(t *testing.T) {
@@ -425,11 +484,9 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -458,11 +515,9 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -490,11 +545,9 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		service := services.NewAccountService(dbStorage)
 
 		userId := uuid.NewString()
-		sessionId := uuid.NewString()
 
 		claims := &entities.CustomClaims{
-			UserID:    userId,
-			SessionID: sessionId,
+			UserID: userId,
 			RegisteredClaims: jwt.RegisteredClaims{
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
@@ -513,4 +566,45 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 
 	})
 
+}
+
+func TestAccountService_ChangePassword(t *testing.T) {
+
+	email := "user@email.com"
+	new_password := "new_password"
+	lastHour := time.Now().Add(-1 * time.Hour)
+	created_at := lastHour
+	updated_at := lastHour
+
+	inputUser := &entities.Account{
+		Email:     email,
+		Password:  new_password,
+		CreatedAt: created_at,
+		UpdatedAt: updated_at,
+	}
+
+	t.Run("returns no error if password is changed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("UpdateUserByID", inputUser).Return(nil).Once()
+
+		err := service.ChangePassword(inputUser)
+
+		assert.NoError(t, err)
+		assert.NotEqual(t, inputUser.Password, new_password)
+		assert.NotEqual(t, inputUser.UpdatedAt.Unix(), lastHour.Unix())
+		assert.Equal(t, inputUser.CreatedAt.Unix(), lastHour.Unix())
+	})
+
+	t.Run("returns error if password is not changed", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("UpdateUserByID", inputUser).Return(svrerr.ErrDBStorageFailed).Once()
+
+		err := service.ChangePassword(inputUser)
+
+		assert.Error(t, err)
+	})
 }
