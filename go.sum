@@ -42,6 +42,8 @@ github.com/adharshmk96/stk v0.5.0 h1:dq3ql0HOR82rheikzUuJpQzjmj8ttXsfNgomXcZjfZ8
 github.com/adharshmk96/stk v0.5.0/go.mod h1:gkTEFJvUrK7IsMxvzsxlzVZpYYVyoVIzv0U4jZrCJSw=
 github.com/adharshmk96/stk v0.5.1 h1:C/MCnPqF/Xn6En80yRlf9ZJVWaEmlJCkgucsc2BcKIE=
 github.com/adharshmk96/stk v0.5.1/go.mod h1:gkTEFJvUrK7IsMxvzsxlzVZpYYVyoVIzv0U4jZrCJSw=
+github.com/adharshmk96/stk v0.5.2 h1:BZwhb7wr0kRQ6v6iQ0r6BZfnmTpu0uBqMMXP71/8gKs=
+github.com/adharshmk96/stk v0.5.2/go.mod h1:gkTEFJvUrK7IsMxvzsxlzVZpYYVyoVIzv0U4jZrCJSw=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
