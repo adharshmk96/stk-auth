@@ -85,6 +85,14 @@ func (u *accountService) Authenticate(login *entities.Account) error {
 	return nil
 }
 
+func (u *accountService) GetUserByID(userId string) (*entities.Account, error) {
+	user, err := u.storage.GetUserByUserID(userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // CreateSession creates a new session for the user and returns the session id
 // - Generates a new session id
 // - Calls the storage layer to store the session information

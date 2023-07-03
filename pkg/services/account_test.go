@@ -212,6 +212,52 @@ func TestAccountService_Authenticate(t *testing.T) {
 	})
 }
 
+func TestAccountService_GetUserByID(t *testing.T) {
+	user_id := entities.UserID(uuid.New())
+	user_name := "testuser"
+	user_email := "user@email.com"
+	created := time.Now()
+	updated := time.Now()
+
+	storedData := &entities.Account{
+		ID:        user_id,
+		Username:  user_name,
+		Email:     user_email,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
+	t.Run("valid user id returns user data", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil).Once()
+
+		user, err := service.GetUserByID(user_id.String())
+
+		mockStore.AssertExpectations(t)
+		assert.NoError(t, err)
+		assert.Equal(t, storedData.ID.String(), user.ID.String())
+		assert.Equal(t, storedData.Username, user.Username)
+		assert.Equal(t, storedData.Email, user.Email)
+		assert.Equal(t, storedData.CreatedAt, user.CreatedAt)
+		assert.Equal(t, storedData.UpdatedAt, user.UpdatedAt)
+	})
+
+	t.Run("invalid user id returns error", func(t *testing.T) {
+		mockStore := mocks.NewAccountStore(t)
+		service := services.NewAccountService(mockStore)
+
+		mockStore.On("GetUserByUserID", user_id.String()).Return(nil, svrerr.ErrDBEntryNotFound)
+
+		user, err := service.GetUserByID(user_id.String())
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrDBEntryNotFound)
+		assert.Nil(t, user)
+	})
+}
+
 func TestAccountService_CreateSession(t *testing.T) {
 
 	user_name := "testuser"

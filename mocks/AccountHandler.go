@@ -27,8 +27,8 @@ func (_m *AccountHandler) LoginUserSession(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 
-// LoginUserSessionToken provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSessionToken(ctx gsk.Context) {
+// LoginUserToken provides a mock function with given fields: ctx
+func (_m *AccountHandler) LoginUserToken(ctx gsk.Context) {
 	_m.Called(ctx)
 }
 

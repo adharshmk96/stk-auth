@@ -775,7 +775,7 @@ func TestGetSessionUser(t *testing.T) {
 	})
 }
 
-func TestGetSessionTokenUser(t *testing.T) {
+func TestGetTokenUser(t *testing.T) {
 
 	uid := uuid.NewString()
 	sid := uuid.NewString()
@@ -837,7 +837,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		r.AddCookie(cookie)
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
-		service.On("GetUserBySessionId", sid).Return(userData, nil).Once()
+		service.On("GetUserByID", uid).Return(userData, nil).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
 
@@ -860,7 +860,8 @@ func TestGetSessionTokenUser(t *testing.T) {
 		service.AssertExpectations(t)
 	})
 
-	t.Run("return 200 and cookie is set if valid token expired", func(t *testing.T) {
+	// TODO FIX ME
+	t.Run("return 200 and cookie is access token expired", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -879,7 +880,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		r.AddCookie(cookie)
 		service.On("ValidateJWT", token).Return(claims, jwt.ErrTokenExpired).Once()
-		service.On("GetUserBySessionId", sid).Return(userData, nil).Once()
+		service.On("GetUserByID", uid).Return(userData, nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(newToken, nil).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
@@ -917,11 +918,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
-		service.AssertNotCalled(t, "GetUserBySessionId", mock.Anything)
+		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
 		service.AssertNotCalled(t, "ValidateJWT", mock.Anything)
 	})
 
-	t.Run("returns 401 if session token is invalid", func(t *testing.T) {
+	t.Run("returns 401 if token is invalid", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -944,11 +945,12 @@ func TestGetSessionTokenUser(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 		service.AssertExpectations(t)
-		service.AssertNotCalled(t, "GetUserBySessionId", mock.Anything)
+		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 	})
 
-	t.Run("returns 401 if session is invalid", func(t *testing.T) {
+	// TODO FIX ME
+	t.Run("returns 401 if refresh token is invalid", func(t *testing.T) {
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -965,7 +967,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 		r.AddCookie(cookie)
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
-		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrInvalidSession).Once()
+		service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound).Once()
 
 		s.GetRouter().ServeHTTP(w, r)
 
@@ -999,11 +1001,11 @@ func TestGetSessionTokenUser(t *testing.T) {
 			assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 			service.AssertExpectations(t)
-			service.AssertNotCalled(t, "GetUserBySessionId", mock.Anything)
+			service.AssertNotCalled(t, "GetUserByID", mock.Anything)
 			service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 		})
 
-		t.Run("if get user by session id fails", func(t *testing.T) {
+		t.Run("if get user by id fails", func(t *testing.T) {
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
 
@@ -1019,7 +1021,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 			r.AddCookie(cookie)
 			service.On("ValidateJWT", token).Return(claims, nil).Once()
-			service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
+			service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
 			s.GetRouter().ServeHTTP(w, r)
 
@@ -1029,6 +1031,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 			service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 		})
 
+		// TODO FIX ME
 		t.Run("if generate jwt fails", func(t *testing.T) {
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
@@ -1045,7 +1048,7 @@ func TestGetSessionTokenUser(t *testing.T) {
 
 			r.AddCookie(cookie)
 			service.On("ValidateJWT", token).Return(claims, jwt.ErrTokenExpired).Once()
-			service.On("GetUserBySessionId", mock.Anything).Return(userData, nil).Once()
+			service.On("GetUserByID", mock.Anything).Return(userData, nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey)
 
 			s.GetRouter().ServeHTTP(w, r)
