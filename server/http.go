@@ -30,8 +30,12 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 
 	server.Start()
 
+	// graceful shutdown
 	done := make(chan bool)
 
+	// A go routine that listens for os signals
+	// it will block until it receives a signal
+	// once it receives a signal, it will shutdown close the done channel
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
