@@ -23,24 +23,24 @@ import (
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *accountHandler) RegisterUser(ctx gsk.Context) {
+func (h *accountHandler) RegisterUser(gc gsk.Context) {
 	var user *entities.Account
 
-	err := ctx.DecodeJSONBody(&user)
+	err := gc.DecodeJSONBody(&user)
 	if err != nil {
-		transport.HandleJsonDecodeError(err, ctx)
+		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
 	errorMessages := validator.ValidateRegistration(user)
 	if len(errorMessages) > 0 {
-		transport.HandleValidationError(errorMessages, ctx)
+		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
 	createdUser, err := h.userService.CreateUser(user)
 	if err != nil {
-		transport.HandleRegistrationError(err, ctx)
+		transport.HandleRegistrationError(err, gc)
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *accountHandler) RegisterUser(ctx gsk.Context) {
 		UpdatedAt: createdUser.UpdatedAt,
 	}
 
-	ctx.Status(http.StatusCreated).JSONResponse(response)
+	gc.Status(http.StatusCreated).JSONResponse(response)
 }
 
 // LoginUserSession creates a new session for the user and sets the session id in cookie
@@ -65,30 +65,30 @@ func (h *accountHandler) RegisterUser(ctx gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
+func (h *accountHandler) LoginUserSession(gc gsk.Context) {
 	var userLogin *entities.Account
 
-	err := ctx.DecodeJSONBody(&userLogin)
+	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
-		transport.HandleJsonDecodeError(err, ctx)
+		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
 	errorMessages := validator.ValidateLogin(userLogin)
 	if len(errorMessages) > 0 {
-		transport.HandleValidationError(errorMessages, ctx)
+		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
 	err = h.userService.Authenticate(userLogin)
 	if err != nil {
-		transport.HandleLoginError(err, ctx)
+		transport.HandleLoginError(err, gc)
 		return
 	}
 
 	sessionData, err := h.userService.CreateSession(userLogin)
 	if err != nil {
-		transport.HandleLoginError(err, ctx)
+		transport.HandleLoginError(err, gc)
 		return
 	}
 
@@ -106,8 +106,8 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 		"message": transport.SUCCESS_LOGIN,
 	}
 
-	ctx.SetCookie(cookie)
-	ctx.Status(http.StatusOK).JSONResponse(response)
+	gc.SetCookie(cookie)
+	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
 // LoginUserToken creates a new session for the user and sets the session id in cookie
@@ -120,34 +120,34 @@ func (h *accountHandler) LoginUserSession(ctx gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserToken(ctx gsk.Context) {
+func (h *accountHandler) LoginUserToken(gc gsk.Context) {
 	var userLogin *entities.Account
 
-	err := ctx.DecodeJSONBody(&userLogin)
+	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
-		transport.HandleJsonDecodeError(err, ctx)
+		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
 	errorMessages := validator.ValidateLogin(userLogin)
 	if len(errorMessages) > 0 {
-		transport.HandleValidationError(errorMessages, ctx)
+		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
 	err = h.userService.Authenticate(userLogin)
 	if err != nil {
-		transport.HandleLoginError(err, ctx)
+		transport.HandleLoginError(err, gc)
 		return
 	}
 
 	// Generate Access Token
 	userId := userLogin.ID.String()
-	requestHost := ctx.GetRequest().Host
+	requestHost := gc.GetRequest().Host
 
 	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.userService)
 	if err != nil {
-		transport.HandleLoginError(err, ctx)
+		transport.HandleLoginError(err, gc)
 		return
 	}
 
@@ -174,9 +174,9 @@ func (h *accountHandler) LoginUserToken(ctx gsk.Context) {
 		"message": transport.SUCCESS_LOGIN,
 	}
 
-	ctx.SetCookie(atCookie)
-	ctx.SetCookie(rtCookie)
-	ctx.Status(http.StatusOK).JSONResponse(response)
+	gc.SetCookie(atCookie)
+	gc.SetCookie(rtCookie)
+	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
 func generateTokens(userId, requestHost string, svc entities.AccountService) (string, string, error) {
@@ -226,10 +226,10 @@ func generateTokens(userId, requestHost string, svc entities.AccountService) (st
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
-	sessionCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
+func (h *accountHandler) GetSessionUser(gc gsk.Context) {
+	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -238,11 +238,11 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
 	if err != nil {
 		if err == svrerr.ErrInvalidSession {
-			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
 		} else {
-			ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 				"message": transport.INTERNAL_SERVER_ERROR,
 			})
 		}
@@ -257,7 +257,7 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 		UpdatedAt: user.UpdatedAt,
 	}
 
-	ctx.Status(http.StatusOK).JSONResponse(response)
+	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
 // GetTokenUser returns the user information from access token
@@ -268,11 +268,11 @@ func (h *accountHandler) GetSessionUser(ctx gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
+func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 	// TODO split to validate and refresh ?
-	accessTokenCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
+	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -285,11 +285,11 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 			refreshToken = true
 		} else {
 			if err == svrerr.ErrInvalidToken {
-				ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})
 			} else {
-				ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+				gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 					"message": transport.INTERNAL_SERVER_ERROR,
 				})
 			}
@@ -300,15 +300,15 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 
 	userData, err := h.userService.GetUserByID(claims.UserID)
 	if err != nil {
-		transport.HandleGetUserError(err, ctx)
+		transport.HandleGetUserError(err, gc)
 		return
 	}
 
 	if refreshToken {
 		// TODO: check if refresh token is valid
-		refreshTokenCookie, err := ctx.GetCookie(viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME))
+		refreshTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME))
 		if err != nil || refreshTokenCookie == nil || refreshTokenCookie.Value == "" {
-			ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
 			return
@@ -317,11 +317,11 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 		rtClaims, err := h.userService.ValidateJWT(refreshTokenCookie.Value)
 		if err != nil {
 			if err == svrerr.ErrInvalidToken || err == jwt.ErrTokenExpired {
-				ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})
 			} else {
-				ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+				gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 					"message": transport.INTERNAL_SERVER_ERROR,
 				})
 			}
@@ -348,7 +348,7 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 
 		accessToken, err := h.userService.GenerateJWT(atClaims)
 		if err != nil {
-			transport.HandleLoginError(err, ctx)
+			transport.HandleLoginError(err, gc)
 			return
 		}
 
@@ -362,7 +362,7 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 			Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 		}
 
-		ctx.SetCookie(cookie)
+		gc.SetCookie(cookie)
 	}
 
 	response := transport.UserResponse{
@@ -373,7 +373,7 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 		UpdatedAt: userData.UpdatedAt,
 	}
 
-	ctx.Status(http.StatusOK).JSONResponse(response)
+	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
 // LogoutUser logs out the user
@@ -384,10 +384,10 @@ func (h *accountHandler) GetTokenUser(ctx gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) LogoutUser(ctx gsk.Context) {
-	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(ctx)
+func (h *accountHandler) LogoutUser(gc gsk.Context) {
+	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
-		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
+		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"message": transport.ERROR_UNAUTHORIZED,
 		})
 		return
@@ -396,13 +396,13 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 	if sessionCookie != nil && sessionCookie.Value != "" {
 		err := h.userService.LogoutUserBySessionId(sessionCookie.Value)
 		if err != nil {
-			transport.HandleLogoutError(err, ctx)
+			transport.HandleLogoutError(err, gc)
 			return
 		}
 	} else {
 		_, err := h.userService.ValidateJWT(refreshToken.Value)
 		if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
-			transport.HandleLogoutError(err, ctx)
+			transport.HandleLogoutError(err, gc)
 			return
 		}
 
@@ -430,21 +430,21 @@ func (h *accountHandler) LogoutUser(ctx gsk.Context) {
 		MaxAge: -1,
 	}
 
-	ctx.SetCookie(newSessionCookie)
-	ctx.SetCookie(atCookie)
-	ctx.SetCookie(rtCookie)
+	gc.SetCookie(newSessionCookie)
+	gc.SetCookie(atCookie)
+	gc.SetCookie(rtCookie)
 
-	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
+	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,
 	})
 }
 
-func (h *accountHandler) ChangePassword(ctx gsk.Context) {
+func (h *accountHandler) ChangePassword(gc gsk.Context) {
 	var credentials *transport.NewCredentials
 
-	err := ctx.DecodeJSONBody(&credentials)
+	err := gc.DecodeJSONBody(&credentials)
 	if err != nil {
-		ctx.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
 			"message": transport.INVALID_BODY,
 		})
 		return
@@ -458,7 +458,7 @@ func (h *accountHandler) ChangePassword(ctx gsk.Context) {
 
 	err = h.userService.Authenticate(user)
 	if err != nil {
-		transport.HandleChangePasswordError(err, ctx)
+		transport.HandleChangePasswordError(err, gc)
 		return
 	}
 
@@ -466,11 +466,11 @@ func (h *accountHandler) ChangePassword(ctx gsk.Context) {
 
 	err = h.userService.ChangePassword(user)
 	if err != nil {
-		transport.HandleChangePasswordError(err, ctx)
+		transport.HandleChangePasswordError(err, gc)
 		return
 	}
 
-	ctx.Status(http.StatusOK).JSONResponse(gsk.Map{
+	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_CHANGED_PASSWORD,
 	})
 }
