@@ -1,7 +1,7 @@
 migrator:
     database: sqlite3
     sqlite:
-        filepath: stk.db
+        filepath: auth_database.db
     workdir: ./stk-migrations
 
     postgresql:
