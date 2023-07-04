@@ -7,6 +7,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/infra"
 	"github.com/adharshmk96/stk/gsk"
+	"github.com/adharshmk96/stk/pkg/middleware"
 )
 
 func StartHttpServer(port string) (gsk.Server, chan bool) {
@@ -14,12 +15,11 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 	logger := infra.GetLogger()
 
 	serverConfig := &gsk.ServerConfig{
-		Port:           port,
-		RequestLogging: true,
-		Logger:         logger,
+		Port:   port,
+		Logger: logger,
 	}
 
-	server := gsk.NewServer(serverConfig)
+	server := gsk.New(serverConfig)
 
 	infra.LoadDefaultConfig()
 
@@ -27,6 +27,7 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 
 	rateLimiter := rateLimiter()
 	server.Use(rateLimiter)
+	server.Use(middleware.RequestLogger)
 
 	server.Start()
 
