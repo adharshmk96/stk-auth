@@ -52,10 +52,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 201 and user data if user data is stored", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -86,10 +85,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 400 if email is empty", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `" }`)
 
@@ -109,10 +107,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 400 if validation fails on data", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		body := []byte(`{ whatever }`)
 
@@ -132,10 +129,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 500 if there is storage error", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
@@ -157,10 +153,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 500 when passing userid in request body, fails decoding.", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		newUserId := uuid.NewString()
 
@@ -183,10 +178,9 @@ func TestRegisterUser(t *testing.T) {
 
 	t.Run("returns 400 for invalid email", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
 
@@ -247,10 +241,9 @@ func TestLoginUserSession(t *testing.T) {
 
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -285,10 +278,9 @@ func TestLoginUserSession(t *testing.T) {
 
 	t.Run("return 401 when credentials are invalid", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -321,10 +313,9 @@ func TestLoginUserSession(t *testing.T) {
 
 	t.Run("return 500 when error occurs during authenticate", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -357,10 +348,9 @@ func TestLoginUserSession(t *testing.T) {
 
 	t.Run("return 500 when error occurs during create session", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -393,10 +383,9 @@ func TestLoginUserSession(t *testing.T) {
 
 	t.Run("return 400 when validation fails", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -443,10 +432,9 @@ func TestLoginUserToken(t *testing.T) {
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -486,10 +474,9 @@ func TestLoginUserToken(t *testing.T) {
 
 	t.Run("returns 401 when login is invalid", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -524,10 +511,9 @@ func TestLoginUserToken(t *testing.T) {
 
 		t.Run("when db error in Authenticate", func(t *testing.T) {
 			stkconfig := &gsk.ServerConfig{
-				Port:           "8080",
-				RequestLogging: false,
+				Port: "8080",
 			}
-			s := gsk.NewServer(stkconfig)
+			s := gsk.New(stkconfig)
 
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
@@ -560,10 +546,9 @@ func TestLoginUserToken(t *testing.T) {
 
 		t.Run("when some error in GenerateJWT", func(t *testing.T) {
 			stkconfig := &gsk.ServerConfig{
-				Port:           "8080",
-				RequestLogging: false,
+				Port: "8080",
 			}
-			s := gsk.NewServer(stkconfig)
+			s := gsk.New(stkconfig)
 
 			service := mocks.NewAccountService(t)
 			handler := handlers.NewAccountHandler(service)
@@ -598,10 +583,9 @@ func TestLoginUserToken(t *testing.T) {
 
 	t.Run("returns 400 if invalid request body", func(t *testing.T) {
 		stkconfig := &gsk.ServerConfig{
-			Port:           "8080",
-			RequestLogging: false,
+			Port: "8080",
 		}
-		s := gsk.NewServer(stkconfig)
+		s := gsk.New(stkconfig)
 
 		service := mocks.NewAccountService(t)
 		handler := handlers.NewAccountHandler(service)
@@ -664,10 +648,9 @@ func TestGetSessionUser(t *testing.T) {
 	// }
 
 	stkconfig := &gsk.ServerConfig{
-		Port:           "8080",
-		RequestLogging: false,
+		Port: "8080",
 	}
-	s := gsk.NewServer(stkconfig)
+	s := gsk.New(stkconfig)
 
 	infra.LoadDefaultConfig()
 
@@ -809,10 +792,9 @@ func TestGetTokenUser(t *testing.T) {
 	}
 
 	stkconfig := &gsk.ServerConfig{
-		Port:           "8080",
-		RequestLogging: false,
+		Port: "8080",
 	}
-	s := gsk.NewServer(stkconfig)
+	s := gsk.New(stkconfig)
 
 	accessToken := "access"
 	refreshToken := "refresh"
@@ -1100,10 +1082,9 @@ func TestGetTokenUser(t *testing.T) {
 func TestLogoutUser(t *testing.T) {
 
 	stkconfig := &gsk.ServerConfig{
-		Port:           "8080",
-		RequestLogging: false,
+		Port: "8080",
 	}
-	s := gsk.NewServer(stkconfig)
+	s := gsk.New(stkconfig)
 
 	token := "abcdefg-asdfasdf"
 
@@ -1252,10 +1233,9 @@ func TestLogoutUser(t *testing.T) {
 func TestCommonErrors(t *testing.T) {
 
 	stkconfig := &gsk.ServerConfig{
-		Port:           "8080",
-		RequestLogging: false,
+		Port: "8080",
 	}
-	s := gsk.NewServer(stkconfig)
+	s := gsk.New(stkconfig)
 
 	t.Run("returns 400 if request body is nil", func(t *testing.T) {
 
@@ -1340,10 +1320,9 @@ func TestCommonErrors(t *testing.T) {
 func TestChangePassword(t *testing.T) {
 
 	stkconfig := &gsk.ServerConfig{
-		Port:           "8080",
-		RequestLogging: false,
+		Port: "8080",
 	}
-	s := gsk.NewServer(stkconfig)
+	s := gsk.New(stkconfig)
 
 	changeRequest := struct {
 		Email       string `json:"email"`
