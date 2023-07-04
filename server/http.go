@@ -21,13 +21,15 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 
 	server := gsk.New(serverConfig)
 
-	infra.LoadDefaultConfig()
-
-	setupRoutes(server)
-
 	rateLimiter := rateLimiter()
 	server.Use(rateLimiter)
 	server.Use(middleware.RequestLogger)
+	server.Use(middleware.CORS(middleware.CORSConfig{
+		AllowAll: true,
+	}))
+
+	infra.LoadDefaultConfig()
+	setupRoutes(server)
 
 	server.Start()
 

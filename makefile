@@ -42,6 +42,9 @@ testci:
 clean-branch:
 	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
 
+run:
+	go run . serve -p 8080
+	
 ##########################
 ### Helpers
 ##########################
