@@ -42,8 +42,16 @@ testci:
 clean-branch:
 	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
 
+
+##########################
+### Execution
+##########################
+
 run:
-	go run . serve -p 8080
+	@go run . serve -p 8080
+
+build:
+	@go build .
 	
 ##########################
 ### Helpers
@@ -73,11 +81,14 @@ endef
 ### Setup Commands
 ##########################
 
-init: moddownload migrate keygen
+init: moddownload migrate keygen initgithooks
 	@echo "Project initialized."
 
 initci: moddownload keygen
 	@echo "Project initialized for CI."
+
+initgithooks:
+	@git config core.hooksPath .githooks
 
 serve:
 	@go run . serve -p 8080
