@@ -11,16 +11,6 @@ import (
 
 var logger = infra.GetLogger()
 
-type sqliteStorage struct {
-	conn *sql.DB
-}
-
-func NewAccountStorage(conn *sql.DB) entities.AccountStore {
-	return &sqliteStorage{
-		conn: conn,
-	}
-}
-
 func NewNullString(s string) sql.NullString {
 	if len(s) == 0 {
 		return sql.NullString{}

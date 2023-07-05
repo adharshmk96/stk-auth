@@ -40,32 +40,6 @@ func (_m *AccountService) ChangePassword(user *entities.Account) error {
 	return r0
 }
 
-// CreateSession provides a mock function with given fields: user
-func (_m *AccountService) CreateSession(user *entities.Account) (*entities.Session, error) {
-	ret := _m.Called(user)
-
-	var r0 *entities.Session
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) (*entities.Session, error)); ok {
-		return rf(user)
-	}
-	if rf, ok := ret.Get(0).(func(*entities.Account) *entities.Session); ok {
-		r0 = rf(user)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Session)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*entities.Account) error); ok {
-		r1 = rf(user)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // CreateUser provides a mock function with given fields: user
 func (_m *AccountService) CreateUser(user *entities.Account) (*entities.Account, error) {
 	ret := _m.Called(user)
@@ -92,30 +66,6 @@ func (_m *AccountService) CreateUser(user *entities.Account) (*entities.Account,
 	return r0, r1
 }
 
-// GenerateJWT provides a mock function with given fields: claims
-func (_m *AccountService) GenerateJWT(claims *entities.CustomClaims) (string, error) {
-	ret := _m.Called(claims)
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*entities.CustomClaims) (string, error)); ok {
-		return rf(claims)
-	}
-	if rf, ok := ret.Get(0).(func(*entities.CustomClaims) string); ok {
-		r0 = rf(claims)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(*entities.CustomClaims) error); ok {
-		r1 = rf(claims)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetUserByID provides a mock function with given fields: userId
 func (_m *AccountService) GetUserByID(userId string) (*entities.Account, error) {
 	ret := _m.Called(userId)
@@ -135,72 +85,6 @@ func (_m *AccountService) GetUserByID(userId string) (*entities.Account, error) 
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(userId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetUserBySessionId provides a mock function with given fields: sessionId
-func (_m *AccountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
-	ret := _m.Called(sessionId)
-
-	var r0 *entities.Account
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
-		return rf(sessionId)
-	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
-		r0 = rf(sessionId)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(sessionId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// LogoutUserBySessionId provides a mock function with given fields: sessionId
-func (_m *AccountService) LogoutUserBySessionId(sessionId string) error {
-	ret := _m.Called(sessionId)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(sessionId)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ValidateJWT provides a mock function with given fields: token
-func (_m *AccountService) ValidateJWT(token string) (*entities.CustomClaims, error) {
-	ret := _m.Called(token)
-
-	var r0 *entities.CustomClaims
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.CustomClaims, error)); ok {
-		return rf(token)
-	}
-	if rf, ok := ret.Get(0).(func(string) *entities.CustomClaims); ok {
-		r0 = rf(token)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.CustomClaims)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(token)
 	} else {
 		r1 = ret.Error(1)
 	}

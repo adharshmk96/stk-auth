@@ -5,10 +5,10 @@ import (
 )
 
 type accountHandler struct {
-	userService entities.AccountService
+	userService entities.UserManagementService
 }
 
-func NewAccountHandler(userService entities.AccountService) entities.AccountHandler {
+func NewAccountHandler(userService entities.UserManagementService) entities.UserManagmentHandler {
 	return &accountHandler{
 		userService: userService,
 	}

@@ -1,0 +1,17 @@
+CREATE TABLE auth_user_groups (
+    id TEXT UNIQUE NOT NULL,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE auth_user_group_associations (
+    id INTEGER AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    group_id TEXT NOT NULL,
+    PRIMARY KEY (user_id, group_id),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES auth_user_accounts (id),
+    FOREIGN KEY(group_id) REFERENCES auth_user_groups (id)
+);

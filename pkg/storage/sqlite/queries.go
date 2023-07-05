@@ -23,3 +23,17 @@ const (
 const (
 	ACCOUNT_RETRIEVE_USER_BY_SESSION_ID = "SELECT id, username, email, created_at, updated_at FROM " + ACCOUNT_USER_TABLE_NAME + " WHERE id = (SELECT user_id FROM " + ACCOUNT_SESSION_TABLE_NAME + " WHERE session_id = ? and valid = 1)"
 )
+
+const (
+	ACCOUNT_GROUP_TABLE_NAME             = "auth_user_groups"
+	ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME = "auth_user_group_associations"
+
+	ACCOUNT_INSERT_GROUP_QUERY         = "INSERT INTO " + ACCOUNT_GROUP_TABLE_NAME + " (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)"
+	ACCOUNT_UPDATE_GROUP_QUERY         = "UPDATE " + ACCOUNT_GROUP_TABLE_NAME + " SET name = ?, updated_at = ? WHERE id = ?"
+	ACCOUNT_DELETE_GROUP_QUERY         = "DELETE FROM " + ACCOUNT_GROUP_TABLE_NAME + " WHERE id = ?"
+	ACCOUNT_RETRIEVE_GROUP_BY_ID_QUERY = "SELECT id, name, created_at, updated_at FROM " + ACCOUNT_GROUP_TABLE_NAME + " WHERE id = ?"
+
+	ACCOUNT_INSERT_GROUP_ASSOCIATION_QUERY   = "INSERT INTO " + ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME + " (user_id, group_id, created_at) VALUES (?, ?, ?)"
+	ACCOUNT_DELETE_GROUP_ASSOCIATION_QUERY   = "DELETE FROM " + ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME + " WHERE user_id = ? AND group_id = ?"
+	ACCOUNT_RETRIEVE_GROUPS_BY_USER_ID_QUERY = "SELECT g.id, g.name, g.created_at, g.updated_at FROM " + ACCOUNT_GROUP_TABLE_NAME + " g INNER JOIN " + ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME + " ga ON g.id = ga.group_id WHERE ga.user_id = ?"
+)

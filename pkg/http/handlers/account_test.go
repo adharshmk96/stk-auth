@@ -57,7 +57,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("CreateUser", mock.Anything).Return(userData, nil).Once()
@@ -87,7 +87,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `" }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -106,7 +106,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ whatever }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -125,7 +125,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("CreateUser", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
@@ -148,7 +148,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "id": "` + newUserId + `", "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -168,7 +168,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -226,7 +226,7 @@ func TestLoginUserSession(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
@@ -260,7 +260,7 @@ func TestLoginUserSession(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
@@ -292,7 +292,7 @@ func TestLoginUserSession(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
@@ -324,7 +324,7 @@ func TestLoginUserSession(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
@@ -356,7 +356,7 @@ func TestLoginUserSession(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/login", handler.LoginUserSession)
@@ -402,7 +402,7 @@ func TestLoginUserToken(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
@@ -441,7 +441,7 @@ func TestLoginUserToken(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
@@ -475,7 +475,7 @@ func TestLoginUserToken(t *testing.T) {
 			}
 			s := gsk.New(stkconfig)
 
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			handler := handlers.NewAccountHandler(service)
 
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
@@ -507,7 +507,7 @@ func TestLoginUserToken(t *testing.T) {
 			}
 			s := gsk.New(stkconfig)
 
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			handler := handlers.NewAccountHandler(service)
 
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
@@ -541,7 +541,7 @@ func TestLoginUserToken(t *testing.T) {
 		}
 		s := gsk.New(stkconfig)
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/login", handler.LoginUserToken)
@@ -607,7 +607,7 @@ func TestGetSessionUser(t *testing.T) {
 
 	t.Run("returns 200 and user details if session id is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(userData, nil)
 
 		handler := handlers.NewAccountHandler(service)
@@ -630,7 +630,7 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 401 if session id is not present in the cookie", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Get("/user/b", handler.GetSessionUser)
@@ -641,7 +641,7 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 401 if session id is empty in the cookie", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Get("/user/ba", handler.GetSessionUser)
@@ -662,7 +662,7 @@ func TestGetSessionUser(t *testing.T) {
 
 	t.Run("returns 401 if session id is not valid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrInvalidSession)
 
 		handler := handlers.NewAccountHandler(service)
@@ -685,7 +685,7 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 if error occurs while getting user by session id", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
 		handler := handlers.NewAccountHandler(service)
@@ -753,7 +753,7 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 200 and user details if valid session token is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
 
@@ -804,7 +804,7 @@ func TestGetTokenUser(t *testing.T) {
 	t.Run("return 200 and cookie is access token expired", func(t *testing.T) {
 		newToken := "new-token"
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 
 		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("ValidateJWT", refreshToken).Return(claims, nil)
@@ -855,7 +855,7 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if session token is not present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
@@ -872,7 +872,7 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if access token is invalid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(nil, svrerr.ErrInvalidToken)
 		handler := handlers.NewAccountHandler(service)
 
@@ -907,7 +907,7 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if refresh token is expired", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("ValidateJWT", refreshToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
@@ -943,7 +943,7 @@ func TestGetTokenUser(t *testing.T) {
 	t.Run("return 500 if internal error occurs", func(t *testing.T) {
 
 		t.Run("if validate jwt fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(nil, jwt.ErrInvalidKey)
 			handler := handlers.NewAccountHandler(service)
 
@@ -967,7 +967,7 @@ func TestGetTokenUser(t *testing.T) {
 		})
 
 		t.Run("if get user by id fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
 			handler := handlers.NewAccountHandler(service)
@@ -993,7 +993,7 @@ func TestGetTokenUser(t *testing.T) {
 
 		// TODO FIX ME
 		t.Run("if generate jwt fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired).Once()
 			service.On("ValidateJWT", refreshToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(userData, nil).Once()
@@ -1058,7 +1058,7 @@ func TestLogoutUser(t *testing.T) {
 	infra.LoadDefaultConfig()
 	t.Run("returns 200 service validates the session id in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("LogoutUserBySessionId", token).Return(nil)
 
 		handler := handlers.NewAccountHandler(service)
@@ -1086,7 +1086,7 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 200 if valid access token is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
 
 		handler := handlers.NewAccountHandler(service)
@@ -1116,7 +1116,7 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 401 both session id and session token are absent in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/logout/b", handler.LogoutUser)
@@ -1128,7 +1128,7 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 401 if session id is invalid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("LogoutUserBySessionId", mock.Anything).Return(svrerr.ErrInvalidSession).Once()
 
 		handler := handlers.NewAccountHandler(service)
@@ -1152,7 +1152,7 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 500 if storage error occurs", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		cookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
@@ -1183,7 +1183,7 @@ func TestCommonErrors(t *testing.T) {
 
 	t.Run("returns 400 if request body is nil", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/login/a/token", handler.LoginUserToken)
@@ -1224,7 +1224,7 @@ func TestCommonErrors(t *testing.T) {
 
 	t.Run("return 400 if validation Fails", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		handler := handlers.NewAccountHandler(service)
 
 		s.Post("/login/c/token", handler.LoginUserToken)
@@ -1268,7 +1268,7 @@ func TestChangePassword(t *testing.T) {
 
 	t.Run("returns 200 if password is changed successfully", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 		service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 
@@ -1286,7 +1286,7 @@ func TestChangePassword(t *testing.T) {
 
 	t.Run("returns 401 if authentication failed", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		handler := handlers.NewAccountHandler(service)
@@ -1304,7 +1304,7 @@ func TestChangePassword(t *testing.T) {
 	t.Run("returns 500 if change password fails", func(t *testing.T) {
 		t.Run("authentication failed", func(t *testing.T) {
 
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 
 			handler := handlers.NewAccountHandler(service)
@@ -1320,7 +1320,7 @@ func TestChangePassword(t *testing.T) {
 		})
 
 		t.Run("change password failed", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 			service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 

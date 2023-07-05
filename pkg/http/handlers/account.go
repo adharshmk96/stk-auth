@@ -179,7 +179,7 @@ func (h *accountHandler) LoginUserToken(gc gsk.Context) {
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-func generateTokens(userId, requestHost string, svc entities.AccountService) (string, string, error) {
+func generateTokens(userId, requestHost string, svc entities.UserManagementService) (string, string, error) {
 	timeNow := time.Now()
 	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))

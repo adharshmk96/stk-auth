@@ -37,6 +37,30 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	)`)
 
+	conn.Exec(`CREATE TABLE auth_user_groups (
+		id TEXT UNIQUE NOT NULL,
+		name VARCHAR(255) UNIQUE NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id)
+	);`)
+
+	table := sqlite.ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME
+
+	_, err := conn.Exec(`CREATE TABLE ` + table + ` (
+		id INTEGER AUTO INCREMENT,
+		user_id TEXT NOT NULL,
+		group_id TEXT NOT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (user_id, group_id),
+		FOREIGN KEY(user_id) REFERENCES  auth_user_accounts(id),
+		FOREIGN KEY(group_id) REFERENCES  auth_user_groups(id)
+	);`)
+
+	if err != nil {
+		panic(err)
+	}
+
 	conn.Exec(
 		sqlite.ACCOUNT_INSERT_USER_QUERY,
 		"invalid",
