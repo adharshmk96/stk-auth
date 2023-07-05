@@ -161,3 +161,46 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 func TestUserStorage_InvalidateSessionByID(t *testing.T) {
 
 }
+
+func TestInvalidateSessionByID(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	userId := entities.UserID(uuid.New())
+	sessionId := uuid.NewString()
+	time_now := time.Now()
+
+	session := &entities.Session{
+		UserID:    userId,
+		SessionID: sessionId,
+		CreatedAt: time_now,
+		UpdatedAt: time_now,
+		Valid:     true,
+	}
+
+	conn.Exec(
+		sqlite.ACCOUNT_INSERT_SESSION_QUERY,
+		session.UserID.String(),
+		session.SessionID,
+		session.CreatedAt,
+		session.UpdatedAt,
+		session.Valid,
+	)
+
+	userStorage := sqlite.NewAccountStorage(conn)
+
+	t.Run("InvalidateSessionByID invalidates session by id", func(t *testing.T) {
+		err := userStorage.InvalidateSessionByID(sessionId)
+		assert.NoError(t, err)
+
+		retrievedSession, err := userStorage.GetSessionByID(sessionId)
+		assert.Error(t, err)
+		assert.Nil(t, retrievedSession)
+	})
+
+	t.Run("InvalidateSessionByID returns error when session id is not found in populated db", func(t *testing.T) {
+		err := userStorage.InvalidateSessionByID("session" + "xd")
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+	})
+
+}

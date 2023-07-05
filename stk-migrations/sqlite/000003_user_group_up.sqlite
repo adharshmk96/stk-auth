@@ -15,3 +15,5 @@ CREATE TABLE auth_user_group_associations (
     FOREIGN KEY(user_id) REFERENCES auth_user_accounts (id),
     FOREIGN KEY(group_id) REFERENCES auth_user_groups (id)
 );
+
+INSERT INTO auth_user_groups (id, name) VALUES ('admin', 'Admin');
