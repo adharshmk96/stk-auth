@@ -34,4 +34,6 @@ func setupRoutes(server gsk.Server) {
 
 	// Health check
 	server.Get("/health", handlers.HealthCheckHandler)
+
+	server.Static("/ui/*filepath", "./ui")
 }
