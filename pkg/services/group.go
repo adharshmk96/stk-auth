@@ -23,3 +23,20 @@ func (s *accountService) CreateGroup(group *entities.UserGroup) (*entities.UserG
 
 	return group, nil
 }
+
+func (s *accountService) AddUserToGroup(userId entities.UserID, groupId string) error {
+	time_now := time.Now()
+
+	groupAssociation := &entities.UserGroupAssociation{
+		UserID:    userId,
+		GroupID:   groupId,
+		CreatedAt: time_now,
+	}
+
+	err := s.storage.SaveGroupAssociation(groupAssociation)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

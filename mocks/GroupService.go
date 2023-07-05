@@ -12,6 +12,20 @@ type GroupService struct {
 	mock.Mock
 }
 
+// AddUserToGroup provides a mock function with given fields: userId, groupId
+func (_m *GroupService) AddUserToGroup(userId entities.UserID, groupId string) error {
+	ret := _m.Called(userId, groupId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(entities.UserID, string) error); ok {
+		r0 = rf(userId, groupId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateGroup provides a mock function with given fields: group
 func (_m *GroupService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
 	ret := _m.Called(group)

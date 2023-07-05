@@ -29,7 +29,7 @@ type GroupService interface {
 	// GetGroupByID(groupId string) (*UserGroup, error)
 	// UpdateGroupByID(group *UserGroup) error
 	// DeleteGroupByID(groupId string) error
-	// AddUserToGroup(userId string, groupId string) error
+	AddUserToGroup(userId UserID, groupId string) error
 }
 
 type UserManagementService interface {

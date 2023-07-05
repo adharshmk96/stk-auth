@@ -7,7 +7,9 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestCreateGroup(t *testing.T) {
@@ -50,6 +52,57 @@ func TestCreateGroup(t *testing.T) {
 		createdGroup, err := groupService.CreateGroup(group)
 		assert.Error(t, err)
 		assert.Nil(t, createdGroup)
+
+		storage.AssertExpectations(t)
+	})
+}
+
+func TestAddUserToGroup(t *testing.T) {
+
+	t.Run("AddUserToGroup adds user to group without error", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		userId := entities.UserID(uuid.New())
+		groupId := "testGroupId"
+
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(nil).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.AddUserToGroup(userId, groupId)
+		assert.NoError(t, err)
+
+		storage.AssertExpectations(t)
+	})
+
+	t.Run("AddUserToGroup returns error when user is not added to group", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		userId := entities.UserID(uuid.New())
+		groupId := "testGroupId"
+
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.AddUserToGroup(userId, groupId)
+		assert.Error(t, err)
+
+		storage.AssertExpectations(t)
+	})
+
+	t.Run("returns error when same user is added to group again", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		userId := entities.UserID(uuid.New())
+		groupId := "testGroupId"
+
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.AddUserToGroup(userId, groupId)
+		assert.Error(t, err)
 
 		storage.AssertExpectations(t)
 	})
