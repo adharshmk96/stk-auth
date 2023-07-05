@@ -25,7 +25,7 @@ type SessionService interface {
 }
 
 type GroupService interface {
-	// CreateGroup(group *UserGroup) (*UserGroup, error)
+	CreateGroup(group *UserGroup) (*UserGroup, error)
 	// GetGroupByID(groupId string) (*UserGroup, error)
 	// UpdateGroupByID(group *UserGroup) error
 	// DeleteGroupByID(groupId string) error

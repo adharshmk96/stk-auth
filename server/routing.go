@@ -16,7 +16,7 @@ func setupRoutes(server gsk.Server) {
 
 	userStorage := sqlite.NewAccountStorage(connection)
 	userService := services.NewAccountService(userStorage)
-	userHandler := handlers.NewAccountHandler(userService)
+	userHandler := handlers.NewUserManagementHandler(userService)
 
 	// User authentication
 	server.Post("/api/auth/register", userHandler.RegisterUser)

@@ -121,3 +121,15 @@ func HandleChangePasswordError(err error, ctx gsk.Context) {
 		})
 	}
 }
+
+func HandleCreateGroupError(err error, ctx gsk.Context) {
+	if err == svrerr.ErrDBDuplicateEntry {
+		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
+			"error": USER_EXISTS,
+		})
+	} else {
+		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"error": INTERNAL_SERVER_ERROR,
+		})
+	}
+}

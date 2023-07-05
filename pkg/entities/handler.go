@@ -16,7 +16,7 @@ type SessionHandler interface {
 }
 
 type GroupHandler interface {
-	// CreateGroup(gc gsk.Context)
+	CreateGroup(gc gsk.Context)
 	// GetGroup(gc gsk.Context)
 	// GetGroups(gc gsk.Context)
 	// UpdateGroup(gc gsk.Context)

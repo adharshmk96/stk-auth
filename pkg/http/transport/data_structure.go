@@ -2,6 +2,8 @@ package transport
 
 import (
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
 type UserResponse struct {
@@ -18,3 +20,5 @@ type NewCredentials struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
+
+type GroupResponse = entities.UserGroup

@@ -17,6 +17,11 @@ func (_m *UserManagmentHandler) ChangePassword(gc gsk.Context) {
 	_m.Called(gc)
 }
 
+// CreateGroup provides a mock function with given fields: gc
+func (_m *UserManagmentHandler) CreateGroup(gc gsk.Context) {
+	_m.Called(gc)
+}
+
 // GetSessionUser provides a mock function with given fields: gc
 func (_m *UserManagmentHandler) GetSessionUser(gc gsk.Context) {
 	_m.Called(gc)

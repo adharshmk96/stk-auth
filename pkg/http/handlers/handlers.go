@@ -8,7 +8,7 @@ type accountHandler struct {
 	userService entities.UserManagementService
 }
 
-func NewAccountHandler(userService entities.UserManagementService) entities.UserManagmentHandler {
+func NewUserManagementHandler(userService entities.UserManagementService) entities.UserManagmentHandler {
 	return &accountHandler{
 		userService: userService,
 	}

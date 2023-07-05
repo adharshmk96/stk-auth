@@ -40,6 +40,32 @@ func (_m *UserManagementService) ChangePassword(user *entities.Account) error {
 	return r0
 }
 
+// CreateGroup provides a mock function with given fields: group
+func (_m *UserManagementService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
+	ret := _m.Called(group)
+
+	var r0 *entities.UserGroup
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*entities.UserGroup) (*entities.UserGroup, error)); ok {
+		return rf(group)
+	}
+	if rf, ok := ret.Get(0).(func(*entities.UserGroup) *entities.UserGroup); ok {
+		r0 = rf(group)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entities.UserGroup)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*entities.UserGroup) error); ok {
+		r1 = rf(group)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateSession provides a mock function with given fields: user
 func (_m *UserManagementService) CreateSession(user *entities.Account) (*entities.Session, error) {
 	ret := _m.Called(user)
