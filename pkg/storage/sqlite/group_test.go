@@ -37,7 +37,7 @@ func TestSaveGroup(t *testing.T) {
 	t.Run("SaveGroup returns error when same group is saved again", func(t *testing.T) {
 		group2 := &entities.UserGroup{
 			ID:          uuid.NewString(),
-			Name:        groupName,
+			Name:        groupName + "x",
 			Description: "testDescription",
 			CreatedAt:   time_now,
 			UpdatedAt:   time_now,
@@ -49,6 +49,7 @@ func TestSaveGroup(t *testing.T) {
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
 	})
+
 }
 
 func TestUpdateGroupById(t *testing.T) {
