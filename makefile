@@ -40,7 +40,7 @@ testci:
 	@go test ./... -coverprofile=coverage.out
 
 clean-branch:
-	@git branch --merged | egrep -v "(^\*|main|master)" | xargs git branch -d
+	@git branch | egrep -v "(^\*|main|master)" | xargs git branch -D
 
 
 ##########################
@@ -50,8 +50,6 @@ clean-branch:
 run:
 	@go run . serve -p 8080
 
-build:
-	@go build .
 	
 ##########################
 ### Helpers
