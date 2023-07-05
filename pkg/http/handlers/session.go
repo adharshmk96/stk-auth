@@ -15,46 +15,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// RegisterUser registers a new user
-// - Decodes and Validates the user information from body
-// - Calls the service layer to store the user information
-// - Returns the user information
-// ERRORS:
-// - handler: ErrJsonDecodeFailed, ErrValidationFailed
-// - service: ErrHasingPassword,
-// - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *accountHandler) RegisterUser(gc gsk.Context) {
-	var user *entities.Account
-
-	err := gc.DecodeJSONBody(&user)
-	if err != nil {
-		transport.HandleJsonDecodeError(err, gc)
-		return
-	}
-
-	errorMessages := validator.ValidateRegistration(user)
-	if len(errorMessages) > 0 {
-		transport.HandleValidationError(errorMessages, gc)
-		return
-	}
-
-	createdUser, err := h.userService.CreateUser(user)
-	if err != nil {
-		transport.HandleRegistrationError(err, gc)
-		return
-	}
-
-	response := transport.UserResponse{
-		ID:        createdUser.ID.String(),
-		Username:  createdUser.Username,
-		Email:     createdUser.Email,
-		CreatedAt: createdUser.CreatedAt,
-		UpdatedAt: createdUser.UpdatedAt,
-	}
-
-	gc.Status(http.StatusCreated).JSONResponse(response)
-}
-
 // LoginUserSession creates a new session for the user and sets the session id in cookie
 // - Decodes and Validates the user information from body
 // - Calls the service layer to authenticate and store the session information
@@ -436,41 +396,5 @@ func (h *accountHandler) LogoutUser(gc gsk.Context) {
 
 	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,
-	})
-}
-
-func (h *accountHandler) ChangePassword(gc gsk.Context) {
-	var credentials *transport.NewCredentials
-
-	err := gc.DecodeJSONBody(&credentials)
-	if err != nil {
-		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_BODY,
-		})
-		return
-	}
-
-	user := &entities.Account{
-		Username: credentials.Username,
-		Email:    credentials.Email,
-		Password: credentials.OldPassword,
-	}
-
-	err = h.userService.Authenticate(user)
-	if err != nil {
-		transport.HandleChangePasswordError(err, gc)
-		return
-	}
-
-	user.Password = credentials.NewPassword
-
-	err = h.userService.ChangePassword(user)
-	if err != nil {
-		transport.HandleChangePasswordError(err, gc)
-		return
-	}
-
-	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
-		"message": transport.SUCCESS_CHANGED_PASSWORD,
 	})
 }
