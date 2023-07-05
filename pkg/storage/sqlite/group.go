@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -80,7 +81,7 @@ func (s *sqliteStorage) GetGroupByID(groupId string) (*entities.UserGroup, error
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			logger.Error("record not found:", err)
 			return nil, svrerr.ErrDBEntryNotFound
 		}

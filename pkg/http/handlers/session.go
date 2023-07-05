@@ -197,7 +197,7 @@ func (h *accountHandler) GetSessionUser(gc gsk.Context) {
 
 	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
 	if err != nil {
-		if err == svrerr.ErrInvalidSession {
+		if errors.Is(err, svrerr.ErrInvalidSession) {
 			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
@@ -244,7 +244,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			refreshToken = true
 		} else {
-			if err == svrerr.ErrInvalidToken {
+			if errors.Is(err, svrerr.ErrInvalidToken) {
 				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})
@@ -276,7 +276,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 
 		rtClaims, err := h.userService.ValidateJWT(refreshTokenCookie.Value)
 		if err != nil {
-			if err == svrerr.ErrInvalidToken || err == jwt.ErrTokenExpired {
+			if errors.Is(err, svrerr.ErrInvalidToken) || errors.Is(err, jwt.ErrTokenExpired) {
 				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})

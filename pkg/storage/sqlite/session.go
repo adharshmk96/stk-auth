@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -52,7 +53,7 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			logger.Error("record not found:", err)
 			return nil, svrerr.ErrDBEntryNotFound
 		}
@@ -87,7 +88,7 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			logger.Error("record not found:", err)
 			return nil, svrerr.ErrDBEntryNotFound
 		}

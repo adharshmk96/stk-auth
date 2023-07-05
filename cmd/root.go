@@ -4,6 +4,7 @@ Copyright © 2023 Adharsh M adharshmk96@gmail.com
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -56,7 +57,7 @@ func initConfig() {
 	viper.SetEnvKeyReplacer(replacer)
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	if err := viper.ReadInConfig(); errors.Is(err, nil) {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
 

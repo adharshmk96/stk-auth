@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -60,7 +61,7 @@ func (u *accountService) Authenticate(login *entities.Account) error {
 		userRecord, err = u.storage.GetUserByEmail(login.Email)
 	}
 	if err != nil {
-		if err == svrerr.ErrDBEntryNotFound {
+		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
 			return svrerr.ErrInvalidCredentials
 		}
 		return err

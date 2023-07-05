@@ -48,7 +48,7 @@ func (u *accountService) CreateSession(user *entities.Account) (*entities.Sessio
 func (u *accountService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
 	user, err := u.storage.GetUserBySessionID(sessionId)
 	if err != nil {
-		if err == svrerr.ErrDBEntryNotFound {
+		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
 			return nil, svrerr.ErrInvalidSession
 		}
 		return nil, err
