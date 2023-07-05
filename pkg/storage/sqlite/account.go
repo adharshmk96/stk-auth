@@ -70,9 +70,10 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 
 	var userId string
 	var user entities.Account
+	var username sql.NullString
 	err := row.Scan(
 		&userId,
-		&user.Username,
+		&username,
 		&user.Password,
 		&user.Salt,
 		&user.Email,
@@ -90,6 +91,7 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
+	user.Username = username.String
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
@@ -101,15 +103,16 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 
 // GetUserByUsername Retrieves User from the db by username
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, error) {
+func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.Account, error) {
 
-	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_USERNAME, username)
+	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_USERNAME, uname)
 
 	var userId string
 	var user entities.Account
+	var username sql.NullString
 	err := row.Scan(
 		&userId,
-		&user.Username,
+		&username,
 		&user.Password,
 		&user.Salt,
 		&user.Email,
@@ -127,6 +130,7 @@ func (s *sqliteStorage) GetUserByUsername(username string) (*entities.Account, e
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
+	user.Username = username.String
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
@@ -144,9 +148,10 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 
 	var userId string
 	var user entities.Account
+	var username sql.NullString
 	err := row.Scan(
 		&userId,
-		&user.Username,
+		&username,
 		&user.Password,
 		&user.Salt,
 		&user.Email,
@@ -164,6 +169,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
+	user.Username = username.String
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
@@ -242,9 +248,10 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 
 	var userId string
 	var user entities.Account
+	var username sql.NullString
 	err := row.Scan(
 		&userId,
-		&user.Username,
+		&username,
 		&user.Email,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -260,6 +267,7 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account,
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
+	user.Username = username.String
 	user.ID, err = entities.ParseUserId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
@@ -297,9 +305,10 @@ func (s *sqliteStorage) InvalidateSessionByID(sessionId string) error {
 // UpdateUserByID Updates User in the db by user id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
 func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
+	userName := NewNullString(user.Username)
 	result, err := s.conn.Exec(
 		ACCOUNT_UPDATE_USER_BY_ID,
-		user.Username,
+		userName,
 		user.Email,
 		user.Password,
 		user.Salt,

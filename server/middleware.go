@@ -8,6 +8,11 @@ import (
 )
 
 func rateLimiter() gsk.Middleware {
-	rateLimiter := middleware.NewRateLimiter(60, 10*time.Second)
+	config := middleware.RateLimiterConfig{
+		RequestsPerInterval: 60,
+		Interval:            10 * time.Second,
+	}
+
+	rateLimiter := middleware.NewRateLimiter(config)
 	return rateLimiter.Middleware
 }

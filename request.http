@@ -2,8 +2,7 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "test1",
-    "email": "user1@email.com",
+    "email": "user1234@gmail.com",
     "password": "#Password123"
 }
 
@@ -13,7 +12,7 @@ POST http://localhost:8080/api/auth/session/login
 Content-Type: application/json
 
 {
-    "username": "test1",
+    "email": "user1234@gmail.com",
     "password": "#Password123"
 }
 
@@ -23,7 +22,7 @@ POST http://localhost:8080/api/auth/token/login
 Content-Type: application/json
 
 {
-    "username": "test",
+    "email": "user1234@gmail.com",
     "password": "#Password123"
 }
 
