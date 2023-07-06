@@ -18,7 +18,7 @@ func TestCheckUserInGroup(t *testing.T) {
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("GetUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
+		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
 
 		groupService := services.NewAccountService(storage)
 
@@ -34,7 +34,7 @@ func TestCheckUserInGroup(t *testing.T) {
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("GetUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
+		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
 
 		groupService := services.NewAccountService(storage)
 
