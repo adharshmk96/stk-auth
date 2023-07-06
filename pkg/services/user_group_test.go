@@ -20,7 +20,7 @@ func TestCheckUserInGroup(t *testing.T) {
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestCheckUserInGroup(t *testing.T) {
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -66,7 +66,7 @@ func TestGetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return(groups, nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.NoError(t, err)
@@ -82,7 +82,7 @@ func TestGetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.Error(t, err)
@@ -98,7 +98,7 @@ func TestGetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return([]*entities.UserGroup{}, nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.NoError(t, err)
@@ -118,7 +118,7 @@ func TestRemoveUserFromGrou(t *testing.T) {
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.RemoveUserFromGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -134,7 +134,7 @@ func TestRemoveUserFromGrou(t *testing.T) {
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.RemoveUserFromGroup(userId, groupId)
 		assert.Error(t, err)

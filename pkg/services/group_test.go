@@ -24,7 +24,7 @@ func TestCreateGroup(t *testing.T) {
 
 		storage.On("SaveGroup", group).Return(nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		createdGroup, err := groupService.CreateGroup(group)
 		assert.NoError(t, err)
@@ -47,7 +47,7 @@ func TestCreateGroup(t *testing.T) {
 
 		storage.On("SaveGroup", group).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		createdGroup, err := groupService.CreateGroup(group)
 		assert.Error(t, err)
@@ -67,7 +67,7 @@ func TestAddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -83,7 +83,7 @@ func TestAddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.Error(t, err)
@@ -99,7 +99,7 @@ func TestAddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.Error(t, err)
@@ -121,7 +121,7 @@ func TestUpdateGroupByID(t *testing.T) {
 
 		storage.On("UpdateGroup", group).Return(nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.UpdateGroupByID(group)
 		assert.NoError(t, err)
@@ -140,7 +140,7 @@ func TestUpdateGroupByID(t *testing.T) {
 
 		storage.On("UpdateGroup", group).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.UpdateGroupByID(group)
 		assert.Error(t, err)
@@ -158,7 +158,7 @@ func TestDeleteGroupByID(t *testing.T) {
 
 		storage.On("DeleteGroupByID", groupId).Return(nil).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.DeleteGroupByID(groupId)
 		assert.NoError(t, err)
@@ -173,7 +173,7 @@ func TestDeleteGroupByID(t *testing.T) {
 
 		storage.On("DeleteGroupByID", groupId).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewAccountService(storage)
+		groupService := services.NewUserManagementService(storage)
 
 		err := groupService.DeleteGroupByID(groupId)
 		assert.Error(t, err)

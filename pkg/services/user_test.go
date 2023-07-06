@@ -26,7 +26,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 
 	t.Run("returns user with userid if data is valid", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(nil)
 
@@ -47,7 +47,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if email is empty", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		newUserData := &entities.Account{
 			Username: "testuser",
@@ -63,7 +63,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
@@ -76,7 +76,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if user exists", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBDuplicateEntry)
 
@@ -113,7 +113,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 	t.Run("valid username and password returns no error", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(storedData, nil)
 
@@ -137,7 +137,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 	t.Run("valid email and password returns no error", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
@@ -161,7 +161,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 	t.Run("invalid username and password returns error", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
@@ -181,7 +181,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 	t.Run("email and wrong password returns error", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
@@ -217,7 +217,7 @@ func TestAccountService_GetUserByID(t *testing.T) {
 
 	t.Run("valid user id returns user data", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil).Once()
 
@@ -234,7 +234,7 @@ func TestAccountService_GetUserByID(t *testing.T) {
 
 	t.Run("invalid user id returns error", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(nil, svrerr.ErrDBEntryNotFound)
 
@@ -262,7 +262,7 @@ func TestAccountService_ChangePassword(t *testing.T) {
 
 	t.Run("returns no error if password is changed", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("UpdateUserByID", inputUser).Return(nil).Once()
 
@@ -276,7 +276,7 @@ func TestAccountService_ChangePassword(t *testing.T) {
 
 	t.Run("returns error if password is not changed", func(t *testing.T) {
 		mockStore := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(mockStore)
+		service := services.NewUserManagementService(mockStore)
 
 		mockStore.On("UpdateUserByID", inputUser).Return(svrerr.ErrDBStorageFailed).Once()
 

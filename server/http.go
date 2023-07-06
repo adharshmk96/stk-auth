@@ -29,7 +29,7 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 	}))
 
 	infra.LoadDefaultConfig()
-	setupRoutes(server)
+	intializeServer(server)
 
 	server.Start()
 

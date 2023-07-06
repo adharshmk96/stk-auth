@@ -11,7 +11,7 @@ type userManagementService struct {
 	storage entities.UserManagementStore
 }
 
-func NewAccountService(storage entities.UserManagementStore) entities.UserManagementService {
+func NewUserManagementService(storage entities.UserManagementStore) entities.UserManagementService {
 	return &userManagementService{
 		storage: storage,
 	}

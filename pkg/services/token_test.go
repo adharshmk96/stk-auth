@@ -24,7 +24,7 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(dbStorage)
+		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -52,7 +52,7 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(dbStorage)
+		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -83,7 +83,7 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(dbStorage)
+		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -113,7 +113,7 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewUserManagementStore(t)
-		service := services.NewAccountService(dbStorage)
+		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
 

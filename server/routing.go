@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services"
@@ -10,15 +11,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-func setupRoutes(server gsk.Server) {
+func intializeServer(server gsk.Server) {
 
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
 	userStorage := sqlite.NewAccountStorage(connection)
-	userService := services.NewAccountService(userStorage)
+	userService := services.NewUserManagementService(userStorage)
 	userHandler := handlers.NewUserManagementHandler(userService)
 
-	// User authentication
+	CreateAdmin(userService)
+
+	setupRoutes(server, userHandler)
+}
+
+func setupRoutes(server gsk.Server, userHandler entities.UserManagmentHandler) {
 	server.Post("/api/auth/register", userHandler.RegisterUser)
 
 	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
