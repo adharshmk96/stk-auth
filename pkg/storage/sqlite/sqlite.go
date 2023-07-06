@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/server/infra"
 )
 
 var logger = infra.GetLogger()

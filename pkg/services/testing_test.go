@@ -2,7 +2,7 @@ package services_test
 
 import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 )
