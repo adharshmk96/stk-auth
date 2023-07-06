@@ -12,8 +12,8 @@ POST http://localhost:8080/api/auth/session/login
 Content-Type: application/json
 
 {
-    "email": "user1234@gmail.com",
-    "password": "#Password123"
+    "username": "admin",
+    "password": "Admin123#"
 }
 
 ###
@@ -30,10 +30,11 @@ Content-Type: application/json
 GET http://localhost:8080/api/auth/session/user
 Content-Type: application/json
 
-{
-    "username": "test",
-    "password": "#Password123"
-}
+###
+
+GET http://localhost:8080/api/auth/token/user
+Content-Type: application/json
+
 
 ###
 

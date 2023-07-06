@@ -30,9 +30,9 @@ server:
         subject: authentication
     mode: dev
     root_admin:
-        email: booboo@coco
-        password: booboo
-        username: coco
+        email: admin@local 
+        password: Admin123#
+        username: admin
     storage:
         sqlite:
             file: auth_database.db

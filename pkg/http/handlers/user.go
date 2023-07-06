@@ -58,7 +58,7 @@ func (h *userManagmentHandler) RegisterUser(gc gsk.Context) {
 // - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
 // - storage: ErrDBStorageFailed
 func (h *userManagmentHandler) ChangePassword(gc gsk.Context) {
-	var credentials *transport.NewCredentials
+	var credentials *transport.CredentialUpdate
 
 	err := gc.DecodeJSONBody(&credentials)
 	if err != nil {
@@ -68,11 +68,7 @@ func (h *userManagmentHandler) ChangePassword(gc gsk.Context) {
 		return
 	}
 
-	user := &entities.Account{
-		Username: credentials.Username,
-		Email:    credentials.Email,
-		Password: credentials.OldPassword,
-	}
+	user := credentials.Credentials
 
 	err = h.userService.Authenticate(user)
 	if err != nil {
@@ -80,9 +76,9 @@ func (h *userManagmentHandler) ChangePassword(gc gsk.Context) {
 		return
 	}
 
-	user.Password = credentials.NewPassword
+	updatedUser := credentials.NewCredentials
 
-	err = h.userService.ChangePassword(user)
+	err = h.userService.ChangePassword(updatedUser)
 	if err != nil {
 		transport.HandleChangePasswordError(err, gc)
 		return

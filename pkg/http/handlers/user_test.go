@@ -162,21 +162,23 @@ func TestChangePassword(t *testing.T) {
 
 	s := gsk.New()
 
-	changeRequest := struct {
-		Email       string `json:"email"`
-		OldPassword string `json:"old_password"`
-		NewPassword string `json:"new_password"`
-	}{
-		Email:       "user@email.com",
-		OldPassword: "old_password",
-		NewPassword: "new_password",
+	changeRequest := &transport.CredentialUpdate{
+		Credentials: &entities.Account{
+			Username: "user",
+			Password: "#Password1",
+		},
+		NewCredentials: &entities.Account{
+			Username: "user",
+			Email:    "bob@mail.com",
+			Password: "#Password2",
+		},
 	}
 
 	t.Run("returns 200 if password is changed successfully", func(t *testing.T) {
 
 		service := mocks.NewUserManagementService(t)
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
-		service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("Authenticate", changeRequest.Credentials).Return(nil).Once()
+		service.On("ChangePassword", changeRequest.NewCredentials).Return(nil).Once()
 
 		handler := handlers.NewUserManagementHandler(service)
 

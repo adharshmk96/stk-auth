@@ -14,11 +14,9 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type NewCredentials struct {
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	OldPassword string `json:"old_password"`
-	NewPassword string `json:"new_password"`
+type CredentialUpdate struct {
+	Credentials    *entities.Account `json:"credentials"`
+	NewCredentials *entities.Account `json:"updated_credentials"`
 }
 
 type GroupResponse = entities.UserGroup
