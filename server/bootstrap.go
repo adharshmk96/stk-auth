@@ -20,11 +20,16 @@ func CreateAdmin(service entities.UserManagementService) {
 		log.Println("Error creating admin user: ", err)
 	}
 
+	if account == nil {
+		log.Println("Admin user not created")
+		return
+	}
+
 	err = service.AddUserToGroup(account.ID, "admin")
 	if err != nil {
 		log.Println("Error adding admin user to admin group: ", err)
 	}
 
-	log.Println("Admin user created: ", account)
+	log.Println("Admin user created: ", account.Username)
 
 }
