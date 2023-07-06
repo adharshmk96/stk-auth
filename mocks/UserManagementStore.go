@@ -222,6 +222,30 @@ func (_m *UserManagementStore) GetUserByUsername(username string) (*entities.Acc
 	return r0, r1
 }
 
+// GetUserGroupAssociation provides a mock function with given fields: userID, groupID
+func (_m *UserManagementStore) GetUserGroupAssociation(userID string, groupID string) (bool, error) {
+	ret := _m.Called(userID, groupID)
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
+		return rf(userID, groupID)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
+		r0 = rf(userID, groupID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(userID, groupID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // InvalidateSessionByID provides a mock function with given fields: sessionID
 func (_m *UserManagementStore) InvalidateSessionByID(sessionID string) error {
 	ret := _m.Called(sessionID)
@@ -292,8 +316,8 @@ func (_m *UserManagementStore) SaveUser(user *entities.Account) error {
 	return r0
 }
 
-// UpdateGroupByID provides a mock function with given fields: group
-func (_m *UserManagementStore) UpdateGroupByID(group *entities.UserGroup) error {
+// UpdateGroup provides a mock function with given fields: group
+func (_m *UserManagementStore) UpdateGroup(group *entities.UserGroup) error {
 	ret := _m.Called(group)
 
 	var r0 error

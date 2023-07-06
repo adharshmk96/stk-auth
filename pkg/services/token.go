@@ -14,7 +14,7 @@ import (
 // - Signs the token with the private key
 // ERRORS:
 // - service: ErrJWTPrivateKey
-func (u *accountService) GenerateJWT(claims *entities.CustomClaims) (string, error) {
+func (u *userManagementService) GenerateJWT(claims *entities.CustomClaims) (string, error) {
 	privateKey, err := helpers.GetJWTPrivateKey()
 	if err != nil {
 		logger.Error("error getting private key: ", err)
@@ -32,7 +32,7 @@ func (u *accountService) GenerateJWT(claims *entities.CustomClaims) (string, err
 // ValidateJWT validates the JWT token
 // - Retrieves the public key
 // - Validates the token
-func (u *accountService) ValidateJWT(token string) (*entities.CustomClaims, error) {
+func (u *userManagementService) ValidateJWT(token string) (*entities.CustomClaims, error) {
 	publicKey, err := helpers.GetJWTPublicKey()
 	if err != nil {
 		logger.Error("error getting public key: ", err)

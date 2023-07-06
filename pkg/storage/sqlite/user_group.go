@@ -92,3 +92,18 @@ func (s *sqliteStorage) DeleteUserGroupAssociation(userID string, groupID string
 
 	return nil
 }
+
+// GetUserGroupAssociation Retrieves Group Association from the db by user id and group id
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
+func (s *sqliteStorage) GetUserGroupAssociation(userID string, groupID string) (bool, error) {
+	row := s.conn.QueryRow(ACCOUNT_CHECK_USER_GROUP_ASSOCIATION_QUERY, userID, groupID)
+
+	var rows int
+	row.Scan(&rows)
+
+	if rows == 1 {
+		return true, nil
+	}
+
+	return false, nil
+}

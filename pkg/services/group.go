@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *accountService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
+func (s *userManagementService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
 	groupId := uuid.NewString()
 	time_now := time.Now()
 
@@ -24,16 +24,28 @@ func (s *accountService) CreateGroup(group *entities.UserGroup) (*entities.UserG
 	return group, nil
 }
 
-func (s *accountService) AddUserToGroup(userId entities.UserID, groupId string) error {
-	time_now := time.Now()
-
-	groupAssociation := &entities.UserGroupAssociation{
-		UserID:    userId,
-		GroupID:   groupId,
-		CreatedAt: time_now,
+func (s *userManagementService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
+	groups, err := s.storage.GetGroupsByUserID(userId.String())
+	if err != nil {
+		return nil, err
 	}
 
-	err := s.storage.SaveGroupAssociation(groupAssociation)
+	return groups, nil
+}
+
+func (s *userManagementService) UpdateGroupByID(group *entities.UserGroup) error {
+	group.UpdatedAt = time.Now()
+
+	err := s.storage.UpdateGroup(group)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *userManagementService) DeleteGroupByID(groupId string) error {
+	err := s.storage.DeleteGroupByID(groupId)
 	if err != nil {
 		return err
 	}

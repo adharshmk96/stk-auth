@@ -28,8 +28,9 @@ type GroupStore interface {
 	// Read
 	GetGroupByID(groupID string) (*UserGroup, error)
 	GetGroupsByUserID(userID string) ([]*UserGroup, error)
+	GetUserGroupAssociation(userID string, groupID string) (bool, error)
 	// Update
-	UpdateGroupByID(group *UserGroup) error
+	UpdateGroup(group *UserGroup) error
 	// Delete
 	DeleteGroupByID(groupID string) error
 	DeleteUserGroupAssociation(userID string, groupID string) error

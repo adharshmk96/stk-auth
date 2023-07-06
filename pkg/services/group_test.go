@@ -107,3 +107,77 @@ func TestAddUserToGroup(t *testing.T) {
 		storage.AssertExpectations(t)
 	})
 }
+
+func TestUpdateGroupByID(t *testing.T) {
+
+	t.Run("UpdateGroupByID updates group without error", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		group := &entities.UserGroup{
+			ID:          "testGroupId",
+			Name:        "testGroup",
+			Description: "testDescription",
+		}
+
+		storage.On("UpdateGroup", group).Return(nil).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.UpdateGroupByID(group)
+		assert.NoError(t, err)
+
+		storage.AssertExpectations(t)
+	})
+
+	t.Run("UpdateGroupByID returns error when group is not updated", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		group := &entities.UserGroup{
+			ID:          "testGroupId",
+			Name:        "testGroup",
+			Description: "testDescription",
+		}
+
+		storage.On("UpdateGroup", group).Return(svrerr.ErrDBStorageFailed).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.UpdateGroupByID(group)
+		assert.Error(t, err)
+
+		storage.AssertExpectations(t)
+	})
+}
+
+func TestDeleteGroupByID(t *testing.T) {
+
+	t.Run("DeleteGroupByID deletes group without error", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		groupId := "testGroupId"
+
+		storage.On("DeleteGroupByID", groupId).Return(nil).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.DeleteGroupByID(groupId)
+		assert.NoError(t, err)
+
+		storage.AssertExpectations(t)
+	})
+
+	t.Run("DeleteGroupByID returns error when group is not deleted", func(t *testing.T) {
+		storage := mocks.NewUserManagementStore(t)
+
+		groupId := "testGroupId"
+
+		storage.On("DeleteGroupByID", groupId).Return(svrerr.ErrDBStorageFailed).Once()
+
+		groupService := services.NewAccountService(storage)
+
+		err := groupService.DeleteGroupByID(groupId)
+		assert.Error(t, err)
+
+		storage.AssertExpectations(t)
+	})
+}

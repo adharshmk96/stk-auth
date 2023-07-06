@@ -25,7 +25,7 @@ import (
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSession(gc gsk.Context) {
+func (h *userManagmentHandler) LoginUserSession(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -80,7 +80,7 @@ func (h *accountHandler) LoginUserSession(gc gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserToken(gc gsk.Context) {
+func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -186,7 +186,7 @@ func generateTokens(userId, requestHost string, svc entities.UserManagementServi
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionUser(gc gsk.Context) {
+func (h *userManagmentHandler) GetSessionUser(gc gsk.Context) {
 	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -228,7 +228,7 @@ func (h *accountHandler) GetSessionUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetTokenUser(gc gsk.Context) {
+func (h *userManagmentHandler) GetTokenUser(gc gsk.Context) {
 	// TODO split to validate and refresh ?
 	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
@@ -344,7 +344,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) LogoutUser(gc gsk.Context) {
+func (h *userManagmentHandler) LogoutUser(gc gsk.Context) {
 	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{

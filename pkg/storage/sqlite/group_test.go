@@ -81,7 +81,7 @@ func TestUpdateGroupById(t *testing.T) {
 		}
 
 		groupStorage.SaveGroup(group)
-		err := groupStorage.UpdateGroupByID(newGroup)
+		err := groupStorage.UpdateGroup(newGroup)
 
 		assert.NoError(t, err)
 
@@ -106,7 +106,7 @@ func TestUpdateGroupById(t *testing.T) {
 			UpdatedAt: newUpdatedAt,
 		}
 
-		err := groupStorage.UpdateGroupByID(newGroup)
+		err := groupStorage.UpdateGroup(newGroup)
 
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 	})

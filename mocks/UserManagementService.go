@@ -54,6 +54,30 @@ func (_m *UserManagementService) ChangePassword(user *entities.Account) error {
 	return r0
 }
 
+// CheckUserInGroup provides a mock function with given fields: userId, groupId
+func (_m *UserManagementService) CheckUserInGroup(userId entities.UserID, groupId string) (bool, error) {
+	ret := _m.Called(userId, groupId)
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(entities.UserID, string) (bool, error)); ok {
+		return rf(userId, groupId)
+	}
+	if rf, ok := ret.Get(0).(func(entities.UserID, string) bool); ok {
+		r0 = rf(userId, groupId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(entities.UserID, string) error); ok {
+		r1 = rf(userId, groupId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateGroup provides a mock function with given fields: group
 func (_m *UserManagementService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
 	ret := _m.Called(group)
@@ -132,6 +156,20 @@ func (_m *UserManagementService) CreateUser(user *entities.Account) (*entities.A
 	return r0, r1
 }
 
+// DeleteGroupByID provides a mock function with given fields: groupId
+func (_m *UserManagementService) DeleteGroupByID(groupId string) error {
+	ret := _m.Called(groupId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(groupId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GenerateJWT provides a mock function with given fields: claims
 func (_m *UserManagementService) GenerateJWT(claims *entities.CustomClaims) (string, error) {
 	ret := _m.Called(claims)
@@ -149,6 +187,32 @@ func (_m *UserManagementService) GenerateJWT(claims *entities.CustomClaims) (str
 
 	if rf, ok := ret.Get(1).(func(*entities.CustomClaims) error); ok {
 		r1 = rf(claims)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGroupsByUserID provides a mock function with given fields: userId
+func (_m *UserManagementService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
+	ret := _m.Called(userId)
+
+	var r0 []*entities.UserGroup
+	var r1 error
+	if rf, ok := ret.Get(0).(func(entities.UserID) ([]*entities.UserGroup, error)); ok {
+		return rf(userId)
+	}
+	if rf, ok := ret.Get(0).(func(entities.UserID) []*entities.UserGroup); ok {
+		r0 = rf(userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*entities.UserGroup)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(entities.UserID) error); ok {
+		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -215,6 +279,34 @@ func (_m *UserManagementService) LogoutUserBySessionId(sessionId string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(sessionId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// RemoveUserFromGroup provides a mock function with given fields: userId, groupId
+func (_m *UserManagementService) RemoveUserFromGroup(userId entities.UserID, groupId string) error {
+	ret := _m.Called(userId, groupId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(entities.UserID, string) error); ok {
+		r0 = rf(userId, groupId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateGroupByID provides a mock function with given fields: group
+func (_m *UserManagementService) UpdateGroupByID(group *entities.UserGroup) error {
+	ret := _m.Called(group)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
 	}

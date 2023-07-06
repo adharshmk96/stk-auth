@@ -26,10 +26,12 @@ type SessionService interface {
 
 type GroupService interface {
 	CreateGroup(group *UserGroup) (*UserGroup, error)
-	// GetGroupByID(groupId string) (*UserGroup, error)
-	// UpdateGroupByID(group *UserGroup) error
-	// DeleteGroupByID(groupId string) error
+	GetGroupsByUserID(userId UserID) ([]*UserGroup, error)
+	UpdateGroupByID(group *UserGroup) error
+	DeleteGroupByID(groupId string) error
 	AddUserToGroup(userId UserID, groupId string) error
+	RemoveUserFromGroup(userId UserID, groupId string) error
+	CheckUserInGroup(userId UserID, groupId string) (bool, error)
 }
 
 type UserManagementService interface {

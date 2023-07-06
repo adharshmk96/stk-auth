@@ -16,7 +16,7 @@ import (
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *accountService) CreateUser(user *entities.Account) (*entities.Account, error) {
+func (u *userManagementService) CreateUser(user *entities.Account) (*entities.Account, error) {
 	if user.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
@@ -52,7 +52,7 @@ func (u *accountService) CreateUser(user *entities.Account) (*entities.Account, 
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
-func (u *accountService) Authenticate(login *entities.Account) error {
+func (u *userManagementService) Authenticate(login *entities.Account) error {
 	var userRecord *entities.Account
 	var err error
 	if login.Email == "" {
@@ -83,7 +83,7 @@ func (u *accountService) Authenticate(login *entities.Account) error {
 	return nil
 }
 
-func (u *accountService) GetUserByID(userId string) (*entities.Account, error) {
+func (u *userManagementService) GetUserByID(userId string) (*entities.Account, error) {
 	user, err := u.storage.GetUserByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (u *accountService) GetUserByID(userId string) (*entities.Account, error) {
 	return user, nil
 }
 
-func (u *accountService) ChangePassword(user *entities.Account) error {
+func (u *userManagementService) ChangePassword(user *entities.Account) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)

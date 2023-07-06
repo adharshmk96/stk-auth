@@ -7,12 +7,12 @@ import (
 
 var logger = infra.GetLogger()
 
-type accountService struct {
+type userManagementService struct {
 	storage entities.UserManagementStore
 }
 
 func NewAccountService(storage entities.UserManagementStore) entities.UserManagementService {
-	return &accountService{
+	return &userManagementService{
 		storage: storage,
 	}
 }

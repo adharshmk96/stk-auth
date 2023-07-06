@@ -37,9 +37,9 @@ func (s *sqliteStorage) SaveGroup(group *entities.UserGroup) error {
 	return nil
 }
 
-// UpdateGroupByID Updates Group in the db by group id
+// UpdateGroup Updates Group in the db by group id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
-func (s *sqliteStorage) UpdateGroupByID(group *entities.UserGroup) error {
+func (s *sqliteStorage) UpdateGroup(group *entities.UserGroup) error {
 	result, err := s.conn.Exec(
 		ACCOUNT_UPDATE_GROUP_QUERY,
 		group.Name,
