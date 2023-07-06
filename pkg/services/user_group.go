@@ -33,7 +33,7 @@ func (s *userManagementService) RemoveUserFromGroup(userId entities.UserID, grou
 }
 
 func (s *userManagementService) CheckUserInGroup(userId entities.UserID, groupId string) (bool, error) {
-	groupAssociation, err := s.storage.GetUserGroupAssociation(userId.String(), groupId)
+	groupAssociation, err := s.storage.CheckUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return false, err
 	}
