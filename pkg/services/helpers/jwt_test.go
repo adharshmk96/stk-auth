@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/adharshmk96/stk-auth/mocks"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

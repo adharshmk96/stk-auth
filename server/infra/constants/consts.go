@@ -36,6 +36,10 @@ const (
 	ENV_JWT_EDCA_PUBLIC_KEY             = "server.jwt.public_key"
 	ENV_JWT_EDCA_PRIVATE_KEY_PATH       = "server.jwt.private_key_path"
 	ENV_JWT_EDCA_PUBLIC_KEY_PATH        = "server.jwt.public_key_path"
+
+	ENV_ROOT_ADMIN_USERNAME = "server.root_admin.username"
+	ENV_ROOT_ADMIN_PASSWORD = "server.root_admin.password"
+	ENV_ROOT_ADMIN_EMAIL    = "server.root_admin.email"
 )
 
 // config defaults
@@ -56,4 +60,8 @@ const (
 	DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH        = ".keys/public_key.pem"
 	DEFAULT_JWT_ISSUER                      = "stk-auth-server"
 	DEFAULT_JWT_SUBJECT                     = "authentication"
+
+	DEFAULT_ROOT_ADMIN_USERNAME = "root"
+	DEFAULT_ROOT_ADMIN_PASSWORD = "root"
+	DEFAULT_ROOT_ADMIN_EMAIL    = "root@localhost"
 )

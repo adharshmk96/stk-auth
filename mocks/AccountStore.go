@@ -12,32 +12,6 @@ type AccountStore struct {
 	mock.Mock
 }
 
-// GetSessionByID provides a mock function with given fields: sessionID
-func (_m *AccountStore) GetSessionByID(sessionID string) (*entities.Session, error) {
-	ret := _m.Called(sessionID)
-
-	var r0 *entities.Session
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Session, error)); ok {
-		return rf(sessionID)
-	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Session); ok {
-		r0 = rf(sessionID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Session)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(sessionID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetUserByEmail provides a mock function with given fields: email
 func (_m *AccountStore) GetUserByEmail(email string) (*entities.Account, error) {
 	ret := _m.Called(email)
@@ -57,32 +31,6 @@ func (_m *AccountStore) GetUserByEmail(email string) (*entities.Account, error) 
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(email)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetUserBySessionID provides a mock function with given fields: sessionID
-func (_m *AccountStore) GetUserBySessionID(sessionID string) (*entities.Account, error) {
-	ret := _m.Called(sessionID)
-
-	var r0 *entities.Account
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
-		return rf(sessionID)
-	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
-		r0 = rf(sessionID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(sessionID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -140,34 +88,6 @@ func (_m *AccountStore) GetUserByUsername(username string) (*entities.Account, e
 	}
 
 	return r0, r1
-}
-
-// InvalidateSessionByID provides a mock function with given fields: sessionID
-func (_m *AccountStore) InvalidateSessionByID(sessionID string) error {
-	ret := _m.Called(sessionID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(sessionID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SaveSession provides a mock function with given fields: session
-func (_m *AccountStore) SaveSession(session *entities.Session) error {
-	ret := _m.Called(session)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.Session) error); ok {
-		r0 = rf(session)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 // SaveUser provides a mock function with given fields: user

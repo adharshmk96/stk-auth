@@ -12,39 +12,14 @@ type AccountHandler struct {
 	mock.Mock
 }
 
-// ChangePassword provides a mock function with given fields: ctx
-func (_m *AccountHandler) ChangePassword(ctx gsk.Context) {
-	_m.Called(ctx)
+// ChangePassword provides a mock function with given fields: gc
+func (_m *AccountHandler) ChangePassword(gc gsk.Context) {
+	_m.Called(gc)
 }
 
-// GetSessionUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetSessionUser(ctx gsk.Context) {
-	_m.Called(ctx)
-}
-
-// GetTokenUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) GetTokenUser(ctx gsk.Context) {
-	_m.Called(ctx)
-}
-
-// LoginUserSession provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserSession(ctx gsk.Context) {
-	_m.Called(ctx)
-}
-
-// LoginUserToken provides a mock function with given fields: ctx
-func (_m *AccountHandler) LoginUserToken(ctx gsk.Context) {
-	_m.Called(ctx)
-}
-
-// LogoutUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) LogoutUser(ctx gsk.Context) {
-	_m.Called(ctx)
-}
-
-// RegisterUser provides a mock function with given fields: ctx
-func (_m *AccountHandler) RegisterUser(ctx gsk.Context) {
-	_m.Called(ctx)
+// RegisterUser provides a mock function with given fields: gc
+func (_m *AccountHandler) RegisterUser(gc gsk.Context) {
+	_m.Called(gc)
 }
 
 type mockConstructorTestingTNewAccountHandler interface {

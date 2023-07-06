@@ -1,7 +1,7 @@
 package infra
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/spf13/viper"
 )
 
@@ -23,6 +23,10 @@ func LoadDefaultConfig() {
 	viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH, constants.DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH)
 	viper.SetDefault(constants.ENV_JWT_ISSUER, constants.DEFAULT_JWT_ISSUER)
 	viper.SetDefault(constants.ENV_JWT_SUBJECT, constants.DEFAULT_JWT_SUBJECT)
+
+	viper.SetDefault(constants.ENV_ROOT_ADMIN_USERNAME, constants.DEFAULT_ROOT_ADMIN_USERNAME)
+	viper.SetDefault(constants.ENV_ROOT_ADMIN_PASSWORD, constants.DEFAULT_ROOT_ADMIN_PASSWORD)
+	viper.SetDefault(constants.ENV_ROOT_ADMIN_EMAIL, constants.DEFAULT_ROOT_ADMIN_EMAIL)
 
 	viper.SetDefault(constants.ENV_SQLITE_FILE, constants.DEFAULT_SQLITE_FILE)
 
@@ -54,5 +58,6 @@ func LoadDefaultConfig() {
 	// TYPE: Migration
 
 	// MIGRATION_FILE_PATH: migration file path (default `./migrations`)
+	// viper.WriteConfigAs("./config.yaml")
 
 }

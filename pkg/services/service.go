@@ -2,17 +2,17 @@ package services
 
 import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/server/infra"
 )
 
 var logger = infra.GetLogger()
 
-type accountService struct {
-	storage entities.AccountStore
+type userManagementService struct {
+	storage entities.UserManagementStore
 }
 
-func NewAccountService(storage entities.AccountStore) entities.AccountService {
-	return &accountService{
+func NewUserManagementService(storage entities.UserManagementStore) entities.UserManagementService {
+	return &userManagementService{
 		storage: storage,
 	}
 }

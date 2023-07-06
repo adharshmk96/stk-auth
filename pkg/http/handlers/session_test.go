@@ -11,9 +11,9 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
-	"github.com/adharshmk96/stk-auth/pkg/infra"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/server/infra"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -21,179 +21,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-func TestRegisterUser(t *testing.T) {
-
-	uid := uuid.New()
-	userId := entities.UserID(uid)
-	username := "user"
-	email := "user@email.com"
-	password := "#Password1"
-	created := time.Now()
-	updated := time.Now()
-
-	userData := &entities.Account{
-		ID:        userId,
-		Username:  username,
-		Email:     email,
-		Password:  password,
-		CreatedAt: created,
-		UpdatedAt: updated,
-	}
-
-	expectedResponse := transport.UserResponse{
-		ID:        userId.String(),
-		Username:  username,
-		Email:     email,
-		CreatedAt: created,
-		UpdatedAt: updated,
-	}
-
-	t.Run("returns 201 and user data if user data is stored", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		service.On("CreateUser", mock.Anything).Return(userData, nil).Once()
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		assert.Equal(t, http.StatusCreated, w.Code)
-
-		var response transport.UserResponse
-		json.Unmarshal(w.Body.Bytes(), &response)
-
-		assert.Equal(t, expectedResponse.ID, response.ID)
-		assert.Equal(t, expectedResponse.Username, response.Username)
-		assert.Equal(t, expectedResponse.Email, response.Email)
-		assert.EqualValues(t, expectedResponse.CreatedAt.Unix(), response.CreatedAt.Unix())
-		assert.EqualValues(t, expectedResponse.UpdatedAt.Unix(), response.UpdatedAt.Unix())
-
-	})
-
-	t.Run("returns 400 if email is empty", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		body := []byte(`{ "username": "` + username + `", "password": "` + password + `" }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		service.AssertNotCalled(t, "CreateUser", mock.Anything)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-	})
-
-	t.Run("returns 400 if validation fails on data", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		body := []byte(`{ whatever }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		service.AssertNotCalled(t, "CreateUser", mock.Anything)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-	})
-
-	t.Run("returns 500 if there is storage error", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		service.On("CreateUser", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		service.AssertExpectations(t)
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
-	})
-
-	t.Run("returns 500 when passing userid in request body, fails decoding.", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		newUserId := uuid.NewString()
-
-		body := []byte(`{ "id": "` + newUserId + `", "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		service.AssertNotCalled(t, "CreateUser", mock.Anything)
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
-
-	})
-
-	t.Run("returns 400 for invalid email", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
-
-		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
-
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/register", handler.RegisterUser)
-
-		w, _ := s.Test("POST", "/register", bytes.NewBuffer(body))
-
-		service.AssertNotCalled(t, "CreateUser", mock.Anything)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-	})
-}
-
-type UserLogin struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func getCookie(cookies []*http.Cookie, name string) *http.Cookie {
-	for _, cookie := range cookies {
-		if cookie.Name == name {
-			return cookie
-		}
-	}
-	return &http.Cookie{}
-}
 
 func TestLoginUserSession(t *testing.T) {
 
@@ -221,13 +48,10 @@ func TestLoginUserSession(t *testing.T) {
 	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 		service.On("CreateSession", mock.Anything).Return(sessionData, nil).Once()
@@ -255,13 +79,10 @@ func TestLoginUserSession(t *testing.T) {
 	})
 
 	t.Run("return 401 when credentials are invalid", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
 
@@ -287,13 +108,10 @@ func TestLoginUserSession(t *testing.T) {
 	})
 
 	t.Run("return 500 when error occurs during authenticate", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 
@@ -319,13 +137,10 @@ func TestLoginUserSession(t *testing.T) {
 	})
 
 	t.Run("return 500 when error occurs during create session", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 		service.On("CreateSession", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
@@ -351,13 +166,10 @@ func TestLoginUserSession(t *testing.T) {
 	})
 
 	t.Run("return 400 when validation fails", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -397,13 +209,10 @@ func TestLoginUserToken(t *testing.T) {
 	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and session token is returned when login is valid", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(sessionToken, nil).Times(2)
@@ -436,13 +245,10 @@ func TestLoginUserToken(t *testing.T) {
 	})
 
 	t.Run("returns 401 when login is invalid", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
 
@@ -470,13 +276,10 @@ func TestLoginUserToken(t *testing.T) {
 	t.Run("returns 500 when internal error occurs", func(t *testing.T) {
 
 		t.Run("when db error in Authenticate", func(t *testing.T) {
-			stkconfig := &gsk.ServerConfig{
-				Port: "8080",
-			}
-			s := gsk.New(stkconfig)
+			s := gsk.New()
 
-			service := mocks.NewAccountService(t)
-			handler := handlers.NewAccountHandler(service)
+			service := mocks.NewUserManagementService(t)
+			handler := handlers.NewUserManagementHandler(service)
 
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 
@@ -502,13 +305,10 @@ func TestLoginUserToken(t *testing.T) {
 		})
 
 		t.Run("when some error in GenerateJWT", func(t *testing.T) {
-			stkconfig := &gsk.ServerConfig{
-				Port: "8080",
-			}
-			s := gsk.New(stkconfig)
+			s := gsk.New()
 
-			service := mocks.NewAccountService(t)
-			handler := handlers.NewAccountHandler(service)
+			service := mocks.NewUserManagementService(t)
+			handler := handlers.NewUserManagementHandler(service)
 
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey).Once()
@@ -536,13 +336,10 @@ func TestLoginUserToken(t *testing.T) {
 	})
 
 	t.Run("returns 400 if invalid request body", func(t *testing.T) {
-		stkconfig := &gsk.ServerConfig{
-			Port: "8080",
-		}
-		s := gsk.New(stkconfig)
+		s := gsk.New()
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/login", handler.LoginUserToken)
 
@@ -598,19 +395,16 @@ func TestGetSessionUser(t *testing.T) {
 	// 	Valid:     true,
 	// }
 
-	stkconfig := &gsk.ServerConfig{
-		Port: "8080",
-	}
-	s := gsk.New(stkconfig)
+	s := gsk.New()
 
 	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and user details if session id is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(userData, nil)
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/a", handler.GetSessionUser)
 
@@ -630,8 +424,8 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 401 if session id is not present in the cookie", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/b", handler.GetSessionUser)
 
@@ -641,8 +435,8 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 401 if session id is empty in the cookie", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/ba", handler.GetSessionUser)
 
@@ -662,10 +456,10 @@ func TestGetSessionUser(t *testing.T) {
 
 	t.Run("returns 401 if session id is not valid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrInvalidSession)
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/c", handler.GetSessionUser)
 
@@ -685,10 +479,10 @@ func TestGetSessionUser(t *testing.T) {
 	})
 
 	t.Run("returns 500 if error occurs while getting user by session id", func(t *testing.T) {
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("GetUserBySessionId", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/d", handler.GetSessionUser)
 
@@ -741,10 +535,7 @@ func TestGetTokenUser(t *testing.T) {
 		},
 	}
 
-	stkconfig := &gsk.ServerConfig{
-		Port: "8080",
-	}
-	s := gsk.New(stkconfig)
+	s := gsk.New()
 
 	accessToken := "access"
 	refreshToken := "refresh"
@@ -753,11 +544,11 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 200 and user details if valid session token is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/a", handler.GetTokenUser)
 
@@ -804,14 +595,14 @@ func TestGetTokenUser(t *testing.T) {
 	t.Run("return 200 and cookie is access token expired", func(t *testing.T) {
 		newToken := "new-token"
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 
 		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("ValidateJWT", refreshToken).Return(claims, nil)
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(newToken, nil).Once()
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/ab", handler.GetTokenUser)
 
@@ -855,13 +646,13 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if session token is not present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 
 		service.AssertNotCalled(t, "GenerateJWT", mock.Anything)
 		service.AssertNotCalled(t, "GetUserByID", mock.Anything)
 		service.AssertNotCalled(t, "ValidateJWT", mock.Anything)
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/b", handler.GetTokenUser)
 
@@ -872,9 +663,9 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if access token is invalid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(nil, svrerr.ErrInvalidToken)
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/c", handler.GetTokenUser)
 
@@ -907,11 +698,11 @@ func TestGetTokenUser(t *testing.T) {
 
 	t.Run("returns 401 if refresh token is expired", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("ValidateJWT", refreshToken).Return(claims, jwt.ErrTokenExpired)
 		service.On("GetUserByID", uid).Return(userData, nil).Once()
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Get("/user/d", handler.GetTokenUser)
 
@@ -943,9 +734,9 @@ func TestGetTokenUser(t *testing.T) {
 	t.Run("return 500 if internal error occurs", func(t *testing.T) {
 
 		t.Run("if validate jwt fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(nil, jwt.ErrInvalidKey)
-			handler := handlers.NewAccountHandler(service)
+			handler := handlers.NewUserManagementHandler(service)
 
 			s.Get("/user/ac", handler.GetTokenUser)
 
@@ -967,10 +758,10 @@ func TestGetTokenUser(t *testing.T) {
 		})
 
 		t.Run("if get user by id fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
-			handler := handlers.NewAccountHandler(service)
+			handler := handlers.NewUserManagementHandler(service)
 
 			s.Get("/user/ad", handler.GetTokenUser)
 
@@ -993,12 +784,12 @@ func TestGetTokenUser(t *testing.T) {
 
 		// TODO FIX ME
 		t.Run("if generate jwt fails", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
+			service := mocks.NewUserManagementService(t)
 			service.On("ValidateJWT", accessToken).Return(claims, jwt.ErrTokenExpired).Once()
 			service.On("ValidateJWT", refreshToken).Return(claims, nil).Once()
 			service.On("GetUserByID", mock.Anything).Return(userData, nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey)
-			handler := handlers.NewAccountHandler(service)
+			handler := handlers.NewUserManagementHandler(service)
 
 			s.Get("/user/bd", handler.GetTokenUser)
 
@@ -1030,10 +821,7 @@ func TestGetTokenUser(t *testing.T) {
 
 func TestLogoutUser(t *testing.T) {
 
-	stkconfig := &gsk.ServerConfig{
-		Port: "8080",
-	}
-	s := gsk.New(stkconfig)
+	s := gsk.New()
 
 	token := "abcdefg-asdfasdf"
 
@@ -1058,10 +846,10 @@ func TestLogoutUser(t *testing.T) {
 	infra.LoadDefaultConfig()
 	t.Run("returns 200 service validates the session id in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("LogoutUserBySessionId", token).Return(nil)
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/logout", handler.LogoutUser)
 
@@ -1086,10 +874,10 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 200 if valid access token is present in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("ValidateJWT", token).Return(claims, nil).Once()
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/logout/a", handler.LogoutUser)
 
@@ -1116,8 +904,8 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 401 both session id and session token are absent in the cookie", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/logout/b", handler.LogoutUser)
 
@@ -1128,10 +916,10 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 401 if session id is invalid", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		service.On("LogoutUserBySessionId", mock.Anything).Return(svrerr.ErrInvalidSession).Once()
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/logout/c", handler.LogoutUser)
 
@@ -1152,14 +940,14 @@ func TestLogoutUser(t *testing.T) {
 
 	t.Run("returns 500 if storage error occurs", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
+		service := mocks.NewUserManagementService(t)
 		cookie := &http.Cookie{
 			Name:  viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 			Value: "abcdefg-asdfasdf",
 		}
 		service.On("LogoutUserBySessionId", cookie.Value).Return(svrerr.ErrDBStorageFailed).Once()
 
-		handler := handlers.NewAccountHandler(service)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/logout/d", handler.LogoutUser)
 
@@ -1176,15 +964,12 @@ func TestLogoutUser(t *testing.T) {
 
 func TestCommonErrors(t *testing.T) {
 
-	stkconfig := &gsk.ServerConfig{
-		Port: "8080",
-	}
-	s := gsk.New(stkconfig)
+	s := gsk.New()
 
 	t.Run("returns 400 if request body is nil", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/login/a/token", handler.LoginUserToken)
 		s.Post("/login/a", handler.LoginUserSession)
@@ -1224,8 +1009,8 @@ func TestCommonErrors(t *testing.T) {
 
 	t.Run("return 400 if validation Fails", func(t *testing.T) {
 
-		service := mocks.NewAccountService(t)
-		handler := handlers.NewAccountHandler(service)
+		service := mocks.NewUserManagementService(t)
+		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/login/c/token", handler.LoginUserToken)
 
@@ -1245,96 +1030,6 @@ func TestCommonErrors(t *testing.T) {
 		var responseBodyt gsk.Map
 		json.Unmarshal(w2.Body.Bytes(), &responseBodyt)
 		assert.Equal(t, svrerr.ErrValidationFailed.Error(), responseBodyt["error"])
-	})
-
-}
-
-func TestChangePassword(t *testing.T) {
-
-	stkconfig := &gsk.ServerConfig{
-		Port: "8080",
-	}
-	s := gsk.New(stkconfig)
-
-	changeRequest := struct {
-		Email       string `json:"email"`
-		OldPassword string `json:"old_password"`
-		NewPassword string `json:"new_password"`
-	}{
-		Email:       "user@email.com",
-		OldPassword: "old_password",
-		NewPassword: "new_password",
-	}
-
-	t.Run("returns 200 if password is changed successfully", func(t *testing.T) {
-
-		service := mocks.NewAccountService(t)
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
-		service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
-
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/change-password/a", handler.ChangePassword)
-
-		body, _ := json.Marshal(changeRequest)
-
-		w, _ := s.Test("POST", "/change-password/a", bytes.NewBuffer(body))
-
-		assert.Equal(t, http.StatusOK, w.Code)
-		service.AssertExpectations(t)
-	})
-
-	t.Run("returns 401 if authentication failed", func(t *testing.T) {
-
-		service := mocks.NewAccountService(t)
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
-
-		handler := handlers.NewAccountHandler(service)
-
-		s.Post("/change-password/b", handler.ChangePassword)
-
-		body, _ := json.Marshal(changeRequest)
-
-		w, _ := s.Test("POST", "/change-password/b", bytes.NewBuffer(body))
-
-		assert.Equal(t, http.StatusUnauthorized, w.Code)
-		service.AssertExpectations(t)
-	})
-
-	t.Run("returns 500 if change password fails", func(t *testing.T) {
-		t.Run("authentication failed", func(t *testing.T) {
-
-			service := mocks.NewAccountService(t)
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
-
-			handler := handlers.NewAccountHandler(service)
-
-			s.Post("/change-password/c", handler.ChangePassword)
-
-			body, _ := json.Marshal(changeRequest)
-
-			w, _ := s.Test("POST", "/change-password/c", bytes.NewBuffer(body))
-
-			assert.Equal(t, http.StatusInternalServerError, w.Code)
-			service.AssertExpectations(t)
-		})
-
-		t.Run("change password failed", func(t *testing.T) {
-			service := mocks.NewAccountService(t)
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
-			service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
-
-			handler := handlers.NewAccountHandler(service)
-
-			s.Post("/change-password/d", handler.ChangePassword)
-
-			body, _ := json.Marshal(changeRequest)
-
-			w, _ := s.Test("POST", "/change-password/d", bytes.NewBuffer(body))
-
-			assert.Equal(t, http.StatusInternalServerError, w.Code)
-			service.AssertExpectations(t)
-		})
 	})
 
 }

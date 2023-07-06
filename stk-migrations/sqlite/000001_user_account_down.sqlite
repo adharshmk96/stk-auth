@@ -1,0 +1,2 @@
+DROP TABLE auth_user_accounts;
+DROP TABLE root_admin_accounts;

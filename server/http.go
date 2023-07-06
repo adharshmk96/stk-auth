@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/adharshmk96/stk-auth/pkg/infra"
+	"github.com/adharshmk96/stk-auth/server/infra"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/adharshmk96/stk/pkg/middleware"
 )
@@ -29,7 +29,7 @@ func StartHttpServer(port string) (gsk.Server, chan bool) {
 	}))
 
 	infra.LoadDefaultConfig()
-	setupRoutes(server)
+	intializeServer(server)
 
 	server.Start()
 

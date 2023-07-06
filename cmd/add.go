@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,7 +26,7 @@ var userCmd = &cobra.Command{
 
 		conn := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 		userStorage := sqlite.NewAccountStorage(conn)
-		userService := services.NewAccountService(userStorage)
+		userService := services.NewUserManagementService(userStorage)
 
 		user := &entities.Account{
 			Username: userName,

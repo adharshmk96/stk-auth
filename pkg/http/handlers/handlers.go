@@ -4,12 +4,12 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
-type accountHandler struct {
-	userService entities.AccountService
+type userManagmentHandler struct {
+	userService entities.UserManagementService
 }
 
-func NewAccountHandler(userService entities.AccountService) entities.AccountHandler {
-	return &accountHandler{
+func NewUserManagementHandler(userService entities.UserManagementService) entities.UserManagmentHandler {
+	return &userManagmentHandler{
 		userService: userService,
 	}
 }

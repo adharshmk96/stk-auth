@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/spf13/viper"
 )
@@ -116,6 +116,18 @@ func HandleChangePasswordError(err error, ctx gsk.Context) {
 			"error": INVALID_CREDENTIALS,
 		})
 	default:
+		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"error": INTERNAL_SERVER_ERROR,
+		})
+	}
+}
+
+func HandleCreateGroupError(err error, ctx gsk.Context) {
+	if err == svrerr.ErrDBDuplicateEntry {
+		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
+			"error": USER_EXISTS,
+		})
+	} else {
 		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 			"error": INTERNAL_SERVER_ERROR,
 		})

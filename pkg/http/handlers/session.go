@@ -8,52 +8,12 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
-	"github.com/adharshmk96/stk-auth/pkg/infra/constants"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 )
-
-// RegisterUser registers a new user
-// - Decodes and Validates the user information from body
-// - Calls the service layer to store the user information
-// - Returns the user information
-// ERRORS:
-// - handler: ErrJsonDecodeFailed, ErrValidationFailed
-// - service: ErrHasingPassword,
-// - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *accountHandler) RegisterUser(gc gsk.Context) {
-	var user *entities.Account
-
-	err := gc.DecodeJSONBody(&user)
-	if err != nil {
-		transport.HandleJsonDecodeError(err, gc)
-		return
-	}
-
-	errorMessages := validator.ValidateRegistration(user)
-	if len(errorMessages) > 0 {
-		transport.HandleValidationError(errorMessages, gc)
-		return
-	}
-
-	createdUser, err := h.userService.CreateUser(user)
-	if err != nil {
-		transport.HandleRegistrationError(err, gc)
-		return
-	}
-
-	response := transport.UserResponse{
-		ID:        createdUser.ID.String(),
-		Username:  createdUser.Username,
-		Email:     createdUser.Email,
-		CreatedAt: createdUser.CreatedAt,
-		UpdatedAt: createdUser.UpdatedAt,
-	}
-
-	gc.Status(http.StatusCreated).JSONResponse(response)
-}
 
 // LoginUserSession creates a new session for the user and sets the session id in cookie
 // - Decodes and Validates the user information from body
@@ -65,7 +25,7 @@ func (h *accountHandler) RegisterUser(gc gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSession(gc gsk.Context) {
+func (h *userManagmentHandler) LoginUserSession(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -120,7 +80,7 @@ func (h *accountHandler) LoginUserSession(gc gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserToken(gc gsk.Context) {
+func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -179,7 +139,7 @@ func (h *accountHandler) LoginUserToken(gc gsk.Context) {
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-func generateTokens(userId, requestHost string, svc entities.AccountService) (string, string, error) {
+func generateTokens(userId, requestHost string, svc entities.UserManagementService) (string, string, error) {
 	timeNow := time.Now()
 	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
@@ -226,7 +186,7 @@ func generateTokens(userId, requestHost string, svc entities.AccountService) (st
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionUser(gc gsk.Context) {
+func (h *userManagmentHandler) GetSessionUser(gc gsk.Context) {
 	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -237,7 +197,7 @@ func (h *accountHandler) GetSessionUser(gc gsk.Context) {
 
 	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
 	if err != nil {
-		if err == svrerr.ErrInvalidSession {
+		if errors.Is(err, svrerr.ErrInvalidSession) {
 			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 				"message": transport.ERROR_UNAUTHORIZED,
 			})
@@ -268,7 +228,7 @@ func (h *accountHandler) GetSessionUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetTokenUser(gc gsk.Context) {
+func (h *userManagmentHandler) GetTokenUser(gc gsk.Context) {
 	// TODO split to validate and refresh ?
 	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
@@ -284,7 +244,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			refreshToken = true
 		} else {
-			if err == svrerr.ErrInvalidToken {
+			if errors.Is(err, svrerr.ErrInvalidToken) {
 				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})
@@ -316,7 +276,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 
 		rtClaims, err := h.userService.ValidateJWT(refreshTokenCookie.Value)
 		if err != nil {
-			if err == svrerr.ErrInvalidToken || err == jwt.ErrTokenExpired {
+			if errors.Is(err, svrerr.ErrInvalidToken) || errors.Is(err, jwt.ErrTokenExpired) {
 				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 					"message": transport.ERROR_UNAUTHORIZED,
 				})
@@ -384,7 +344,7 @@ func (h *accountHandler) GetTokenUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) LogoutUser(gc gsk.Context) {
+func (h *userManagmentHandler) LogoutUser(gc gsk.Context) {
 	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -436,41 +396,5 @@ func (h *accountHandler) LogoutUser(gc gsk.Context) {
 
 	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
 		"message": transport.SUCCESS_LOGOUT,
-	})
-}
-
-func (h *accountHandler) ChangePassword(gc gsk.Context) {
-	var credentials *transport.NewCredentials
-
-	err := gc.DecodeJSONBody(&credentials)
-	if err != nil {
-		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_BODY,
-		})
-		return
-	}
-
-	user := &entities.Account{
-		Username: credentials.Username,
-		Email:    credentials.Email,
-		Password: credentials.OldPassword,
-	}
-
-	err = h.userService.Authenticate(user)
-	if err != nil {
-		transport.HandleChangePasswordError(err, gc)
-		return
-	}
-
-	user.Password = credentials.NewPassword
-
-	err = h.userService.ChangePassword(user)
-	if err != nil {
-		transport.HandleChangePasswordError(err, gc)
-		return
-	}
-
-	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
-		"message": transport.SUCCESS_CHANGED_PASSWORD,
 	})
 }
