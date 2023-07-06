@@ -1,29 +1,38 @@
 migrator:
     database: sqlite3
+    postgresql:
+        database: postgres
+        host: localhost
+        password: postgres
+        port: 5432
+        user: postgres
     sqlite:
         filepath: auth_database.db
     workdir: ./stk-migrations
-
-    postgresql:
-        host: localhost
-        port: 5432
-        user: postgres
-        password: postgres
-        database: postgres
-
 server:
     cookie:
+        jwt_access:
+            name: stk_access_token
+        jwt_refresh:
+            name: stk_refresh_token
         jwt_session:
             name: stk_session_token
         session:
             name: stk_session_id
+    domain: localhost
     jwt:
+        access_expiry: 1440
         expiry: 1440
         issuer: stk-auth-server
         private_key_path: .keys/private_key.pem
         public_key_path: .keys/public_key.pem
+        refresh_expiry: 43200
         subject: authentication
-    mode: "dev"
+    mode: dev
+    root_admin:
+        email: booboo@coco
+        password: booboo
+        username: coco
     storage:
         sqlite:
             file: auth_database.db

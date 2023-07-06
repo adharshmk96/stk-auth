@@ -18,7 +18,7 @@ import (
 func TestAccountService_TestGenerateJWT(t *testing.T) {
 
 	t.Run("generates a valid token", func(t *testing.T) {
-		_, _ = setupKeysDir()
+		setupKeysDir()
 
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()
@@ -77,7 +77,7 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 func TestAccountService_ValidateJWT(t *testing.T) {
 
 	t.Run("returns no error if token is valid", func(t *testing.T) {
-		_, _ = setupKeysDir()
+		setupKeysDir()
 
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()
@@ -107,7 +107,7 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 	})
 
 	t.Run("returns error if token is invalid", func(t *testing.T) {
-		_, _ = setupKeysDir()
+		setupKeysDir()
 
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()

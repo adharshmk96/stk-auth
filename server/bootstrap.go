@@ -4,14 +4,19 @@ import (
 	"log"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
+	"github.com/spf13/viper"
 )
 
 func CreateAdmin(service entities.UserManagementService) {
+	adminUsername := viper.GetString(constants.ENV_ROOT_ADMIN_USERNAME)
+	adminPassword := viper.GetString(constants.ENV_ROOT_ADMIN_PASSWORD)
+	adminEmail := viper.GetString(constants.ENV_ROOT_ADMIN_EMAIL)
 	// Initialize the service
 	user := &entities.Account{
-		Username: "admin",
-		Password: "admin",
-		Email:    "user@admin.com",
+		Username: adminUsername,
+		Password: adminPassword,
+		Email:    adminEmail,
 	}
 
 	// Create the admin user
