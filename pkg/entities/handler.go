@@ -4,7 +4,7 @@ import "github.com/adharshmk96/stk/gsk"
 
 type AccountHandler interface {
 	RegisterUser(gc gsk.Context)
-	ChangePassword(gc gsk.Context)
+	ChangeCredentials(gc gsk.Context)
 }
 
 type SessionHandler interface {
