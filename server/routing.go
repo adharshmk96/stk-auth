@@ -25,18 +25,20 @@ func intializeServer(server gsk.Server) {
 }
 
 func setupRoutes(server gsk.Server, userHandler entities.UserManagmentHandler) {
-	server.Post("/api/auth/register", userHandler.RegisterUser)
+	apiRoutes := server.RouteGroup("/api")
+	apiAuth := apiRoutes.RouteGroup("/auth")
 
-	server.Post("/api/auth/session/login", userHandler.LoginUserSession)
-	server.Post("/api/auth/token/login", userHandler.LoginUserToken)
+	apiAuth.Post("/register", userHandler.RegisterUser)
 
-	server.Get("/api/auth/session/user", userHandler.GetSessionUser)
-	server.Get("/api/auth/token/user", userHandler.GetTokenUser)
+	apiAuth.Post("/session/login", userHandler.LoginUserSession)
+	apiAuth.Post("/token/login", userHandler.LoginUserToken)
 
-	server.Post("/api/auth/update/password", userHandler.ChangePassword)
-	// server.Post("/api/auth/update/credentials", userHandler.ChangeCredentials) // maybe one route for all updates
+	apiAuth.Get("/session/user", userHandler.GetSessionUser)
+	apiAuth.Get("/token/user", userHandler.GetTokenUser)
 
-	server.Post("/api/auth/logout", userHandler.LogoutUser)
+	apiAuth.Post("/update/credentials", userHandler.ChangeCredentials)
+
+	apiAuth.Post("/logout", userHandler.LogoutUser)
 
 	// Health check
 	server.Get("/health", handlers.HealthCheckHandler)

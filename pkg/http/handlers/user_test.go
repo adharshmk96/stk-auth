@@ -182,7 +182,7 @@ func TestChangePassword(t *testing.T) {
 
 		handler := handlers.NewUserManagementHandler(service)
 
-		s.Post("/change-password/a", handler.ChangePassword)
+		s.Post("/change-password/a", handler.ChangeCredentials)
 
 		body, _ := json.Marshal(changeRequest)
 
@@ -199,7 +199,7 @@ func TestChangePassword(t *testing.T) {
 
 		handler := handlers.NewUserManagementHandler(service)
 
-		s.Post("/change-password/b", handler.ChangePassword)
+		s.Post("/change-password/b", handler.ChangeCredentials)
 
 		body, _ := json.Marshal(changeRequest)
 
@@ -217,7 +217,7 @@ func TestChangePassword(t *testing.T) {
 
 			handler := handlers.NewUserManagementHandler(service)
 
-			s.Post("/change-password/c", handler.ChangePassword)
+			s.Post("/change-password/c", handler.ChangeCredentials)
 
 			body, _ := json.Marshal(changeRequest)
 
@@ -234,7 +234,7 @@ func TestChangePassword(t *testing.T) {
 
 			handler := handlers.NewUserManagementHandler(service)
 
-			s.Post("/change-password/d", handler.ChangePassword)
+			s.Post("/change-password/d", handler.ChangeCredentials)
 
 			body, _ := json.Marshal(changeRequest)
 

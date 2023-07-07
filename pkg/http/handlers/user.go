@@ -49,7 +49,7 @@ func (h *userManagmentHandler) RegisterUser(gc gsk.Context) {
 	gc.Status(http.StatusCreated).JSONResponse(response)
 }
 
-// ChangePassword changes the password of the user
+// ChangeCredentials changes the password of the user
 // - Decodes and Validates the user information from body
 // - Calls the service layer to change the password
 // - Returns the success message
@@ -57,7 +57,7 @@ func (h *userManagmentHandler) RegisterUser(gc gsk.Context) {
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
 // - storage: ErrDBStorageFailed
-func (h *userManagmentHandler) ChangePassword(gc gsk.Context) {
+func (h *userManagmentHandler) ChangeCredentials(gc gsk.Context) {
 	var credentials *transport.CredentialUpdate
 
 	err := gc.DecodeJSONBody(&credentials)
