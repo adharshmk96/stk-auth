@@ -45,6 +45,14 @@ func TestLoginUserSession(t *testing.T) {
 		Valid:     true,
 	}
 
+	userData := &entities.Account{
+		ID:        userId,
+		Username:  username,
+		Password:  password,
+		CreatedAt: created,
+		UpdatedAt: updated,
+	}
+
 	infra.LoadDefaultConfig()
 
 	t.Run("returns 200 and session is retrieved for valid login", func(t *testing.T) {
@@ -55,6 +63,7 @@ func TestLoginUserSession(t *testing.T) {
 
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 		service.On("CreateSession", mock.Anything).Return(sessionData, nil).Once()
+		service.On("GetUserByID", userId.String()).Return(userData, nil).Once()
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -67,7 +76,7 @@ func TestLoginUserSession(t *testing.T) {
 		// check if response has "message"
 		var response gsk.Map
 		json.Unmarshal(w.Body.Bytes(), &response)
-		assert.Equal(t, transport.SUCCESS_LOGIN, response["message"])
+		assert.Equal(t, userData.ID.String(), response["id"])
 
 		// check if cookie is set
 		cookies := w.Result().Cookies()

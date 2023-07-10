@@ -15,6 +15,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	secureCookie, sameSite = transport.GetCookieModes()
+)
+
 // LoginUserSession creates a new session for the user and sets the session id in cookie
 // - Decodes and Validates the user information from body
 // - Calls the service layer to authenticate and store the session information
@@ -52,18 +56,28 @@ func (h *userManagmentHandler) LoginUserSession(gc gsk.Context) {
 		return
 	}
 
-	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
+	userData, err := h.userService.GetUserByID(sessionData.UserID.String())
+	if err != nil {
+		transport.HandleGetUserError(err, gc)
+		return
+	}
+
 	cookie := &http.Cookie{
 		Name:     viper.GetString(constants.ENV_SESSION_COOKIE_NAME),
 		Value:    sessionData.SessionID,
 		HttpOnly: true,
-		Secure:   secureCookie,
 		Path:     "/",
+		SameSite: sameSite,
 		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
+		Secure:   secureCookie,
 	}
 
-	response := gsk.Map{
-		"message": transport.SUCCESS_LOGIN,
+	response := transport.UserResponse{
+		ID:        userData.ID.String(),
+		Username:  userData.Username,
+		Email:     userData.Email,
+		CreatedAt: userData.CreatedAt,
+		UpdatedAt: userData.UpdatedAt,
 	}
 
 	gc.SetCookie(cookie)
@@ -111,13 +125,13 @@ func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
 		return
 	}
 
-	secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 	atCookie := &http.Cookie{
 		Name:     viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
 		Value:    atjwt,
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		SameSite: sameSite,
 		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
@@ -127,6 +141,7 @@ func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
 		HttpOnly: true,
 		Secure:   secureCookie,
 		Path:     "/",
+		SameSite: sameSite,
 		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 	}
 
@@ -312,13 +327,13 @@ func (h *userManagmentHandler) GetTokenUser(gc gsk.Context) {
 			return
 		}
 
-		secureCookie := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
 		cookie := &http.Cookie{
 			Name:     viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME),
 			Value:    accessToken,
 			HttpOnly: true,
 			Secure:   secureCookie,
 			Path:     "/",
+			SameSite: sameSite,
 			Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
 		}
 
@@ -373,20 +388,32 @@ func (h *userManagmentHandler) LogoutUser(gc gsk.Context) {
 	rtCookieName := viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME)
 
 	newSessionCookie := &http.Cookie{
-		Name:   sessionCookieName,
-		Value:  "",
+		Name:     sessionCookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
+		// Expires:  time.Unix(0, 0),
 		MaxAge: -1,
 	}
 
 	atCookie := &http.Cookie{
-		Name:   atCookieName,
-		Value:  "",
+		Name:     atCookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
+		// Expires:  time.Unix(0, 0),
 		MaxAge: -1,
 	}
 
 	rtCookie := &http.Cookie{
-		Name:   rtCookieName,
-		Value:  "",
+		Name:     rtCookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Domain:   viper.GetString(constants.ENV_SERVER_DOMAIN),
+		// Expires:  time.Unix(0, 0),
 		MaxAge: -1,
 	}
 

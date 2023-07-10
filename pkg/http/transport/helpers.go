@@ -10,6 +10,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+func GetCookieModes() (bool, http.SameSite) {
+	secure := viper.GetString(constants.ENV_SERVER_MODE) == constants.SERVER_PROD_MODE
+	var sameSite http.SameSite
+	if secure {
+		sameSite = http.SameSiteLaxMode
+	} else {
+		sameSite = http.SameSiteLaxMode
+	}
+	return secure, sameSite
+
+}
+
 func ParseRemoteAddress(remoteAddr string) (ip, port string) {
 	ip = remoteAddr
 	if colonIndex := strings.LastIndex(ip, ":"); colonIndex != -1 {
