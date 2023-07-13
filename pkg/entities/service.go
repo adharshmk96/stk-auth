@@ -18,7 +18,7 @@ type AccountService interface {
 	GetUserByID(userId string) (*Account, error)
 
 	// For Admin
-	// GetUserList() ([]*Account, error)
+	GetUserList(limit int, offset int) ([]*Account, error)
 	// UpdateUser(user *Account) error
 	// DeleteUser(userId string) error
 }

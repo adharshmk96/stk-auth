@@ -50,7 +50,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("CreateUser", mock.Anything).Return(userData, nil).Once()
@@ -77,7 +77,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `" }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -93,7 +93,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ whatever }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -109,7 +109,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		service.On("CreateUser", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
@@ -129,7 +129,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "id": "` + newUserId + `", "username": "` + username + `", "password": "` + password + `", "email": "` + email + `" }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -146,7 +146,7 @@ func TestRegisterUser(t *testing.T) {
 
 		body := []byte(`{ "username": "` + username + `", "password": "` + password + `", "email": "invalid" }`)
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
 		s.Post("/register", handler.RegisterUser)
@@ -176,7 +176,7 @@ func TestChangePassword(t *testing.T) {
 
 	t.Run("returns 200 if password is changed successfully", func(t *testing.T) {
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		service.On("Authenticate", changeRequest.Credentials).Return(nil).Once()
 		service.On("ChangePassword", changeRequest.NewCredentials).Return(nil).Once()
 
@@ -194,7 +194,7 @@ func TestChangePassword(t *testing.T) {
 
 	t.Run("returns 401 if authentication failed", func(t *testing.T) {
 
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		handler := handlers.NewUserManagementHandler(service)
@@ -212,7 +212,7 @@ func TestChangePassword(t *testing.T) {
 	t.Run("returns 500 if change password fails", func(t *testing.T) {
 		t.Run("authentication failed", func(t *testing.T) {
 
-			service := mocks.NewUserManagementService(t)
+			service := mocks.NewAuthenticationService(t)
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 
 			handler := handlers.NewUserManagementHandler(service)
@@ -228,7 +228,7 @@ func TestChangePassword(t *testing.T) {
 		})
 
 		t.Run("change password failed", func(t *testing.T) {
-			service := mocks.NewUserManagementService(t)
+			service := mocks.NewAuthenticationService(t)
 			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
 			service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
 

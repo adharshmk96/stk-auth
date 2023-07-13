@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *userManagementService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
+func (s *authenticationService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
 	groupId := uuid.NewString()
 	time_now := time.Now()
 
@@ -24,7 +24,7 @@ func (s *userManagementService) CreateGroup(group *entities.UserGroup) (*entitie
 	return group, nil
 }
 
-func (s *userManagementService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
+func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
 	groups, err := s.storage.GetGroupsByUserID(userId.String())
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (s *userManagementService) GetGroupsByUserID(userId entities.UserID) ([]*en
 	return groups, nil
 }
 
-func (s *userManagementService) UpdateGroupByID(group *entities.UserGroup) error {
+func (s *authenticationService) UpdateGroupByID(group *entities.UserGroup) error {
 	group.UpdatedAt = time.Now()
 
 	err := s.storage.UpdateGroup(group)
@@ -44,7 +44,7 @@ func (s *userManagementService) UpdateGroupByID(group *entities.UserGroup) error
 	return nil
 }
 
-func (s *userManagementService) DeleteGroupByID(groupId string) error {
+func (s *authenticationService) DeleteGroupByID(groupId string) error {
 	err := s.storage.DeleteGroupByID(groupId)
 	if err != nil {
 		return err

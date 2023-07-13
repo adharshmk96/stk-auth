@@ -21,7 +21,7 @@ func TestCreateGroup(t *testing.T) {
 
 	t.Run("should return 400 if body is invalid", func(t *testing.T) {
 		// Arrange
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 		// Act
 		s.Post("/groups", handler.CreateGroup)
@@ -35,7 +35,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 	t.Run("should return 201 if group is created", func(t *testing.T) {
 		// Arrange
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 		group := &entities.UserGroup{
 			Name:        "test",
@@ -56,7 +56,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 	t.Run("should return 500 if group is not created", func(t *testing.T) {
 		// Arrange
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 		group := &entities.UserGroup{
 			Name:        "test",
@@ -77,7 +77,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 	t.Run("should return conflict if group is not created", func(t *testing.T) {
 		// Arrange
-		service := mocks.NewUserManagementService(t)
+		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 		group := &entities.UserGroup{
 			Name:        "test",

@@ -16,7 +16,7 @@ import (
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *userManagementService) CreateUser(user *entities.Account) (*entities.Account, error) {
+func (u *authenticationService) CreateUser(user *entities.Account) (*entities.Account, error) {
 	if user.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
@@ -52,7 +52,7 @@ func (u *userManagementService) CreateUser(user *entities.Account) (*entities.Ac
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
-func (u *userManagementService) Authenticate(login *entities.Account) error {
+func (u *authenticationService) Authenticate(login *entities.Account) error {
 	var userRecord *entities.Account
 	var err error
 	if login.Email == "" {
@@ -83,7 +83,7 @@ func (u *userManagementService) Authenticate(login *entities.Account) error {
 	return nil
 }
 
-func (u *userManagementService) GetUserByID(userId string) (*entities.Account, error) {
+func (u *authenticationService) GetUserByID(userId string) (*entities.Account, error) {
 	user, err := u.storage.GetUserByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (u *userManagementService) GetUserByID(userId string) (*entities.Account, e
 	return user, nil
 }
 
-func (u *userManagementService) ChangePassword(user *entities.Account) error {
+func (u *authenticationService) ChangePassword(user *entities.Account) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
@@ -111,4 +111,20 @@ func (u *userManagementService) ChangePassword(user *entities.Account) error {
 	}
 
 	return nil
+}
+
+// GetUserList retrieves the list of users from the storage layer
+// ERRORS:
+// - storage: ErrDBStorageFailed
+func (u *authenticationService) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+
+	if limit == 0 {
+		limit = 10
+	}
+
+	users, err := u.storage.GetUserList(limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
-func (s *userManagementService) AddUserToGroup(userId entities.UserID, groupId string) error {
+func (s *authenticationService) AddUserToGroup(userId entities.UserID, groupId string) error {
 	time_now := time.Now()
 
 	groupAssociation := &entities.UserGroupAssociation{
@@ -23,7 +23,7 @@ func (s *userManagementService) AddUserToGroup(userId entities.UserID, groupId s
 	return nil
 }
 
-func (s *userManagementService) RemoveUserFromGroup(userId entities.UserID, groupId string) error {
+func (s *authenticationService) RemoveUserFromGroup(userId entities.UserID, groupId string) error {
 	err := s.storage.DeleteUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func (s *userManagementService) RemoveUserFromGroup(userId entities.UserID, grou
 	return nil
 }
 
-func (s *userManagementService) CheckUserInGroup(userId entities.UserID, groupId string) (bool, error) {
+func (s *authenticationService) CheckUserInGroup(userId entities.UserID, groupId string) (bool, error) {
 	groupAssociation, err := s.storage.CheckUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return false, err

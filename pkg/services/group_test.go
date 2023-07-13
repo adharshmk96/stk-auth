@@ -15,7 +15,7 @@ import (
 func TestCreateGroup(t *testing.T) {
 
 	t.Run("CreateGroup creates group without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		group := &entities.UserGroup{
 			Name:        "testGroup",
@@ -38,7 +38,7 @@ func TestCreateGroup(t *testing.T) {
 	})
 
 	t.Run("CreateGroup returns error when group is not saved", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		group := &entities.UserGroup{
 			Name:        "testGroup",
@@ -60,7 +60,7 @@ func TestCreateGroup(t *testing.T) {
 func TestAddUserToGroup(t *testing.T) {
 
 	t.Run("AddUserToGroup adds user to group without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -76,7 +76,7 @@ func TestAddUserToGroup(t *testing.T) {
 	})
 
 	t.Run("AddUserToGroup returns error when user is not added to group", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -92,7 +92,7 @@ func TestAddUserToGroup(t *testing.T) {
 	})
 
 	t.Run("returns error when same user is added to group again", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -111,7 +111,7 @@ func TestAddUserToGroup(t *testing.T) {
 func TestUpdateGroupByID(t *testing.T) {
 
 	t.Run("UpdateGroupByID updates group without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		group := &entities.UserGroup{
 			ID:          "testGroupId",
@@ -130,7 +130,7 @@ func TestUpdateGroupByID(t *testing.T) {
 	})
 
 	t.Run("UpdateGroupByID returns error when group is not updated", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		group := &entities.UserGroup{
 			ID:          "testGroupId",
@@ -152,7 +152,7 @@ func TestUpdateGroupByID(t *testing.T) {
 func TestDeleteGroupByID(t *testing.T) {
 
 	t.Run("DeleteGroupByID deletes group without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		groupId := "testGroupId"
 
@@ -167,7 +167,7 @@ func TestDeleteGroupByID(t *testing.T) {
 	})
 
 	t.Run("DeleteGroupByID returns error when group is not deleted", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		groupId := "testGroupId"
 

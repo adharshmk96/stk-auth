@@ -23,7 +23,7 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()
 
-		dbStorage := mocks.NewUserManagementStore(t)
+		dbStorage := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
@@ -51,7 +51,7 @@ func TestAccountService_TestGenerateJWT(t *testing.T) {
 		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, "")
 		viper.AutomaticEnv()
 
-		dbStorage := mocks.NewUserManagementStore(t)
+		dbStorage := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
@@ -82,7 +82,7 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()
 
-		dbStorage := mocks.NewUserManagementStore(t)
+		dbStorage := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()
@@ -112,7 +112,7 @@ func TestAccountService_ValidateJWT(t *testing.T) {
 		infra.LoadDefaultConfig()
 		viper.AutomaticEnv()
 
-		dbStorage := mocks.NewUserManagementStore(t)
+		dbStorage := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(dbStorage)
 
 		userId := uuid.NewString()

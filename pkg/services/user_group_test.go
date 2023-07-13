@@ -13,7 +13,7 @@ import (
 
 func TestCheckUserInGroup(t *testing.T) {
 	t.Run("CheckUserInGroup returns true when user is in group", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -29,7 +29,7 @@ func TestCheckUserInGroup(t *testing.T) {
 	})
 
 	t.Run("CheckUserInGroup returns false when user is not in group", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -47,7 +47,7 @@ func TestCheckUserInGroup(t *testing.T) {
 func TestGetUserGroups(t *testing.T) {
 
 	t.Run("GetUserGroups returns user groups without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 
@@ -76,7 +76,7 @@ func TestGetUserGroups(t *testing.T) {
 	})
 
 	t.Run("GetUserGroups returns error when user groups are not retrieved", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 
@@ -92,7 +92,7 @@ func TestGetUserGroups(t *testing.T) {
 	})
 
 	t.Run("GetUserGroups returns empty user groups when user has no groups", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 
@@ -111,7 +111,7 @@ func TestGetUserGroups(t *testing.T) {
 func TestRemoveUserFromGrou(t *testing.T) {
 
 	t.Run("RemoveUserFromGroup removes user from group without error", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
@@ -127,7 +127,7 @@ func TestRemoveUserFromGrou(t *testing.T) {
 	})
 
 	t.Run("RemoveUserFromGroup returns error when user is not removed from group", func(t *testing.T) {
-		storage := mocks.NewUserManagementStore(t)
+		storage := mocks.NewAuthenticationStore(t)
 
 		userId := entities.UserID(uuid.New())
 		groupId := "testGroupId"
