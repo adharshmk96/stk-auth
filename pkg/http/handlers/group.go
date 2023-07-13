@@ -8,7 +8,7 @@ import (
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func (h *userManagmentHandler) CreateGroup(gc gsk.Context) {
+func (h *authenticationHandler) CreateGroup(gc gsk.Context) {
 	var group *entities.UserGroup
 
 	err := gc.DecodeJSONBody(&group)

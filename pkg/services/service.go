@@ -8,10 +8,10 @@ import (
 var logger = infra.GetLogger()
 
 type userManagementService struct {
-	storage entities.UserManagementStore
+	storage entities.AuthenticationStore
 }
 
-func NewUserManagementService(storage entities.UserManagementStore) entities.UserManagementService {
+func NewUserManagementService(storage entities.AuthenticationStore) entities.AuthenticationService {
 	return &userManagementService{
 		storage: storage,
 	}

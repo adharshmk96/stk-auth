@@ -5,6 +5,9 @@ import "github.com/adharshmk96/stk/gsk"
 type AccountHandler interface {
 	RegisterUser(gc gsk.Context)
 	ChangeCredentials(gc gsk.Context)
+
+	// Admin APIs
+	GetUserList(gc gsk.Context)
 }
 
 type SessionHandler interface {
@@ -23,8 +26,11 @@ type GroupHandler interface {
 	// DeleteGroup(gc gsk.Context)
 }
 
-type UserManagmentHandler interface {
+type AuthenticationHandler interface {
 	AccountHandler
 	SessionHandler
 	GroupHandler
+}
+
+type AdministrationHandler interface {
 }

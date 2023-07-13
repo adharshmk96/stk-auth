@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func CreateAdmin(service entities.UserManagementService) {
+func CreateAdmin(service entities.AuthenticationService) {
 	adminUsername := viper.GetString(constants.ENV_ROOT_ADMIN_USERNAME)
 	adminPassword := viper.GetString(constants.ENV_ROOT_ADMIN_PASSWORD)
 	adminEmail := viper.GetString(constants.ENV_ROOT_ADMIN_EMAIL)

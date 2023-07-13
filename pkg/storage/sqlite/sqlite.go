@@ -23,7 +23,7 @@ type sqliteStorage struct {
 	conn *sql.DB
 }
 
-func NewAccountStorage(conn *sql.DB) entities.UserManagementStore {
+func NewAccountStorage(conn *sql.DB) entities.AuthenticationStore {
 	return &sqliteStorage{
 		conn: conn,
 	}

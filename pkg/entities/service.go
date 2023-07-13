@@ -34,7 +34,7 @@ type GroupService interface {
 	CheckUserInGroup(userId UserID, groupId string) (bool, error)
 }
 
-type UserManagementService interface {
+type AuthenticationService interface {
 	AccountService
 	SessionService
 	GroupService

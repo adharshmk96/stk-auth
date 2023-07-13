@@ -24,21 +24,24 @@ func intializeServer(server gsk.Server) {
 	setupRoutes(server, userHandler)
 }
 
-func setupRoutes(server gsk.Server, userHandler entities.UserManagmentHandler) {
+func setupRoutes(server gsk.Server, authHandler entities.AuthenticationHandler) {
 	apiRoutes := server.RouteGroup("/api")
 	apiAuth := apiRoutes.RouteGroup("/auth")
 
-	apiAuth.Post("/register", userHandler.RegisterUser)
+	apiAuth.Post("/register", authHandler.RegisterUser)
 
-	apiAuth.Post("/session/login", userHandler.LoginUserSession)
-	apiAuth.Post("/token/login", userHandler.LoginUserToken)
+	apiAuth.Post("/session/login", authHandler.LoginUserSession)
+	apiAuth.Post("/token/login", authHandler.LoginUserToken)
 
-	apiAuth.Get("/session/user", userHandler.GetSessionUser)
-	apiAuth.Get("/token/user", userHandler.GetTokenUser)
+	apiAuth.Get("/session/user", authHandler.GetSessionUser)
+	apiAuth.Get("/token/user", authHandler.GetTokenUser)
 
-	apiAuth.Post("/update/credentials", userHandler.ChangeCredentials)
+	apiAuth.Post("/update/credentials", authHandler.ChangeCredentials)
 
-	apiAuth.Post("/logout", userHandler.LogoutUser)
+	apiAuth.Post("/logout", authHandler.LogoutUser)
+
+	adminRoutes := apiRoutes.RouteGroup("/admin")
+	adminRoutes.Get("/users", authHandler.GetUserList)
 
 	// Health check
 	server.Get("/health", handlers.HealthCheckHandler)

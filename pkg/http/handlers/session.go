@@ -29,7 +29,7 @@ var (
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *userManagmentHandler) LoginUserSession(gc gsk.Context) {
+func (h *authenticationHandler) LoginUserSession(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -94,7 +94,7 @@ func (h *userManagmentHandler) LoginUserSession(gc gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
+func (h *authenticationHandler) LoginUserToken(gc gsk.Context) {
 	var userLogin *entities.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
@@ -154,7 +154,7 @@ func (h *userManagmentHandler) LoginUserToken(gc gsk.Context) {
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-func generateTokens(userId, requestHost string, svc entities.UserManagementService) (string, string, error) {
+func generateTokens(userId, requestHost string, svc entities.AuthenticationService) (string, string, error) {
 	timeNow := time.Now()
 	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
@@ -201,7 +201,7 @@ func generateTokens(userId, requestHost string, svc entities.UserManagementServi
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *userManagmentHandler) GetSessionUser(gc gsk.Context) {
+func (h *authenticationHandler) GetSessionUser(gc gsk.Context) {
 	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -243,7 +243,7 @@ func (h *userManagmentHandler) GetSessionUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *userManagmentHandler) GetTokenUser(gc gsk.Context) {
+func (h *authenticationHandler) GetTokenUser(gc gsk.Context) {
 	// TODO split to validate and refresh ?
 	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
@@ -359,7 +359,7 @@ func (h *userManagmentHandler) GetTokenUser(gc gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *userManagmentHandler) LogoutUser(gc gsk.Context) {
+func (h *authenticationHandler) LogoutUser(gc gsk.Context) {
 	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{

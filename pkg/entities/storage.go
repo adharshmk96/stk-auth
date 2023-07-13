@@ -36,7 +36,7 @@ type GroupStore interface {
 	DeleteUserGroupAssociation(userID string, groupID string) error
 }
 
-type UserManagementStore interface {
+type AuthenticationStore interface {
 	AccountStore
 	SessionStore
 	GroupStore

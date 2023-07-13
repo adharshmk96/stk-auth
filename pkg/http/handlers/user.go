@@ -17,7 +17,7 @@ import (
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *userManagmentHandler) RegisterUser(gc gsk.Context) {
+func (h *authenticationHandler) RegisterUser(gc gsk.Context) {
 	var user *entities.Account
 
 	err := gc.DecodeJSONBody(&user)
@@ -57,7 +57,7 @@ func (h *userManagmentHandler) RegisterUser(gc gsk.Context) {
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
 // - storage: ErrDBStorageFailed
-func (h *userManagmentHandler) ChangeCredentials(gc gsk.Context) {
+func (h *authenticationHandler) ChangeCredentials(gc gsk.Context) {
 	var credentials *transport.CredentialUpdate
 
 	err := gc.DecodeJSONBody(&credentials)
