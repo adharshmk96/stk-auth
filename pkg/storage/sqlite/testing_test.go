@@ -58,17 +58,6 @@ func setupDatabase() *sql.DB {
 		panic(err)
 	}
 
-	conn.Exec(
-		sqlite.ACCOUNT_INSERT_USER_QUERY,
-		"invalid",
-		"invalid",
-		"invalid",
-		"invalid",
-		"invalid",
-		time.Now(),
-		time.Now(),
-	)
-
 	return conn
 }
 
@@ -84,7 +73,7 @@ func generateRandomUser() *entities.Account {
 	userId := entities.UserID(uuid.New())
 	username := "test" + uuid.NewString()
 	email := "u" + uuid.NewString() + "@mail.com"
-	password := "test" + uuid.NewString()
+	password := "Test123#"
 	salt := "test" + uuid.NewString()
 	time_now := time.Now()
 

@@ -40,6 +40,10 @@ var (
 	ACCOUNT_CHECK_USER_GROUP_ASSOCIATION_QUERY = ""
 )
 
+var (
+	ACCOUNT_GET_USER_LIST = ""
+)
+
 func init() {
 	query := builder.NewSqlQuery()
 	ACCOUNT_INSERT_USER_QUERY = query.InsertInto(AccountUserTableName).
@@ -133,4 +137,9 @@ func init() {
 		Where("id = (" + subQueryUser + ") ").
 		Build()
 
+	ACCOUNT_GET_USER_LIST = query.Select("id", "username", "email", "created_at", "updated_at").
+		From(AccountUserTableName).
+		Limit("?").
+		Offset("?").
+		Build()
 }

@@ -5,8 +5,8 @@ import (
 )
 
 func (h *authenticationHandler) GetUserList(gc gsk.Context) {
-	limit := gc.GetQueryParam("limit")
-	offset := gc.GetQueryParam("offset")
+	limit := gc.QueryParam("limit")
+	offset := gc.QueryParam("offset")
 
 	userList := gsk.Map{
 		"limit":  limit,

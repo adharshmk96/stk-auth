@@ -16,6 +16,11 @@ type AccountService interface {
 	Authenticate(login *Account) error
 	ChangePassword(user *Account) error
 	GetUserByID(userId string) (*Account, error)
+
+	// For Admin
+	// GetUserList() ([]*Account, error)
+	// UpdateUser(user *Account) error
+	// DeleteUser(userId string) error
 }
 
 type SessionService interface {

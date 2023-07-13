@@ -14,6 +14,18 @@ import (
 func TestUserStorage_EmptyDatabase(t *testing.T) {
 
 	conn := setupDatabase()
+
+	conn.Exec(
+		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		"invalid",
+		"invalid",
+		"invalid",
+		"invalid",
+		"invalid",
+		time.Now(),
+		time.Now(),
+	)
+
 	defer tearDownDatabase()
 
 	userId := entities.UserID(uuid.New())
@@ -285,5 +297,58 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		err = userStorage.UpdateUserByID(collissionUser)
 
 		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
+	})
+}
+
+func generateRandomUsers(n int) []*entities.Account {
+	users := make([]*entities.Account, n)
+	for i := 0; i < n; i++ {
+		users[i] = generateRandomUser()
+	}
+	return users
+}
+
+func TestUserStorage_GetUserList(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	userStorage := sqlite.NewAccountStorage(conn)
+
+	t.Run("GetUserList returns empty list when db is empty", func(t *testing.T) {
+		users, err := userStorage.GetUserList(0, 0)
+		assert.NoError(t, err)
+		assert.Empty(t, users)
+	})
+
+	users := generateRandomUsers(30)
+	for _, user := range users {
+		userStorage.SaveUser(user)
+	}
+
+	t.Run("GetUserList returns list of 10 users when limit requested is 0", func(t *testing.T) {
+
+		retrievedUsers, err := userStorage.GetUserList(20, 0)
+		assert.NoError(t, err)
+		assert.Equal(t, 20, len(retrievedUsers))
+		for i := 0; i < 20; i++ {
+			assert.Equal(t, users[i].ID.String(), retrievedUsers[i].ID.String())
+			assert.Equal(t, users[i].Username, retrievedUsers[i].Username)
+			assert.Equal(t, users[i].Email, retrievedUsers[i].Email)
+			assert.Equal(t, users[i].UpdatedAt.Unix(), retrievedUsers[i].UpdatedAt.Unix())
+			assert.Equal(t, users[i].CreatedAt.Unix(), retrievedUsers[i].CreatedAt.Unix())
+		}
+	})
+
+	t.Run("GetUserList returns list of users with offset", func(t *testing.T) {
+		retrievedUsers, err := userStorage.GetUserList(20, 10)
+		assert.NoError(t, err)
+		assert.Equal(t, 20, len(retrievedUsers))
+		for i := 0; i < 20; i++ {
+			assert.Equal(t, users[i+10].ID.String(), retrievedUsers[i].ID.String())
+			assert.Equal(t, users[i+10].Username, retrievedUsers[i].Username)
+			assert.Equal(t, users[i+10].Email, retrievedUsers[i].Email)
+			assert.Equal(t, users[i+10].UpdatedAt.Unix(), retrievedUsers[i].UpdatedAt.Unix())
+			assert.Equal(t, users[i+10].CreatedAt.Unix(), retrievedUsers[i].CreatedAt.Unix())
+		}
 	})
 }

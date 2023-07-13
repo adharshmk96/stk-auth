@@ -117,7 +117,7 @@ func (h *authenticationHandler) LoginUserToken(gc gsk.Context) {
 
 	// Generate Access Token
 	userId := userLogin.ID.String()
-	requestHost := gc.GetRequest().Host
+	requestHost := gc.Request().Host
 
 	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.userService)
 	if err != nil {

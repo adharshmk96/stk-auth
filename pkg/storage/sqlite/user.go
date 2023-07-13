@@ -190,3 +190,44 @@ func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
 
 	return nil
 }
+
+// GetUserList Retrieves User list from the db
+// ERRORS: ErrDBRetrievingData
+func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+
+	rows, err := s.conn.Query(ACCOUNT_GET_USER_LIST, limit, offset)
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return nil, svrerr.ErrDBStorageFailed
+	}
+	defer rows.Close()
+
+	var users []*entities.Account
+	for rows.Next() {
+		var userId string
+		var user entities.Account
+		var username sql.NullString
+		err := rows.Scan(
+			&userId,
+			&username,
+			&user.Email,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			logger.Error("storage_error:", err)
+			return nil, svrerr.ErrDBStorageFailed
+		}
+
+		user.Username = username.String
+		user.ID, err = entities.ParseUserId(userId)
+		if err != nil {
+			logger.Error("error parsing user id: ", err)
+			return nil, svrerr.ErrDBStorageFailed
+		}
+
+		users = append(users, &user)
+	}
+
+	return users, nil
+}
