@@ -19,6 +19,7 @@ type AccountService interface {
 
 	// For Admin
 	GetUserList(limit int, offset int) ([]*Account, error)
+	GetTotalUsersCount() (int64, error)
 	// UpdateUser(user *Account) error
 	// DeleteUser(userId string) error
 }

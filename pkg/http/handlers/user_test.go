@@ -162,7 +162,7 @@ func TestChangePassword(t *testing.T) {
 
 	s := gsk.New()
 
-	changeRequest := &transport.CredentialUpdate{
+	changeRequest := &transport.CredentialUpdateRequest{
 		Credentials: &entities.Account{
 			Username: "user",
 			Password: "#Password1",

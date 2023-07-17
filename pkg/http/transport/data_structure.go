@@ -14,7 +14,12 @@ type UserResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type CredentialUpdate struct {
+type UserListResponse struct {
+	Total int64          `json:"total"`
+	Data  []UserResponse `json:"data"`
+}
+
+type CredentialUpdateRequest struct {
 	Credentials    *entities.Account `json:"credentials"`
 	NewCredentials *entities.Account `json:"updated_credentials"`
 }

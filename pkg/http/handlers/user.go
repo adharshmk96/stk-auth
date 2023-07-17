@@ -58,7 +58,7 @@ func (h *authenticationHandler) RegisterUser(gc gsk.Context) {
 // - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
 // - storage: ErrDBStorageFailed
 func (h *authenticationHandler) ChangeCredentials(gc gsk.Context) {
-	var credentials *transport.CredentialUpdate
+	var credentials *transport.CredentialUpdateRequest
 
 	err := gc.DecodeJSONBody(&credentials)
 	if err != nil {

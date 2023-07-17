@@ -50,6 +50,20 @@ func (_m *AuthenticationStore) DeleteGroupByID(groupID string) error {
 	return r0
 }
 
+// DeleteUserByID provides a mock function with given fields: userID
+func (_m *AuthenticationStore) DeleteUserByID(userID string) error {
+	ret := _m.Called(userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteUserGroupAssociation provides a mock function with given fields: userID, groupID
 func (_m *AuthenticationStore) DeleteUserGroupAssociation(userID string, groupID string) error {
 	ret := _m.Called(userID, groupID)
@@ -135,6 +149,30 @@ func (_m *AuthenticationStore) GetSessionByID(sessionID string) (*entities.Sessi
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(sessionID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetTotalUsersCount provides a mock function with given fields:
+func (_m *AuthenticationStore) GetTotalUsersCount() (int64, error) {
+	ret := _m.Called()
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (int64, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() int64); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

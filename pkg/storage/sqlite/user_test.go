@@ -352,3 +352,54 @@ func TestUserStorage_GetUserList(t *testing.T) {
 		}
 	})
 }
+
+func TestUserStorage_DeleteUserByID(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	userStorage := sqlite.NewAccountStorage(conn)
+
+	t.Run("DeleteUserByID returns error when user is not found in populated db", func(t *testing.T) {
+		err := userStorage.DeleteUserByID(uuid.New().String())
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+	})
+
+	t.Run("DeleteUserByID deletes user succesfully", func(t *testing.T) {
+		user := generateRandomUser()
+		userStorage.SaveUser(user)
+
+		retrievedUser, err := userStorage.GetUserByUserID(user.ID.String())
+		assert.NoError(t, err)
+		assert.Equal(t, user.ID.String(), retrievedUser.ID.String())
+
+		err = userStorage.DeleteUserByID(user.ID.String())
+		assert.NoError(t, err)
+
+		retrievedUser, err = userStorage.GetUserByUserID(user.ID.String())
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+	})
+}
+
+func TestUserStore_GetTotalUserCount(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	userStorage := sqlite.NewAccountStorage(conn)
+
+	t.Run("GetTotalUserCount returns 0 when db is empty", func(t *testing.T) {
+		count, err := userStorage.GetTotalUsersCount()
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+
+	users := generateRandomUsers(30)
+	for _, user := range users {
+		userStorage.SaveUser(user)
+	}
+
+	t.Run("GetTotalUserCount returns total user count", func(t *testing.T) {
+		count, err := userStorage.GetTotalUsersCount()
+		assert.NoError(t, err)
+		assert.Equal(t, int64(30), count)
+	})
+}

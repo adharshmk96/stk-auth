@@ -18,10 +18,25 @@ func (h *authenticationHandler) GetUserList(gc gsk.Context) {
 	}
 
 	userList, err := h.userService.GetUserList(limitInt, offsetInt)
+	if err != nil {
+		gc.Status(500).JSONResponse(gsk.Map{
+			"error": "internal server error",
+		})
+		return
+	}
+	userCount, err := h.userService.GetTotalUsersCount()
+	if err != nil {
+		gc.Status(500).JSONResponse(gsk.Map{
+			"error": "internal server error",
+		})
+	}
 
-	userListRespone := make([]transport.UserResponse, len(userList))
+	userListRespone := transport.UserListResponse{
+		Data:  make([]transport.UserResponse, len(userList)),
+		Total: userCount,
+	}
 	for i, user := range userList {
-		userListRespone[i] = transport.UserResponse{
+		userListRespone.Data[i] = transport.UserResponse{
 			ID:        user.ID.String(),
 			Username:  user.Username,
 			Email:     user.Email,
