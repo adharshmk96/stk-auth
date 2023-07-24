@@ -13,17 +13,17 @@ type AccountHandler struct {
 }
 
 // ChangeCredentials provides a mock function with given fields: gc
-func (_m *AccountHandler) ChangeCredentials(gc gsk.Context) {
+func (_m *AccountHandler) ChangeCredentials(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // GetUserList provides a mock function with given fields: gc
-func (_m *AccountHandler) GetUserList(gc gsk.Context) {
+func (_m *AccountHandler) GetUserList(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // RegisterUser provides a mock function with given fields: gc
-func (_m *AccountHandler) RegisterUser(gc gsk.Context) {
+func (_m *AccountHandler) RegisterUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

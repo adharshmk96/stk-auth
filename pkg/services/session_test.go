@@ -9,6 +9,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
+	"github.com/adharshmk96/stk-auth/testHelpers"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func TestAccountService_CreateSession(t *testing.T) {
 }
 
 func setupKeysDir() (string, string) {
-	privateKeyPEM, publicKeyPEM, err := mocks.GenerateKeyPair()
+	privateKeyPEM, publicKeyPEM, err := testHelpers.GenerateKeyPair()
 	if err != nil {
 		return "", ""
 	}

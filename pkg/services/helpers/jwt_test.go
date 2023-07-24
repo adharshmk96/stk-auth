@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
+	"github.com/adharshmk96/stk-auth/testHelpers"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ const (
 )
 
 func generateTestKeys() error {
-	privateKeyPEM, publicKeyPEM, err := mocks.GenerateKeyPair()
+	privateKeyPEM, publicKeyPEM, err := testHelpers.GenerateKeyPair()
 	if err != nil {
 		return err
 	}

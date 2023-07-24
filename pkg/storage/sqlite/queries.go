@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-	"github.com/adharshmk96/stk/pkg/builder"
+	"github.com/adharshmk96/stk/pkg/sqlBuilder"
 )
 
 const (
@@ -45,7 +45,7 @@ var (
 )
 
 func init() {
-	query := builder.NewSqlQuery()
+	query := sqlBuilder.NewSqlQuery()
 	ACCOUNT_INSERT_USER_QUERY = query.InsertInto(AccountUserTableName).
 		Fields("id", "username", "password", "salt", "email", "created_at", "updated_at").
 		Values("?", "?", "?", "?", "?", "?", "?").
@@ -126,7 +126,7 @@ func init() {
 		Where("user_id = ?", "group_id=?").
 		Build()
 
-	subQuery := builder.NewSqlQuery()
+	subQuery := sqlBuilder.NewSqlQuery()
 	subQueryUser := subQuery.Select("user_id").
 		From(AccountSessionTableName).
 		Where("session_id = ?", "valid=1").

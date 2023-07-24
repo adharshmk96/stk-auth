@@ -13,27 +13,27 @@ type SessionHandler struct {
 }
 
 // GetSessionUser provides a mock function with given fields: gc
-func (_m *SessionHandler) GetSessionUser(gc gsk.Context) {
+func (_m *SessionHandler) GetSessionUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // GetTokenUser provides a mock function with given fields: gc
-func (_m *SessionHandler) GetTokenUser(gc gsk.Context) {
+func (_m *SessionHandler) GetTokenUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LoginUserSession provides a mock function with given fields: gc
-func (_m *SessionHandler) LoginUserSession(gc gsk.Context) {
+func (_m *SessionHandler) LoginUserSession(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LoginUserToken provides a mock function with given fields: gc
-func (_m *SessionHandler) LoginUserToken(gc gsk.Context) {
+func (_m *SessionHandler) LoginUserToken(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LogoutUser provides a mock function with given fields: gc
-func (_m *SessionHandler) LogoutUser(gc gsk.Context) {
+func (_m *SessionHandler) LogoutUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

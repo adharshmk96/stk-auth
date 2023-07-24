@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func intializeServer(server gsk.Server) {
+func intializeServer(server *gsk.Server) {
 
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
@@ -24,7 +24,7 @@ func intializeServer(server gsk.Server) {
 	setupRoutes(server, userHandler)
 }
 
-func setupRoutes(server gsk.Server, authHandler entities.AuthenticationHandler) {
+func setupRoutes(server *gsk.Server, authHandler entities.AuthenticationHandler) {
 	apiRoutes := server.RouteGroup("/api")
 	apiAuth := apiRoutes.RouteGroup("/auth")
 

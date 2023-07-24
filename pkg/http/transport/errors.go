@@ -7,7 +7,7 @@ import (
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func HandleJsonDecodeError(err error, ctx gsk.Context) {
+func HandleJsonDecodeError(err error, ctx *gsk.Context) {
 	if err == gsk.ErrInvalidJSON {
 		ctx.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
 			"error": INVALID_BODY,
@@ -19,7 +19,7 @@ func HandleJsonDecodeError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleRegistrationError(err error, ctx gsk.Context) {
+func HandleRegistrationError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
 			"error": USER_EXISTS,
@@ -31,7 +31,7 @@ func HandleRegistrationError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleLoginError(err error, ctx gsk.Context) {
+func HandleLoginError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
 			"error": SESSION_EXISTS,
@@ -47,14 +47,14 @@ func HandleLoginError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleValidationError(errorMessages map[string]string, ctx gsk.Context) {
+func HandleValidationError(errorMessages map[string]string, ctx *gsk.Context) {
 	ctx.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
 		"error":   VALIDATION_FAILED,
 		"details": errorMessages,
 	})
 }
 
-func HandleLogoutError(err error, ctx gsk.Context) {
+func HandleLogoutError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrInvalidToken {
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
 			"error": ERROR_UNAUTHORIZED,
@@ -71,7 +71,7 @@ func HandleLogoutError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleGetUserError(err error, ctx gsk.Context) {
+func HandleGetUserError(err error, ctx *gsk.Context) {
 	switch err {
 	case svrerr.ErrDBEntryNotFound, svrerr.ErrInvalidSession:
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -88,7 +88,7 @@ func HandleGetUserError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleChangePasswordError(err error, ctx gsk.Context) {
+func HandleChangePasswordError(err error, ctx *gsk.Context) {
 	switch err {
 	case svrerr.ErrInvalidCredentials:
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -101,7 +101,7 @@ func HandleChangePasswordError(err error, ctx gsk.Context) {
 	}
 }
 
-func HandleCreateGroupError(err error, ctx gsk.Context) {
+func HandleCreateGroupError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
 			"error": USER_EXISTS,

@@ -5,7 +5,7 @@ import (
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func (h *authenticationHandler) GetUserList(gc gsk.Context) {
+func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
 	limit := gc.QueryParam("limit")
 	offset := gc.QueryParam("offset")
 

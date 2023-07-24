@@ -13,47 +13,47 @@ type AuthenticationHandler struct {
 }
 
 // ChangeCredentials provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) ChangeCredentials(gc gsk.Context) {
+func (_m *AuthenticationHandler) ChangeCredentials(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // CreateGroup provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) CreateGroup(gc gsk.Context) {
+func (_m *AuthenticationHandler) CreateGroup(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // GetSessionUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetSessionUser(gc gsk.Context) {
+func (_m *AuthenticationHandler) GetSessionUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // GetTokenUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetTokenUser(gc gsk.Context) {
+func (_m *AuthenticationHandler) GetTokenUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // GetUserList provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetUserList(gc gsk.Context) {
+func (_m *AuthenticationHandler) GetUserList(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LoginUserSession provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LoginUserSession(gc gsk.Context) {
+func (_m *AuthenticationHandler) LoginUserSession(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LoginUserToken provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LoginUserToken(gc gsk.Context) {
+func (_m *AuthenticationHandler) LoginUserToken(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // LogoutUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LogoutUser(gc gsk.Context) {
+func (_m *AuthenticationHandler) LogoutUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
 // RegisterUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) RegisterUser(gc gsk.Context) {
+func (_m *AuthenticationHandler) RegisterUser(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

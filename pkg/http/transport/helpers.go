@@ -32,7 +32,7 @@ func ParseRemoteAddress(remoteAddr string) (ip, port string) {
 	return ip, port
 }
 
-func GetSessionOrTokenFromCookie(ctx gsk.Context) (*http.Cookie, *http.Cookie, error) {
+func GetSessionOrTokenFromCookie(ctx *gsk.Context) (*http.Cookie, *http.Cookie, error) {
 	sessionCookie, scerr := ctx.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	sessionToken, sterr := ctx.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if (scerr != nil && sterr != nil) || (scerr == nil && sessionCookie.Value == "") || (sterr == nil && sessionToken.Value == "") {

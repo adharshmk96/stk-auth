@@ -13,7 +13,7 @@ type GroupHandler struct {
 }
 
 // CreateGroup provides a mock function with given fields: gc
-func (_m *GroupHandler) CreateGroup(gc gsk.Context) {
+func (_m *GroupHandler) CreateGroup(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

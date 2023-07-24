@@ -10,7 +10,7 @@ import (
 	"github.com/adharshmk96/stk/pkg/middleware"
 )
 
-func StartHttpServer(port string) (gsk.Server, chan bool) {
+func StartHttpServer(port string) (*gsk.Server, chan bool) {
 
 	logger := infra.GetLogger()
 
