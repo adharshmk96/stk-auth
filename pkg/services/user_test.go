@@ -348,3 +348,31 @@ func TestAccountService_GetUserList(t *testing.T) {
 		assert.Equal(t, storedData.UpdatedAt, user[0].UpdatedAt)
 	})
 }
+
+func TestAccountService_GetTotalUsersCount(t *testing.T) {
+	t.Run("returns total user count", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("GetTotalUsersCount").Return(int64(10), nil).Once()
+
+		count, err := service.GetTotalUsersCount()
+
+		mockStore.AssertExpectations(t)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(10), count)
+	})
+
+	t.Run("storage error returns error", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("GetTotalUsersCount").Return(int64(0), svrerr.ErrDBStorageFailed).Once()
+
+		count, err := service.GetTotalUsersCount()
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
+		assert.Equal(t, int64(0), count)
+	})
+}

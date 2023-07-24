@@ -231,3 +231,39 @@ func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account,
 
 	return users, nil
 }
+
+// GetTotalUsersCount Retrieves total number of users from the db
+// ERRORS: ErrDBRetrievingData
+func (s *sqliteStorage) GetTotalUsersCount() (int64, error) {
+
+	row := s.conn.QueryRow(ACCOUNT_GET_TOTAL_USERS_COUNT)
+
+	var count int64
+	err := row.Scan(&count)
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return 0, svrerr.ErrDBStorageFailed
+	}
+
+	return count, nil
+}
+
+func (s *sqliteStorage) DeleteUserByID(uid string) error {
+	result, err := s.conn.Exec(ACCOUNT_DELETE_USER_BY_ID, uid)
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	rows, err := result.RowsAffected()
+	if rows == 0 {
+		logger.Error("user not found")
+		return svrerr.ErrDBEntryNotFound
+	}
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	return nil
+}

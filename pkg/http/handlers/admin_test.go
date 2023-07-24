@@ -28,6 +28,7 @@ func TestGetUserList(t *testing.T) {
 			},
 		}
 		service.On("GetUserList", mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(userList, nil)
+		service.On("GetTotalUsersCount").Return(int64(10), nil).Once()
 		// Act
 		s.Get("/usersa", handler.GetUserList)
 		w, err := s.Test(http.MethodGet, "/usersa?limit=10&offset=10", nil)
@@ -48,6 +49,7 @@ func TestGetUserList(t *testing.T) {
 			},
 		}
 		service.On("GetUserList", 0, 0).Return(userList, nil)
+		service.On("GetTotalUsersCount").Return(int64(10), nil).Once()
 		// Act
 		s.Get("/usersb", handler.GetUserList)
 		w, err := s.Test(http.MethodGet, "/usersb", nil)
@@ -68,6 +70,7 @@ func TestGetUserList(t *testing.T) {
 			},
 		}
 		service.On("GetUserList", 20, 10).Return(userList, nil).Once()
+		service.On("GetTotalUsersCount").Return(int64(10), nil).Once()
 		// Act
 		s.Get("/usersc", handler.GetUserList)
 		w, err := s.Test(http.MethodGet, "/usersc?limit=20&offset=10", nil)
@@ -102,5 +105,6 @@ func TestGetUserList(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 		service.AssertExpectations(t)
+		service.AssertNotCalled(t, "GetTotalUsersCount")
 	})
 }

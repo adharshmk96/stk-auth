@@ -128,3 +128,14 @@ func (u *authenticationService) GetUserList(limit int, offset int) ([]*entities.
 	}
 	return users, nil
 }
+
+// GetTotalUsersCount retrieves the total number of users from the storage layer
+// ERRORS:
+// - storage: ErrDBStorageFailed
+func (u *authenticationService) GetTotalUsersCount() (int64, error) {
+	totalUsers, err := u.storage.GetTotalUsersCount()
+	if err != nil {
+		return 0, err
+	}
+	return totalUsers, nil
+}

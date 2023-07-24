@@ -4,12 +4,15 @@ type AccountStore interface {
 	// Create
 	SaveUser(user *Account) error
 	// Read
+	GetTotalUsersCount() (int64, error)
 	GetUserByUserID(email string) (*Account, error)
 	GetUserByEmail(email string) (*Account, error)
 	GetUserByUsername(username string) (*Account, error)
 	GetUserList(limit int, offset int) ([]*Account, error)
 	// Update
 	UpdateUserByID(user *Account) error
+	// Delete
+	DeleteUserByID(userID string) error
 }
 
 type SessionStore interface {

@@ -17,6 +17,7 @@ var (
 	ACCOUNT_GET_USER_BY_EMAIL    = ""
 	ACCOUNT_GET_USER_BY_USERNAME = ""
 	ACCOUNT_UPDATE_USER_BY_ID    = ""
+	ACCOUNT_DELETE_USER_BY_ID    = ""
 )
 
 var (
@@ -41,7 +42,8 @@ var (
 )
 
 var (
-	ACCOUNT_GET_USER_LIST = ""
+	ACCOUNT_GET_USER_LIST         = ""
+	ACCOUNT_GET_TOTAL_USERS_COUNT = ""
 )
 
 func init() {
@@ -68,6 +70,10 @@ func init() {
 
 	ACCOUNT_UPDATE_USER_BY_ID = query.Update(AccountUserTableName).
 		Set("username=?", "email=?", "password=?", "salt=?", "updated_at=?").
+		Where("id = ?").
+		Build()
+
+	ACCOUNT_DELETE_USER_BY_ID = query.DeleteFrom(AccountUserTableName).
 		Where("id = ?").
 		Build()
 
@@ -141,5 +147,9 @@ func init() {
 		From(AccountUserTableName).
 		Limit("?").
 		Offset("?").
+		Build()
+
+	ACCOUNT_GET_TOTAL_USERS_COUNT = query.Select("count(id)").
+		From(AccountUserTableName).
 		Build()
 }
