@@ -280,7 +280,6 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 	}
 
 	if refreshToken {
-		// TODO: check if refresh token is valid
 		refreshTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_REFRESH_TOKEN_COOKIE_NAME))
 		if err != nil || refreshTokenCookie == nil || refreshTokenCookie.Value == "" {
 			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
