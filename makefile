@@ -47,7 +47,6 @@ clean:
 	@rm -f coverage.out
 	@rm -rf .keys
 	@rm -f auth_database.db
-	@rm -f coverage.out
 
 deps:
 	@go mod download
