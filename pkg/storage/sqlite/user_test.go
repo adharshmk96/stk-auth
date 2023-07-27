@@ -16,7 +16,7 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 	conn := setupDatabase()
 
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		sqlite.Q_InsertUserQuery,
 		"invalid",
 		"invalid",
 		"invalid",
@@ -122,7 +122,7 @@ func TestUserStorage_GetUserByX(t *testing.T) {
 	}
 
 	_, err := conn.Exec(
-		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		sqlite.Q_InsertUserQuery,
 		user.ID.String(),
 		user.Username,
 		user.Password,
@@ -213,7 +213,7 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		UpdatedAt: time_now,
 	}
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		sqlite.Q_InsertUserQuery,
 		user.ID.String(),
 		user.Username,
 		user.Password,

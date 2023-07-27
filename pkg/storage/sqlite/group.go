@@ -14,7 +14,7 @@ import (
 func (s *sqliteStorage) SaveGroup(group *entities.UserGroup) error {
 
 	result, err := s.conn.Exec(
-		ACCOUNT_INSERT_GROUP_QUERY,
+		Q_InsertGroup,
 		group.ID,
 		group.Name,
 		group.CreatedAt,
@@ -41,7 +41,7 @@ func (s *sqliteStorage) SaveGroup(group *entities.UserGroup) error {
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
 func (s *sqliteStorage) UpdateGroup(group *entities.UserGroup) error {
 	result, err := s.conn.Exec(
-		ACCOUNT_UPDATE_GROUP_QUERY,
+		Q_UpdateGroup,
 		group.Name,
 		group.UpdatedAt,
 		group.ID,
@@ -70,7 +70,7 @@ func (s *sqliteStorage) UpdateGroup(group *entities.UserGroup) error {
 // GetGroupByID Retrieves Group from the db by group id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
 func (s *sqliteStorage) GetGroupByID(groupId string) (*entities.UserGroup, error) {
-	row := s.conn.QueryRow(ACCOUNT_RETRIEVE_GROUP_BY_ID_QUERY, groupId)
+	row := s.conn.QueryRow(Q_GetGroupByID, groupId)
 
 	var group entities.UserGroup
 	err := row.Scan(
@@ -97,7 +97,7 @@ func (s *sqliteStorage) GetGroupByID(groupId string) (*entities.UserGroup, error
 // ERRORS: ErrDBDeletingData, ErrDBEntryNotFound
 func (s *sqliteStorage) DeleteGroupByID(groupId string) error {
 	result, err := s.conn.Exec(
-		ACCOUNT_DELETE_GROUP_QUERY,
+		Q_DeleteGroup,
 		groupId,
 	)
 	if err != nil {

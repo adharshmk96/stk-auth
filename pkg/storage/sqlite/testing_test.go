@@ -42,7 +42,7 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	);`)
 
-	table := sqlite.ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME
+	table := sqlite.TableUserGroupAssociation
 
 	_, err := conn.Exec(`CREATE TABLE ` + table + ` (
 		id INTEGER AUTO INCREMENT,

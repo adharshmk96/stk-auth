@@ -11,7 +11,7 @@ import (
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
 func (s *sqliteStorage) SaveGroupAssociation(association *entities.UserGroupAssociation) error {
 	result, err := s.conn.Exec(
-		ACCOUNT_INSERT_GROUP_ASSOCIATION_QUERY,
+		Q_InsertUserGroupAssociation,
 		association.UserID.String(),
 		association.GroupID,
 		association.CreatedAt,
@@ -36,7 +36,7 @@ func (s *sqliteStorage) SaveGroupAssociation(association *entities.UserGroupAsso
 // GetGroupsByUserID Retrieves Groups from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
 func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.UserGroup, error) {
-	rows, err := s.conn.Query(ACCOUNT_RETRIEVE_GROUPS_BY_USER_ID_QUERY, userID)
+	rows, err := s.conn.Query(Q_GetGroupsByUserID, userID)
 	if err != nil {
 		logger.Error("storage_error:", err)
 		return nil, svrerr.ErrDBStorageFailed
@@ -71,7 +71,7 @@ func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.UserGroup,
 // ERRORS: ErrDBDeletingData, ErrDBEntryNotFound
 func (s *sqliteStorage) DeleteUserGroupAssociation(userID string, groupID string) error {
 	result, err := s.conn.Exec(
-		ACCOUNT_DELETE_GROUP_ASSOCIATION_QUERY,
+		Q_DeleteUserGroupAssociation,
 		userID,
 		groupID,
 	)
@@ -96,7 +96,7 @@ func (s *sqliteStorage) DeleteUserGroupAssociation(userID string, groupID string
 // CheckUserGroupAssociation Retrieves Group Association from the db by user id and group id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
 func (s *sqliteStorage) CheckUserGroupAssociation(userID string, groupID string) (bool, error) {
-	row := s.conn.QueryRow(ACCOUNT_CHECK_USER_GROUP_ASSOCIATION_QUERY, userID, groupID)
+	row := s.conn.QueryRow(Q_CheckUserGroupAssociation, userID, groupID)
 
 	var rows int
 	row.Scan(&rows)

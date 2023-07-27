@@ -28,7 +28,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 	}
 
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_SESSION_QUERY,
+		sqlite.Q_InsertSession,
 		session.UserID.String(),
 		session.SessionID,
 		session.CreatedAt,
@@ -120,7 +120,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	}
 
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_USER_QUERY,
+		sqlite.Q_InsertUserQuery,
 		user.ID.String(),
 		user.Username,
 		user.Password,
@@ -130,7 +130,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 		user.UpdatedAt,
 	)
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_SESSION_QUERY,
+		sqlite.Q_InsertSession,
 		session.UserID.String(),
 		session.SessionID,
 		session.CreatedAt,
@@ -179,7 +179,7 @@ func TestInvalidateSessionByID(t *testing.T) {
 	}
 
 	conn.Exec(
-		sqlite.ACCOUNT_INSERT_SESSION_QUERY,
+		sqlite.Q_InsertSession,
 		session.UserID.String(),
 		session.SessionID,
 		session.CreatedAt,

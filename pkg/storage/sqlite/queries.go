@@ -5,151 +5,152 @@ import (
 )
 
 const (
-	AccountUserTableName                 = "auth_user_accounts"
-	AccountSessionTableName              = "auth_user_sessions"
-	ACCOUNT_GROUP_TABLE_NAME             = "auth_user_groups"
-	ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME = "auth_user_group_associations"
+	TableUser                 = "auth_user_accounts"
+	TableSession              = "auth_user_sessions"
+	TableGroup                = "auth_user_groups"
+	TableUserGroupAssociation = "auth_user_group_associations"
 )
 
 var (
-	ACCOUNT_INSERT_USER_QUERY    = ""
-	ACCOUNT_GET_USER_BY_ID       = ""
-	ACCOUNT_GET_USER_BY_EMAIL    = ""
-	ACCOUNT_GET_USER_BY_USERNAME = ""
-	ACCOUNT_UPDATE_USER_BY_ID    = ""
-	ACCOUNT_DELETE_USER_BY_ID    = ""
+	Q_InsertUserQuery   = ""
+	Q_GetUserByID       = ""
+	Q_GetUserByEmail    = ""
+	Q_GetUserByUsername = ""
+	Q_UpdateUserByID    = ""
+	Q_DeleteUserByID    = ""
 )
 
 var (
-	ACCOUNT_INSERT_SESSION_QUERY   = ""
-	ACCOUNT_RETRIEVE_SESSION_BY_ID = ""
-	ACCOUNT_INVALIDATE_SESSION_ID  = ""
+	Q_InsertSession     = ""
+	Q_GetSessionByID    = ""
+	Q_InvalidateSession = ""
 )
 
 var (
-	ACCOUNT_RETRIEVE_USER_BY_SESSION_ID = ""
+	Q_GetUserBySessionID = ""
 )
 
 var (
-	ACCOUNT_INSERT_GROUP_QUERY                 = ""
-	ACCOUNT_UPDATE_GROUP_QUERY                 = ""
-	ACCOUNT_DELETE_GROUP_QUERY                 = ""
-	ACCOUNT_RETRIEVE_GROUP_BY_ID_QUERY         = ""
-	ACCOUNT_INSERT_GROUP_ASSOCIATION_QUERY     = ""
-	ACCOUNT_DELETE_GROUP_ASSOCIATION_QUERY     = ""
-	ACCOUNT_RETRIEVE_GROUPS_BY_USER_ID_QUERY   = ""
-	ACCOUNT_CHECK_USER_GROUP_ASSOCIATION_QUERY = ""
+	Q_InsertGroup  = ""
+	Q_UpdateGroup  = ""
+	Q_DeleteGroup  = ""
+	Q_GetGroupByID = ""
+
+	Q_InsertUserGroupAssociation = ""
+	Q_GetGroupsByUserID          = ""
+	Q_CheckUserGroupAssociation  = ""
+	Q_DeleteUserGroupAssociation = ""
 )
 
 var (
-	ACCOUNT_GET_USER_LIST         = ""
-	ACCOUNT_GET_TOTAL_USERS_COUNT = ""
+	Q_GetUserList       = ""
+	Q_GetTotalUserCount = ""
 )
 
 func init() {
 	query := sqlBuilder.NewSqlQuery()
-	ACCOUNT_INSERT_USER_QUERY = query.InsertInto(AccountUserTableName).
+	Q_InsertUserQuery = query.InsertInto(TableUser).
 		Fields("id", "username", "password", "salt", "email", "created_at", "updated_at").
 		Values("?", "?", "?", "?", "?", "?", "?").
 		Build()
 
-	ACCOUNT_GET_USER_BY_ID = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
-		From(AccountUserTableName).
+	Q_GetUserByID = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
+		From(TableUser).
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_GET_USER_BY_EMAIL = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
-		From(AccountUserTableName).
+	Q_GetUserByEmail = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
+		From(TableUser).
 		Where("email = ?").
 		Build()
 
-	ACCOUNT_GET_USER_BY_USERNAME = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
-		From(AccountUserTableName).
+	Q_GetUserByUsername = query.Select("id", "username", "password", "salt", "email", "created_at", "updated_at").
+		From(TableUser).
 		Where("username = ?").
 		Build()
 
-	ACCOUNT_UPDATE_USER_BY_ID = query.Update(AccountUserTableName).
+	Q_UpdateUserByID = query.Update(TableUser).
 		Set("username=?", "email=?", "password=?", "salt=?", "updated_at=?").
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_DELETE_USER_BY_ID = query.DeleteFrom(AccountUserTableName).
+	Q_DeleteUserByID = query.DeleteFrom(TableUser).
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_INSERT_SESSION_QUERY = query.InsertInto(AccountSessionTableName).
+	Q_InsertSession = query.InsertInto(TableSession).
 		Fields("user_id", "session_id", "created_at", "updated_at", "valid").
 		Values("?", "?", "?", "?", "?").
 		Build()
 
-	ACCOUNT_RETRIEVE_SESSION_BY_ID = query.Select("user_id", "session_id", "created_at", "updated_at", "valid").
-		From(AccountSessionTableName).
+	Q_GetSessionByID = query.Select("user_id", "session_id", "created_at", "updated_at", "valid").
+		From(TableSession).
 		Where("session_id = ?", "valid=1").
 		Build()
 
-	ACCOUNT_INVALIDATE_SESSION_ID = query.Update(AccountSessionTableName).
+	Q_InvalidateSession = query.Update(TableSession).
 		Set("valid=0").
 		Where("session_id = ?").
 		Build()
 
-	ACCOUNT_INSERT_GROUP_QUERY = query.InsertInto(ACCOUNT_GROUP_TABLE_NAME).
+	Q_InsertGroup = query.InsertInto(TableGroup).
 		Fields("id", "name", "created_at", "updated_at").
 		Values("?", "?", "?", "?").
 		Build()
 
-	ACCOUNT_UPDATE_GROUP_QUERY = query.Update(ACCOUNT_GROUP_TABLE_NAME).
+	Q_UpdateGroup = query.Update(TableGroup).
 		Set("name=?", "updated_at=?").
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_DELETE_GROUP_QUERY = query.DeleteFrom(ACCOUNT_GROUP_TABLE_NAME).
+	Q_DeleteGroup = query.DeleteFrom(TableGroup).
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_RETRIEVE_GROUP_BY_ID_QUERY = query.Select("id", "name", "created_at", "updated_at").
-		From(ACCOUNT_GROUP_TABLE_NAME).
+	Q_GetGroupByID = query.Select("id", "name", "created_at", "updated_at").
+		From(TableGroup).
 		Where("id = ?").
 		Build()
 
-	ACCOUNT_INSERT_GROUP_ASSOCIATION_QUERY = query.InsertInto(ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME).
+	Q_InsertUserGroupAssociation = query.InsertInto(TableUserGroupAssociation).
 		Fields("user_id", "group_id", "created_at").
 		Values("?", "?", "?").
 		Build()
 
-	ACCOUNT_DELETE_GROUP_ASSOCIATION_QUERY = query.DeleteFrom(ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME).
+	Q_DeleteUserGroupAssociation = query.DeleteFrom(TableUserGroupAssociation).
 		Where("user_id = ?", "group_id=?").
 		Build()
 
-	ACCOUNT_RETRIEVE_GROUPS_BY_USER_ID_QUERY = query.Select("g.id", "g.name", "g.created_at", "g.updated_at").
-		From(ACCOUNT_GROUP_TABLE_NAME + " g").
-		Join(ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME + " ga").
+	Q_GetGroupsByUserID = query.Select("g.id", "g.name", "g.created_at", "g.updated_at").
+		From(TableGroup + " g").
+		Join(TableUserGroupAssociation + " ga").
 		On("g.id = ga.group_id").
 		Where("ga.user_id = ?").
 		Build()
 
-	ACCOUNT_CHECK_USER_GROUP_ASSOCIATION_QUERY = query.Select("count(id)").
-		From(ACCOUNT_GROUP_ASSOCIATION_TABLE_NAME).
+	Q_CheckUserGroupAssociation = query.Select("count(id)").
+		From(TableUserGroupAssociation).
 		Where("user_id = ?", "group_id=?").
 		Build()
 
 	subQuery := sqlBuilder.NewSqlQuery()
 	subQueryUser := subQuery.Select("user_id").
-		From(AccountSessionTableName).
+		From(TableSession).
 		Where("session_id = ?", "valid=1").
 		Build()
 
-	ACCOUNT_RETRIEVE_USER_BY_SESSION_ID = query.Select("id", "username", "email", "created_at", "updated_at").
-		From(AccountUserTableName).
+	Q_GetUserBySessionID = query.Select("id", "username", "email", "created_at", "updated_at").
+		From(TableUser).
 		Where("id = (" + subQueryUser + ") ").
 		Build()
 
-	ACCOUNT_GET_USER_LIST = query.Select("id", "username", "email", "created_at", "updated_at").
-		From(AccountUserTableName).
+	Q_GetUserList = query.Select("id", "username", "email", "created_at", "updated_at").
+		From(TableUser).
 		Limit("?").
 		Offset("?").
 		Build()
 
-	ACCOUNT_GET_TOTAL_USERS_COUNT = query.Select("count(id)").
-		From(AccountUserTableName).
+	Q_GetTotalUserCount = query.Select("count(id)").
+		From(TableUser).
 		Build()
 }

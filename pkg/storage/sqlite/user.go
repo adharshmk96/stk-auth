@@ -14,7 +14,7 @@ import (
 func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 	result, err := s.conn.Exec(
-		ACCOUNT_INSERT_USER_QUERY,
+		Q_InsertUserQuery,
 		user.ID.String(),
 		NewNullString(user.Username),
 		user.Password,
@@ -44,7 +44,7 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) {
 
-	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_EMAIL, email)
+	row := s.conn.QueryRow(Q_GetUserByEmail, email)
 
 	var userId string
 	var user entities.Account
@@ -83,7 +83,7 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.Account, error) {
 
-	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_USERNAME, uname)
+	row := s.conn.QueryRow(Q_GetUserByUsername, uname)
 
 	var userId string
 	var user entities.Account
@@ -122,7 +122,7 @@ func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.Account, erro
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
 func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 
-	row := s.conn.QueryRow(ACCOUNT_GET_USER_BY_ID, uid)
+	row := s.conn.QueryRow(Q_GetUserByID, uid)
 
 	var userId string
 	var user entities.Account
@@ -162,7 +162,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
 	userName := NewNullString(user.Username)
 	result, err := s.conn.Exec(
-		ACCOUNT_UPDATE_USER_BY_ID,
+		Q_UpdateUserByID,
 		userName,
 		user.Email,
 		user.Password,
@@ -195,7 +195,7 @@ func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
 // ERRORS: ErrDBRetrievingData
 func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account, error) {
 
-	rows, err := s.conn.Query(ACCOUNT_GET_USER_LIST, limit, offset)
+	rows, err := s.conn.Query(Q_GetUserList, limit, offset)
 	if err != nil {
 		logger.Error("storage_error:", err)
 		return nil, svrerr.ErrDBStorageFailed
@@ -236,7 +236,7 @@ func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account,
 // ERRORS: ErrDBRetrievingData
 func (s *sqliteStorage) GetTotalUsersCount() (int64, error) {
 
-	row := s.conn.QueryRow(ACCOUNT_GET_TOTAL_USERS_COUNT)
+	row := s.conn.QueryRow(Q_GetTotalUserCount)
 
 	var count int64
 	err := row.Scan(&count)
@@ -249,7 +249,7 @@ func (s *sqliteStorage) GetTotalUsersCount() (int64, error) {
 }
 
 func (s *sqliteStorage) DeleteUserByID(uid string) error {
-	result, err := s.conn.Exec(ACCOUNT_DELETE_USER_BY_ID, uid)
+	result, err := s.conn.Exec(Q_DeleteUserByID, uid)
 	if err != nil {
 		logger.Error("storage_error:", err)
 		return svrerr.ErrDBStorageFailed
