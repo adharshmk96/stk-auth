@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 	userId := entities.UserID(uuid.New())
 	time_now := time.Now()
 
-	user := &entities.Account{
+	user := &entities.User{
 		ID:        userId,
 		Username:  "test",
 		Password:  "test",
@@ -85,7 +85,7 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 	})
 
 	t.Run("SaveUser returns error when same user is saved again", func(t *testing.T) {
-		user := &entities.Account{
+		user := &entities.User{
 			ID:        entities.UserID(uuid.New()),
 			Username:  "test2",
 			Password:  "test",
@@ -111,7 +111,7 @@ func TestUserStorage_GetUserByX(t *testing.T) {
 	userId := entities.UserID(uuid.New())
 	time_now := time.Now()
 
-	user := &entities.Account{
+	user := &entities.User{
 		ID:        userId,
 		Username:  "test",
 		Password:  "test",
@@ -203,7 +203,7 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 	salt := "test"
 	time_now := time.Now()
 
-	user := &entities.Account{
+	user := &entities.User{
 		ID:        userId,
 		Username:  username,
 		Password:  password,
@@ -232,7 +232,7 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		newSalt := "newSalt"
 		newUpdatedAt := time.Now()
 
-		newUser := &entities.Account{
+		newUser := &entities.User{
 			ID:        userId,
 			Username:  newUsername,
 			Email:     newEmail,
@@ -266,7 +266,7 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		newSalt := "newSalt"
 		newUpdatedAt := time.Now()
 
-		newUser := &entities.Account{
+		newUser := &entities.User{
 			ID:        entities.UserID(uuid.New()),
 			Username:  newUsername,
 			Email:     newEmail,
@@ -300,8 +300,8 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 	})
 }
 
-func generateRandomUsers(n int) []*entities.Account {
-	users := make([]*entities.Account, n)
+func generateRandomUsers(n int) []*entities.User {
+	users := make([]*entities.User, n)
 	for i := 0; i < n; i++ {
 		users[i] = generateRandomUser()
 	}

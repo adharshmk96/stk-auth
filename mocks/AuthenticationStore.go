@@ -79,19 +79,19 @@ func (_m *AuthenticationStore) DeleteUserGroupAssociation(userID string, groupID
 }
 
 // GetGroupByID provides a mock function with given fields: groupID
-func (_m *AuthenticationStore) GetGroupByID(groupID string) (*entities.UserGroup, error) {
+func (_m *AuthenticationStore) GetGroupByID(groupID string) (*entities.Group, error) {
 	ret := _m.Called(groupID)
 
-	var r0 *entities.UserGroup
+	var r0 *entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.Group, error)); ok {
 		return rf(groupID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.Group); ok {
 		r0 = rf(groupID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.UserGroup)
+			r0 = ret.Get(0).(*entities.Group)
 		}
 	}
 
@@ -105,19 +105,19 @@ func (_m *AuthenticationStore) GetGroupByID(groupID string) (*entities.UserGroup
 }
 
 // GetGroupsByUserID provides a mock function with given fields: userID
-func (_m *AuthenticationStore) GetGroupsByUserID(userID string) ([]*entities.UserGroup, error) {
+func (_m *AuthenticationStore) GetGroupsByUserID(userID string) ([]*entities.Group, error) {
 	ret := _m.Called(userID)
 
-	var r0 []*entities.UserGroup
+	var r0 []*entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) ([]*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) ([]*entities.Group, error)); ok {
 		return rf(userID)
 	}
-	if rf, ok := ret.Get(0).(func(string) []*entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(string) []*entities.Group); ok {
 		r0 = rf(userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.UserGroup)
+			r0 = ret.Get(0).([]*entities.Group)
 		}
 	}
 
@@ -181,19 +181,19 @@ func (_m *AuthenticationStore) GetTotalUsersCount() (int64, error) {
 }
 
 // GetUserByEmail provides a mock function with given fields: email
-func (_m *AuthenticationStore) GetUserByEmail(email string) (*entities.Account, error) {
+func (_m *AuthenticationStore) GetUserByEmail(email string) (*entities.User, error) {
 	ret := _m.Called(email)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(email)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -207,19 +207,19 @@ func (_m *AuthenticationStore) GetUserByEmail(email string) (*entities.Account, 
 }
 
 // GetUserBySessionID provides a mock function with given fields: sessionID
-func (_m *AuthenticationStore) GetUserBySessionID(sessionID string) (*entities.Account, error) {
+func (_m *AuthenticationStore) GetUserBySessionID(sessionID string) (*entities.User, error) {
 	ret := _m.Called(sessionID)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(sessionID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(sessionID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -233,19 +233,19 @@ func (_m *AuthenticationStore) GetUserBySessionID(sessionID string) (*entities.A
 }
 
 // GetUserByUserID provides a mock function with given fields: email
-func (_m *AuthenticationStore) GetUserByUserID(email string) (*entities.Account, error) {
+func (_m *AuthenticationStore) GetUserByUserID(email string) (*entities.User, error) {
 	ret := _m.Called(email)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(email)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -259,19 +259,19 @@ func (_m *AuthenticationStore) GetUserByUserID(email string) (*entities.Account,
 }
 
 // GetUserByUsername provides a mock function with given fields: username
-func (_m *AuthenticationStore) GetUserByUsername(username string) (*entities.Account, error) {
+func (_m *AuthenticationStore) GetUserByUsername(username string) (*entities.User, error) {
 	ret := _m.Called(username)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(username)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(username)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -285,19 +285,19 @@ func (_m *AuthenticationStore) GetUserByUsername(username string) (*entities.Acc
 }
 
 // GetUserList provides a mock function with given fields: limit, offset
-func (_m *AuthenticationStore) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+func (_m *AuthenticationStore) GetUserList(limit int, offset int) ([]*entities.User, error) {
 	ret := _m.Called(limit, offset)
 
-	var r0 []*entities.Account
+	var r0 []*entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) ([]*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(int, int) ([]*entities.User, error)); ok {
 		return rf(limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(int, int) []*entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(int, int) []*entities.User); ok {
 		r0 = rf(limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.Account)
+			r0 = ret.Get(0).([]*entities.User)
 		}
 	}
 
@@ -325,11 +325,11 @@ func (_m *AuthenticationStore) InvalidateSessionByID(sessionID string) error {
 }
 
 // SaveGroup provides a mock function with given fields: group
-func (_m *AuthenticationStore) SaveGroup(group *entities.UserGroup) error {
+func (_m *AuthenticationStore) SaveGroup(group *entities.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -367,11 +367,11 @@ func (_m *AuthenticationStore) SaveSession(session *entities.Session) error {
 }
 
 // SaveUser provides a mock function with given fields: user
-func (_m *AuthenticationStore) SaveUser(user *entities.Account) error {
+func (_m *AuthenticationStore) SaveUser(user *entities.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -381,11 +381,11 @@ func (_m *AuthenticationStore) SaveUser(user *entities.Account) error {
 }
 
 // UpdateGroup provides a mock function with given fields: group
-func (_m *AuthenticationStore) UpdateGroup(group *entities.UserGroup) error {
+func (_m *AuthenticationStore) UpdateGroup(group *entities.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -395,11 +395,11 @@ func (_m *AuthenticationStore) UpdateGroup(group *entities.UserGroup) error {
 }
 
 // UpdateUserByID provides a mock function with given fields: user
-func (_m *AuthenticationStore) UpdateUserByID(user *entities.Account) error {
+func (_m *AuthenticationStore) UpdateUserByID(user *entities.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)

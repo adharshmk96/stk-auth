@@ -10,12 +10,12 @@ import (
 func TestValidateLogin(t *testing.T) {
 	tests := []struct {
 		name  string
-		login *entities.Account
+		login *entities.User
 		err   bool
 	}{
 		{
 			name: "Username and password",
-			login: &entities.Account{
+			login: &entities.User{
 				Username: "TestUser",
 				Password: "Test$123",
 			},
@@ -23,7 +23,7 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Email and password",
-			login: &entities.Account{
+			login: &entities.User{
 				Email:    "user@email.com",
 				Password: "Test$123",
 			},
@@ -31,7 +31,7 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Empty password",
-			login: &entities.Account{
+			login: &entities.User{
 				Username: "TestUser",
 				Email:    "TestUser@email.com",
 			},
@@ -39,14 +39,14 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Empty username and email",
-			login: &entities.Account{
+			login: &entities.User{
 				Password: "Test$123",
 			},
 			err: true,
 		},
 		{
 			name: "Username and email used together",
-			login: &entities.Account{
+			login: &entities.User{
 				Username: "TestUser",
 				Email:    "TestUser@email.com",
 				Password: "Test$123",

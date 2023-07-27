@@ -1,4 +1,4 @@
-package entities
+package auth
 
 type AccountStore interface {
 	// Create
@@ -28,7 +28,7 @@ type SessionStore interface {
 type GroupStore interface {
 	// Create
 	SaveGroup(group *Group) error
-	SaveGroupAssociation(association *UserGroupAssociation) error
+	SaveGroupAssociation(association *AccountGroupAssociation) error
 	// Read
 	GetGroupByID(groupID string) (*Group, error)
 	GetGroupsByUserID(userID string) ([]*Group, error)

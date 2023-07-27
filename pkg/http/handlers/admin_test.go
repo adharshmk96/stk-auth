@@ -21,7 +21,7 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		userList := []*entities.Account{
+		userList := []*entities.User{
 			{
 				ID:       entities.UserID(uuid.New()),
 				Username: "test",
@@ -42,7 +42,7 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		userList := []*entities.Account{
+		userList := []*entities.User{
 			{
 				ID:       entities.UserID(uuid.New()),
 				Username: "test",
@@ -63,7 +63,7 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		userList := []*entities.Account{
+		userList := []*entities.User{
 			{
 				ID:       entities.UserID(uuid.New()),
 				Username: "test",

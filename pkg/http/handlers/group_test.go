@@ -37,7 +37,7 @@ func TestCreateGroup(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			Name:        "test",
 			Description: "test",
 		}
@@ -58,7 +58,7 @@ func TestCreateGroup(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			Name:        "test",
 			Description: "test",
 		}
@@ -79,7 +79,7 @@ func TestCreateGroup(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			Name:        "test",
 			Description: "test",
 		}

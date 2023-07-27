@@ -73,11 +73,11 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*entities.Session, err
 
 // GetUserBySessionID Retrieves Session from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.Account, error) {
+func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*entities.User, error) {
 	row := s.conn.QueryRow(Q_GetUserBySessionID, sessionId)
 
 	var userId string
-	var user entities.Account
+	var user entities.User
 	var username sql.NullString
 	err := row.Scan(
 		&userId,

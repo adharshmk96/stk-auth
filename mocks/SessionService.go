@@ -13,15 +13,15 @@ type SessionService struct {
 }
 
 // CreateSession provides a mock function with given fields: user
-func (_m *SessionService) CreateSession(user *entities.Account) (*entities.Session, error) {
+func (_m *SessionService) CreateSession(user *entities.User) (*entities.Session, error) {
 	ret := _m.Called(user)
 
 	var r0 *entities.Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) (*entities.Session, error)); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) (*entities.Session, error)); ok {
 		return rf(user)
 	}
-	if rf, ok := ret.Get(0).(func(*entities.Account) *entities.Session); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) *entities.Session); ok {
 		r0 = rf(user)
 	} else {
 		if ret.Get(0) != nil {
@@ -29,7 +29,7 @@ func (_m *SessionService) CreateSession(user *entities.Account) (*entities.Sessi
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*entities.Account) error); ok {
+	if rf, ok := ret.Get(1).(func(*entities.User) error); ok {
 		r1 = rf(user)
 	} else {
 		r1 = ret.Error(1)
@@ -39,19 +39,19 @@ func (_m *SessionService) CreateSession(user *entities.Account) (*entities.Sessi
 }
 
 // GetUserBySessionId provides a mock function with given fields: sessionId
-func (_m *SessionService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
+func (_m *SessionService) GetUserBySessionId(sessionId string) (*entities.User, error) {
 	ret := _m.Called(sessionId)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(sessionId)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(sessionId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 

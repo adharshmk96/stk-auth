@@ -30,7 +30,7 @@ var (
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
 func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
-	var userLogin *entities.Account
+	var userLogin *entities.User
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
@@ -95,7 +95,7 @@ func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
 func (h *authenticationHandler) LoginUserToken(gc *gsk.Context) {
-	var userLogin *entities.Account
+	var userLogin *entities.User
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {

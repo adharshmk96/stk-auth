@@ -45,7 +45,7 @@ func TestLoginUserSession(t *testing.T) {
 		Valid:     true,
 	}
 
-	userData := &entities.Account{
+	userData := &entities.User{
 		ID:        userId,
 		Username:  username,
 		Password:  password,
@@ -387,7 +387,7 @@ func TestGetSessionUser(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	userData := &entities.Account{
+	userData := &entities.User{
 		ID:        userId,
 		Email:     email,
 		Username:  username,
@@ -520,7 +520,7 @@ func TestGetTokenUser(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	userData := &entities.Account{
+	userData := &entities.User{
 		ID:        userId,
 		Email:     email,
 		Username:  username,

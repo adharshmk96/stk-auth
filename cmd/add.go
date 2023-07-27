@@ -8,7 +8,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ var userCmd = &cobra.Command{
 		userStorage := sqlite.NewAccountStorage(conn)
 		userService := services.NewUserManagementService(userStorage)
 
-		user := &entities.Account{
+		user := &entities.User{
 			Username: userName,
 			Email:    email,
 			Password: password,

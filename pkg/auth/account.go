@@ -1,4 +1,4 @@
-package entities
+package auth
 
 import (
 	"time"
@@ -23,17 +23,15 @@ func ParseUserId(id string) (UserID, error) {
 
 type User struct {
 	ID        UserID `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Salt      string
 	Email     string    `json:"email"`
+	Phone     string    `json:"phone"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type UserWithToken struct {
-	User
-	Token string
 }
 
 type Session struct {
@@ -52,7 +50,7 @@ type Group struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-type UserGroupAssociation struct {
+type AccountGroupAssociation struct {
 	UserID    UserID    `json:"user_id"`
 	GroupID   string    `json:"group_id"`
 	CreatedAt time.Time `json:"created_at"`

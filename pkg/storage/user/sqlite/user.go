@@ -11,7 +11,7 @@ import (
 
 // SaveUser Stores User in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
-func (s *sqliteStorage) SaveUser(user *entities.Account) error {
+func (s *sqliteStorage) SaveUser(user *entities.User) error {
 
 	result, err := s.conn.Exec(
 		Q_InsertUserQuery,
@@ -42,12 +42,12 @@ func (s *sqliteStorage) SaveUser(user *entities.Account) error {
 
 // GetUserByEmail Retrieves User from the db by email
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) {
+func (s *sqliteStorage) GetUserByEmail(email string) (*entities.User, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByEmail, email)
 
 	var userId string
-	var user entities.Account
+	var user entities.User
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -81,12 +81,12 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*entities.Account, error) 
 
 // GetUserByUsername Retrieves User from the db by username
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.Account, error) {
+func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.User, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByUsername, uname)
 
 	var userId string
-	var user entities.Account
+	var user entities.User
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -120,12 +120,12 @@ func (s *sqliteStorage) GetUserByUsername(uname string) (*entities.Account, erro
 
 // GetUserByUserID Retrieves User from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
+func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.User, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByID, uid)
 
 	var userId string
-	var user entities.Account
+	var user entities.User
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -159,7 +159,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*entities.Account, error) {
 
 // UpdateUserByID Updates User in the db by user id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
-func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
+func (s *sqliteStorage) UpdateUserByID(user *entities.User) error {
 	userName := NewNullString(user.Username)
 	result, err := s.conn.Exec(
 		Q_UpdateUserByID,
@@ -193,7 +193,7 @@ func (s *sqliteStorage) UpdateUserByID(user *entities.Account) error {
 
 // GetUserList Retrieves User list from the db
 // ERRORS: ErrDBRetrievingData
-func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.User, error) {
 
 	rows, err := s.conn.Query(Q_GetUserList, limit, offset)
 	if err != nil {
@@ -202,10 +202,10 @@ func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*entities.Account,
 	}
 	defer rows.Close()
 
-	var users []*entities.Account
+	var users []*entities.User
 	for rows.Next() {
 		var userId string
-		var user entities.Account
+		var user entities.User
 		var username sql.NullString
 		err := rows.Scan(
 			&userId,

@@ -15,7 +15,7 @@ import (
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *authenticationService) CreateSession(user *entities.Account) (*entities.Session, error) {
+func (u *authenticationService) CreateSession(user *entities.User) (*entities.Session, error) {
 
 	userId := user.ID
 	newSessionId := uuid.New().String()
@@ -45,7 +45,7 @@ func (u *authenticationService) CreateSession(user *entities.Account) (*entities
 // ERRORS:
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserBySessionId(sessionId string) (*entities.Account, error) {
+func (u *authenticationService) GetUserBySessionId(sessionId string) (*entities.User, error) {
 	user, err := u.storage.GetUserBySessionID(sessionId)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrDBEntryNotFound) {

@@ -51,19 +51,19 @@ func (_m *AccountStore) GetTotalUsersCount() (int64, error) {
 }
 
 // GetUserByEmail provides a mock function with given fields: email
-func (_m *AccountStore) GetUserByEmail(email string) (*entities.Account, error) {
+func (_m *AccountStore) GetUserByEmail(email string) (*entities.User, error) {
 	ret := _m.Called(email)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(email)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -77,19 +77,19 @@ func (_m *AccountStore) GetUserByEmail(email string) (*entities.Account, error) 
 }
 
 // GetUserByUserID provides a mock function with given fields: email
-func (_m *AccountStore) GetUserByUserID(email string) (*entities.Account, error) {
+func (_m *AccountStore) GetUserByUserID(email string) (*entities.User, error) {
 	ret := _m.Called(email)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(email)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -103,19 +103,19 @@ func (_m *AccountStore) GetUserByUserID(email string) (*entities.Account, error)
 }
 
 // GetUserByUsername provides a mock function with given fields: username
-func (_m *AccountStore) GetUserByUsername(username string) (*entities.Account, error) {
+func (_m *AccountStore) GetUserByUsername(username string) (*entities.User, error) {
 	ret := _m.Called(username)
 
-	var r0 *entities.Account
+	var r0 *entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.User, error)); ok {
 		return rf(username)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.User); ok {
 		r0 = rf(username)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.Account)
+			r0 = ret.Get(0).(*entities.User)
 		}
 	}
 
@@ -129,19 +129,19 @@ func (_m *AccountStore) GetUserByUsername(username string) (*entities.Account, e
 }
 
 // GetUserList provides a mock function with given fields: limit, offset
-func (_m *AccountStore) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+func (_m *AccountStore) GetUserList(limit int, offset int) ([]*entities.User, error) {
 	ret := _m.Called(limit, offset)
 
-	var r0 []*entities.Account
+	var r0 []*entities.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) ([]*entities.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(int, int) ([]*entities.User, error)); ok {
 		return rf(limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(int, int) []*entities.Account); ok {
+	if rf, ok := ret.Get(0).(func(int, int) []*entities.User); ok {
 		r0 = rf(limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.Account)
+			r0 = ret.Get(0).([]*entities.User)
 		}
 	}
 
@@ -155,11 +155,11 @@ func (_m *AccountStore) GetUserList(limit int, offset int) ([]*entities.Account,
 }
 
 // SaveUser provides a mock function with given fields: user
-func (_m *AccountStore) SaveUser(user *entities.Account) error {
+func (_m *AccountStore) SaveUser(user *entities.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -169,11 +169,11 @@ func (_m *AccountStore) SaveUser(user *entities.Account) error {
 }
 
 // UpdateUserByID provides a mock function with given fields: user
-func (_m *AccountStore) UpdateUserByID(user *entities.Account) error {
+func (_m *AccountStore) UpdateUserByID(user *entities.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.Account) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)

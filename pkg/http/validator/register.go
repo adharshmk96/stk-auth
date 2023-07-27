@@ -62,7 +62,7 @@ func registrationEmail(email string) error {
 	return nil
 }
 
-func ValidateRegistration(user *entities.Account) map[string]string {
+func ValidateRegistration(user *entities.User) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if user.Email == "" {

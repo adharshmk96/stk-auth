@@ -34,7 +34,7 @@ func TestAccountService_CreateSession(t *testing.T) {
 
 		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(nil).Once()
 
-		requestData := &entities.Account{
+		requestData := &entities.User{
 			ID:       entities.UserID(uuid.New()),
 			Username: user_name,
 		}
@@ -55,7 +55,7 @@ func TestAccountService_CreateSession(t *testing.T) {
 
 		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(svrerr.ErrDBStorageFailed).Once()
 
-		requestData := &entities.Account{
+		requestData := &entities.User{
 			ID:       entities.UserID(uuid.New()),
 			Username: user_name,
 		}
@@ -72,7 +72,7 @@ func TestAccountService_CreateSession(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		requestData := &entities.Account{}
+		requestData := &entities.User{}
 
 		userSession, err := service.CreateSession(requestData)
 
@@ -149,7 +149,7 @@ func TestAccountService_GetUserBySessionID(t *testing.T) {
 	// hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
 	session_id := uuid.NewString()
 
-	storedData := &entities.Account{
+	storedData := &entities.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,

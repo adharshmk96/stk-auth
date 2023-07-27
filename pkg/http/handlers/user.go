@@ -18,7 +18,7 @@ import (
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
 func (h *authenticationHandler) RegisterUser(gc *gsk.Context) {
-	var user *entities.Account
+	var user *entities.User
 
 	err := gc.DecodeJSONBody(&user)
 	if err != nil {

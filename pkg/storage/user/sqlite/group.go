@@ -11,7 +11,7 @@ import (
 
 // SaveGroup Stores Group in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
-func (s *sqliteStorage) SaveGroup(group *entities.UserGroup) error {
+func (s *sqliteStorage) SaveGroup(group *entities.Group) error {
 
 	result, err := s.conn.Exec(
 		Q_InsertGroup,
@@ -39,7 +39,7 @@ func (s *sqliteStorage) SaveGroup(group *entities.UserGroup) error {
 
 // UpdateGroup Updates Group in the db by group id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
-func (s *sqliteStorage) UpdateGroup(group *entities.UserGroup) error {
+func (s *sqliteStorage) UpdateGroup(group *entities.Group) error {
 	result, err := s.conn.Exec(
 		Q_UpdateGroup,
 		group.Name,
@@ -69,10 +69,10 @@ func (s *sqliteStorage) UpdateGroup(group *entities.UserGroup) error {
 
 // GetGroupByID Retrieves Group from the db by group id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
-func (s *sqliteStorage) GetGroupByID(groupId string) (*entities.UserGroup, error) {
+func (s *sqliteStorage) GetGroupByID(groupId string) (*entities.Group, error) {
 	row := s.conn.QueryRow(Q_GetGroupByID, groupId)
 
-	var group entities.UserGroup
+	var group entities.Group
 	err := row.Scan(
 		&group.ID,
 		&group.Name,

@@ -18,7 +18,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 
 	user_password := "testpassword"
 
-	userData := &entities.Account{
+	userData := &entities.User{
 		Username: "testuser",
 		Password: user_password,
 		Email:    "mail@email.com",
@@ -49,7 +49,7 @@ func TestAccountService_CreateUser(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		newUserData := &entities.Account{
+		newUserData := &entities.User{
 			Username: "testuser",
 			Password: user_password,
 		}
@@ -101,7 +101,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 	salt, _ := utils.GenerateSalt()
 	hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
 
-	storedData := &entities.Account{
+	storedData := &entities.User{
 		ID:        user_id,
 		Username:  "testuser",
 		Password:  hashedPassword,
@@ -117,7 +117,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(storedData, nil)
 
-		user := &entities.Account{
+		user := &entities.User{
 			Username: user_name,
 			Password: user_password,
 		}
@@ -141,7 +141,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		user := &entities.Account{
+		user := &entities.User{
 			Email:    user_email,
 			Password: user_password,
 		}
@@ -165,7 +165,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
-		user := &entities.Account{
+		user := &entities.User{
 			Username: user_name,
 			Password: user_password,
 		}
@@ -185,7 +185,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		user := &entities.Account{
+		user := &entities.User{
 			Email:    user_email,
 			Password: "wrongpassword",
 		}
@@ -207,7 +207,7 @@ func TestAccountService_GetUserByID(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &entities.Account{
+	storedData := &entities.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,
@@ -253,7 +253,7 @@ func TestAccountService_ChangePassword(t *testing.T) {
 	created_at := lastHour
 	updated_at := lastHour
 
-	inputUser := &entities.Account{
+	inputUser := &entities.User{
 		Email:     email,
 		Password:  new_password,
 		CreatedAt: created_at,
@@ -293,7 +293,7 @@ func TestAccountService_GetUserList(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &entities.Account{
+	storedData := &entities.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,
@@ -305,7 +305,7 @@ func TestAccountService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		mockStore.On("GetUserList", 10, 0).Return([]*entities.Account{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 0).Return([]*entities.User{storedData}, nil).Once()
 
 		user, err := service.GetUserList(0, 0)
 
@@ -335,7 +335,7 @@ func TestAccountService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		mockStore.On("GetUserList", 10, 10).Return([]*entities.Account{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 10).Return([]*entities.User{storedData}, nil).Once()
 
 		user, err := service.GetUserList(10, 10)
 

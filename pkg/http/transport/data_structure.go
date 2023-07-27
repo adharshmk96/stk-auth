@@ -20,8 +20,8 @@ type UserListResponse struct {
 }
 
 type CredentialUpdateRequest struct {
-	Credentials    *entities.Account `json:"credentials"`
-	NewCredentials *entities.Account `json:"updated_credentials"`
+	Credentials    *entities.User `json:"credentials"`
+	NewCredentials *entities.User `json:"updated_credentials"`
 }
 
-type GroupResponse = entities.UserGroup
+type GroupResponse = entities.Group

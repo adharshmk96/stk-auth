@@ -35,7 +35,7 @@ func (s *sqliteStorage) SaveGroupAssociation(association *entities.UserGroupAsso
 
 // GetGroupsByUserID Retrieves Groups from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
-func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.UserGroup, error) {
+func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.Group, error) {
 	rows, err := s.conn.Query(Q_GetGroupsByUserID, userID)
 	if err != nil {
 		logger.Error("storage_error:", err)
@@ -43,9 +43,9 @@ func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.UserGroup,
 	}
 	defer rows.Close()
 
-	groups := make([]*entities.UserGroup, 0)
+	groups := make([]*entities.Group, 0)
 	for rows.Next() {
-		var group entities.UserGroup
+		var group entities.Group
 		err := rows.Scan(
 			&group.ID,
 			&group.Name,

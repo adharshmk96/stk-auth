@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/google/uuid"
 )
@@ -69,7 +69,7 @@ func tearDownDatabase() {
 	db.ResetSqliteConnection()
 }
 
-func generateRandomUser() *entities.Account {
+func generateRandomUser() *entities.User {
 	userId := entities.UserID(uuid.New())
 	username := "test" + uuid.NewString()
 	email := "u" + uuid.NewString() + "@mail.com"
@@ -77,7 +77,7 @@ func generateRandomUser() *entities.Account {
 	salt := "test" + uuid.NewString()
 	time_now := time.Now()
 
-	user := &entities.Account{
+	user := &entities.User{
 		ID:        userId,
 		Username:  username,
 		Password:  password,

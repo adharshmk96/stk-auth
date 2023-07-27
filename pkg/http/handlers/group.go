@@ -9,7 +9,7 @@ import (
 )
 
 func (h *authenticationHandler) CreateGroup(gc *gsk.Context) {
-	var group *entities.UserGroup
+	var group *entities.Group
 
 	err := gc.DecodeJSONBody(&group)
 	if err != nil {

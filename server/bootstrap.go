@@ -13,7 +13,7 @@ func CreateAdmin(service entities.AuthenticationService) {
 	adminPassword := viper.GetString(constants.ENV_ROOT_ADMIN_PASSWORD)
 	adminEmail := viper.GetString(constants.ENV_ROOT_ADMIN_EMAIL)
 	// Initialize the service
-	user := &entities.Account{
+	user := &entities.User{
 		Username: adminUsername,
 		Password: adminPassword,
 		Email:    adminEmail,

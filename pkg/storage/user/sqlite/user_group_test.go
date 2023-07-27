@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestSaveGroupAssociation(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",
@@ -75,7 +75,7 @@ func TestGetGroupsByUserId(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",
@@ -122,7 +122,7 @@ func TestDeleteUserGroupAssociation(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",

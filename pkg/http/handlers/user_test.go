@@ -28,7 +28,7 @@ func TestRegisterUser(t *testing.T) {
 	created := time.Now()
 	updated := time.Now()
 
-	userData := &entities.Account{
+	userData := &entities.User{
 		ID:        userId,
 		Username:  username,
 		Email:     email,
@@ -163,11 +163,11 @@ func TestChangePassword(t *testing.T) {
 	s := gsk.New()
 
 	changeRequest := &transport.CredentialUpdateRequest{
-		Credentials: &entities.Account{
+		Credentials: &entities.User{
 			Username: "user",
 			Password: "#Password1",
 		},
-		NewCredentials: &entities.Account{
+		NewCredentials: &entities.User{
 			Username: "user",
 			Email:    "bob@mail.com",
 			Password: "#Password2",

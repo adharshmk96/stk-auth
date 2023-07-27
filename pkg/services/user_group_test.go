@@ -51,7 +51,7 @@ func TestGetUserGroups(t *testing.T) {
 
 		userId := entities.UserID(uuid.New())
 
-		groups := []*entities.UserGroup{
+		groups := []*entities.Group{
 			{
 				ID:          "testGroupId1",
 				Name:        "testGroup1",
@@ -96,7 +96,7 @@ func TestGetUserGroups(t *testing.T) {
 
 		userId := entities.UserID(uuid.New())
 
-		storage.On("GetGroupsByUserID", userId.String()).Return([]*entities.UserGroup{}, nil).Once()
+		storage.On("GetGroupsByUserID", userId.String()).Return([]*entities.Group{}, nil).Once()
 
 		groupService := services.NewUserManagementService(storage)
 

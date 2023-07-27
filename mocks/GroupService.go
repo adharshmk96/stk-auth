@@ -51,23 +51,23 @@ func (_m *GroupService) CheckUserInGroup(userId entities.UserID, groupId string)
 }
 
 // CreateGroup provides a mock function with given fields: group
-func (_m *GroupService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
+func (_m *GroupService) CreateGroup(group *entities.Group) (*entities.Group, error) {
 	ret := _m.Called(group)
 
-	var r0 *entities.UserGroup
+	var r0 *entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) (*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) (*entities.Group, error)); ok {
 		return rf(group)
 	}
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) *entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) *entities.Group); ok {
 		r0 = rf(group)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.UserGroup)
+			r0 = ret.Get(0).(*entities.Group)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(1).(func(*entities.Group) error); ok {
 		r1 = rf(group)
 	} else {
 		r1 = ret.Error(1)
@@ -91,19 +91,19 @@ func (_m *GroupService) DeleteGroupByID(groupId string) error {
 }
 
 // GetGroupsByUserID provides a mock function with given fields: userId
-func (_m *GroupService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
+func (_m *GroupService) GetGroupsByUserID(userId entities.UserID) ([]*entities.Group, error) {
 	ret := _m.Called(userId)
 
-	var r0 []*entities.UserGroup
+	var r0 []*entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(entities.UserID) ([]*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(entities.UserID) ([]*entities.Group, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(entities.UserID) []*entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(entities.UserID) []*entities.Group); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.UserGroup)
+			r0 = ret.Get(0).([]*entities.Group)
 		}
 	}
 
@@ -131,11 +131,11 @@ func (_m *GroupService) RemoveUserFromGroup(userId entities.UserID, groupId stri
 }
 
 // UpdateGroupByID provides a mock function with given fields: group
-func (_m *GroupService) UpdateGroupByID(group *entities.UserGroup) error {
+func (_m *GroupService) UpdateGroupByID(group *entities.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)

@@ -17,7 +17,7 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("CreateGroup creates group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			Name:        "testGroup",
 			Description: "testDescription",
 		}
@@ -40,7 +40,7 @@ func TestCreateGroup(t *testing.T) {
 	t.Run("CreateGroup returns error when group is not saved", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			Name:        "testGroup",
 			Description: "testDescription",
 		}
@@ -113,7 +113,7 @@ func TestUpdateGroupByID(t *testing.T) {
 	t.Run("UpdateGroupByID updates group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			ID:          "testGroupId",
 			Name:        "testGroup",
 			Description: "testDescription",
@@ -132,7 +132,7 @@ func TestUpdateGroupByID(t *testing.T) {
 	t.Run("UpdateGroupByID returns error when group is not updated", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		group := &entities.UserGroup{
+		group := &entities.Group{
 			ID:          "testGroupId",
 			Name:        "testGroup",
 			Description: "testDescription",

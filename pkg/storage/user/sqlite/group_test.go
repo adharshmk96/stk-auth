@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +19,7 @@ func TestSaveGroup(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",
@@ -35,7 +35,7 @@ func TestSaveGroup(t *testing.T) {
 	})
 
 	t.Run("SaveGroup returns error when same group is saved again", func(t *testing.T) {
-		group2 := &entities.UserGroup{
+		group2 := &entities.Group{
 			ID:          uuid.NewString(),
 			Name:        groupName + "x",
 			Description: "testDescription",
@@ -60,7 +60,7 @@ func TestUpdateGroupById(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",
@@ -74,7 +74,7 @@ func TestUpdateGroupById(t *testing.T) {
 		newGroupName := "newGroupName"
 		newUpdatedAt := time.Now()
 
-		newGroup := &entities.UserGroup{
+		newGroup := &entities.Group{
 			ID:        groupId,
 			Name:      newGroupName,
 			UpdatedAt: newUpdatedAt,
@@ -100,7 +100,7 @@ func TestUpdateGroupById(t *testing.T) {
 		newGroupName := "newGroupName"
 		newUpdatedAt := time.Now()
 
-		newGroup := &entities.UserGroup{
+		newGroup := &entities.Group{
 			ID:        uuid.NewString(),
 			Name:      newGroupName,
 			UpdatedAt: newUpdatedAt,
@@ -121,7 +121,7 @@ func TestGetGroupById(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",
@@ -158,7 +158,7 @@ func TestDeleteGroupByID(t *testing.T) {
 	groupName := "testGroup"
 	time_now := time.Now()
 
-	group := &entities.UserGroup{
+	group := &entities.Group{
 		ID:          groupId,
 		Name:        groupName,
 		Description: "testDescription",

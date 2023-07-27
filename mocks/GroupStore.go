@@ -65,19 +65,19 @@ func (_m *GroupStore) DeleteUserGroupAssociation(userID string, groupID string) 
 }
 
 // GetGroupByID provides a mock function with given fields: groupID
-func (_m *GroupStore) GetGroupByID(groupID string) (*entities.UserGroup, error) {
+func (_m *GroupStore) GetGroupByID(groupID string) (*entities.Group, error) {
 	ret := _m.Called(groupID)
 
-	var r0 *entities.UserGroup
+	var r0 *entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*entities.Group, error)); ok {
 		return rf(groupID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(string) *entities.Group); ok {
 		r0 = rf(groupID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*entities.UserGroup)
+			r0 = ret.Get(0).(*entities.Group)
 		}
 	}
 
@@ -91,19 +91,19 @@ func (_m *GroupStore) GetGroupByID(groupID string) (*entities.UserGroup, error) 
 }
 
 // GetGroupsByUserID provides a mock function with given fields: userID
-func (_m *GroupStore) GetGroupsByUserID(userID string) ([]*entities.UserGroup, error) {
+func (_m *GroupStore) GetGroupsByUserID(userID string) ([]*entities.Group, error) {
 	ret := _m.Called(userID)
 
-	var r0 []*entities.UserGroup
+	var r0 []*entities.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) ([]*entities.UserGroup, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) ([]*entities.Group, error)); ok {
 		return rf(userID)
 	}
-	if rf, ok := ret.Get(0).(func(string) []*entities.UserGroup); ok {
+	if rf, ok := ret.Get(0).(func(string) []*entities.Group); ok {
 		r0 = rf(userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.UserGroup)
+			r0 = ret.Get(0).([]*entities.Group)
 		}
 	}
 
@@ -117,11 +117,11 @@ func (_m *GroupStore) GetGroupsByUserID(userID string) ([]*entities.UserGroup, e
 }
 
 // SaveGroup provides a mock function with given fields: group
-func (_m *GroupStore) SaveGroup(group *entities.UserGroup) error {
+func (_m *GroupStore) SaveGroup(group *entities.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -145,11 +145,11 @@ func (_m *GroupStore) SaveGroupAssociation(association *entities.UserGroupAssoci
 }
 
 // UpdateGroup provides a mock function with given fields: group
-func (_m *GroupStore) UpdateGroup(group *entities.UserGroup) error {
+func (_m *GroupStore) UpdateGroup(group *entities.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*entities.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*entities.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)

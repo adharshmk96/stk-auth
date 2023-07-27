@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *authenticationService) CreateGroup(group *entities.UserGroup) (*entities.UserGroup, error) {
+func (s *authenticationService) CreateGroup(group *entities.Group) (*entities.Group, error) {
 	groupId := uuid.NewString()
 	time_now := time.Now()
 
@@ -24,7 +24,7 @@ func (s *authenticationService) CreateGroup(group *entities.UserGroup) (*entitie
 	return group, nil
 }
 
-func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*entities.UserGroup, error) {
+func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*entities.Group, error) {
 	groups, err := s.storage.GetGroupsByUserID(userId.String())
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*en
 	return groups, nil
 }
 
-func (s *authenticationService) UpdateGroupByID(group *entities.UserGroup) error {
+func (s *authenticationService) UpdateGroupByID(group *entities.Group) error {
 	group.UpdatedAt = time.Now()
 
 	err := s.storage.UpdateGroup(group)

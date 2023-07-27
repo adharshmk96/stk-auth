@@ -16,7 +16,7 @@ import (
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *authenticationService) CreateUser(user *entities.Account) (*entities.Account, error) {
+func (u *authenticationService) CreateUser(user *entities.User) (*entities.User, error) {
 	if user.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
@@ -52,8 +52,8 @@ func (u *authenticationService) CreateUser(user *entities.Account) (*entities.Ac
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
-func (u *authenticationService) Authenticate(login *entities.Account) error {
-	var userRecord *entities.Account
+func (u *authenticationService) Authenticate(login *entities.User) error {
+	var userRecord *entities.User
 	var err error
 	if login.Email == "" {
 		userRecord, err = u.storage.GetUserByUsername(login.Username)
@@ -83,7 +83,7 @@ func (u *authenticationService) Authenticate(login *entities.Account) error {
 	return nil
 }
 
-func (u *authenticationService) GetUserByID(userId string) (*entities.Account, error) {
+func (u *authenticationService) GetUserByID(userId string) (*entities.User, error) {
 	user, err := u.storage.GetUserByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (u *authenticationService) GetUserByID(userId string) (*entities.Account, e
 	return user, nil
 }
 
-func (u *authenticationService) ChangePassword(user *entities.Account) error {
+func (u *authenticationService) ChangePassword(user *entities.User) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
@@ -116,7 +116,7 @@ func (u *authenticationService) ChangePassword(user *entities.Account) error {
 // GetUserList retrieves the list of users from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserList(limit int, offset int) ([]*entities.Account, error) {
+func (u *authenticationService) GetUserList(limit int, offset int) ([]*entities.User, error) {
 
 	if limit == 0 {
 		limit = 10
