@@ -29,7 +29,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 
 	t.Run("returns user list defaults 10 if limit is 0", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 0).Return([]*entities.User{storedData}, nil).Once()
 
@@ -46,7 +46,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 
 	t.Run("storage error returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 0).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
@@ -59,7 +59,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 
 	t.Run("returns user list with limit and offset", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 10).Return([]*entities.User{storedData}, nil).Once()
 
@@ -78,7 +78,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 func TestAuthenticationService_GetTotalUsersCount(t *testing.T) {
 	t.Run("returns total user count", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetTotalUsersCount").Return(int64(10), nil).Once()
 
@@ -91,7 +91,7 @@ func TestAuthenticationService_GetTotalUsersCount(t *testing.T) {
 
 	t.Run("storage error returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetTotalUsersCount").Return(int64(0), svrerr.ErrDBStorageFailed).Once()
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -189,6 +190,48 @@ func TestCreateGroup(t *testing.T) {
 		// Assert
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusConflict, w.Code)
+
+		service.AssertExpectations(t)
+	})
+}
+
+func TestGetUserDetail(t *testing.T) {
+	storedUser := &entities.User{
+		ID:        entities.UserID(uuid.New()),
+		Username:  "test",
+		Email:     "user@email.com",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	// userGroups := []*entities.Group{
+	// 	{
+	// 		ID:          uuid.NewString(),
+	// 		Name:        "test",
+	// 		Description: "test",
+	// 	},
+	// 	{
+	// 		ID:          uuid.NewString(),
+	// 		Name:        "test",
+	// 		Description: "test",
+	// 	},
+	// }
+
+	s := gsk.New()
+
+	t.Run("should return 200 if user is returned", func(t *testing.T) {
+		// Arrange
+		service := mocks.NewAuthenticationService(t)
+		handler := handlers.NewUserManagementHandler(service)
+		// service.On("GetUserByID", storedUser.ID).Return(storedUser, nil)
+		// service.On("GetGroupsByUserID", storedUser.ID).Return(userGroups, nil)
+		// Act
+		s.Get("/user", handler.GetUserDetails)
+
+		w, err := s.Test(http.MethodGet, "/user"+"?user_id="+storedUser.ID.String(), nil)
+		// Assert
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusNotImplemented, w.Code)
 
 		service.AssertExpectations(t)
 	})

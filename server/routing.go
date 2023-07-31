@@ -16,7 +16,7 @@ func intializeServer(server *gsk.Server) {
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
 	userStorage := sqlite.NewAccountStorage(connection)
-	userService := services.NewUserManagementService(userStorage)
+	userService := services.NewAuthenticationService(userStorage)
 	userHandler := handlers.NewUserManagementHandler(userService)
 
 	CreateAdmin(userService)

@@ -8,6 +8,7 @@ type AccountHandler interface {
 
 	// Admin APIs
 	GetUserList(gc *gsk.Context)
+	GetUserDetails(gc *gsk.Context)
 }
 
 type SessionHandler interface {

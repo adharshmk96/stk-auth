@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/adharshmk96/stk/pkg/middleware"
 )
 
-func rateLimiter() gsk.Middleware {
+func RateLimiter() gsk.Middleware {
 	config := middleware.RateLimiterConfig{
 		RequestsPerInterval: 60,
 		Interval:            10 * time.Second,

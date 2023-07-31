@@ -22,7 +22,7 @@ import (
 func TestNewAuthenticationService(t *testing.T) {
 	t.Run("returns a new AuthenticationService instance", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 		assert.NotNil(t, service)
 	})
 }
@@ -39,7 +39,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	t.Run("returns user with userid if data is valid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(nil)
 
@@ -60,7 +60,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if email is empty", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		newUserData := &entities.User{
 			Username: "testuser",
@@ -76,7 +76,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if storage failed", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBStorageFailed)
 
@@ -89,7 +89,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	t.Run("returns error if user exists", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("SaveUser", mock.Anything).Return(svrerr.ErrDBDuplicateEntry)
 
@@ -125,7 +125,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 	t.Run("valid username and password returns no error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(storedData, nil)
 
@@ -149,7 +149,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 	t.Run("valid email and password returns no error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
@@ -173,7 +173,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 	t.Run("invalid username and password returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
@@ -193,7 +193,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 	t.Run("email and wrong password returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
@@ -229,7 +229,7 @@ func TestAuthenticationService_GetUserByID(t *testing.T) {
 
 	t.Run("valid user id returns user data", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil).Once()
 
@@ -246,7 +246,7 @@ func TestAuthenticationService_GetUserByID(t *testing.T) {
 
 	t.Run("invalid user id returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(nil, svrerr.ErrDBEntryNotFound)
 
@@ -274,7 +274,7 @@ func TestAuthenticationService_ChangePassword(t *testing.T) {
 
 	t.Run("returns no error if password is changed", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("UpdateUserByID", inputUser).Return(nil).Once()
 
@@ -288,7 +288,7 @@ func TestAuthenticationService_ChangePassword(t *testing.T) {
 
 	t.Run("returns error if password is not changed", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("UpdateUserByID", inputUser).Return(svrerr.ErrDBStorageFailed).Once()
 
@@ -304,7 +304,7 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 
 	t.Run("valid username and password returns session data", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(nil).Once()
 
@@ -325,7 +325,7 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 
 	t.Run("returns store data error if session store failed", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(svrerr.ErrDBStorageFailed).Once()
 
@@ -344,7 +344,7 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 
 	t.Run("returns error for empty userdata", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		requestData := &entities.User{}
 
@@ -373,7 +373,7 @@ func TestAuthenticationService_LogoutUserBySessionId(t *testing.T) {
 
 	t.Run("returns no error if session is invalidated", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("InvalidateSessionByID", session_id).Return(nil)
 
@@ -386,7 +386,7 @@ func TestAuthenticationService_LogoutUserBySessionId(t *testing.T) {
 
 	t.Run("returns error if session is not invalidated", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBStorageFailed)
 
@@ -398,7 +398,7 @@ func TestAuthenticationService_LogoutUserBySessionId(t *testing.T) {
 	})
 	t.Run("returns error if session is invalid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBEntryNotFound)
 
@@ -432,7 +432,7 @@ func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
 
 	t.Run("returns user data if session id is valid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserBySessionID", session_id).Return(storedData, nil)
 
@@ -446,7 +446,7 @@ func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
 
 	t.Run("returns error if session id is invalid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBEntryNotFound)
 
@@ -460,7 +460,7 @@ func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
 
 	t.Run("returns error if storage fails to retrieve", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBStorageFailed)
 
@@ -482,7 +482,7 @@ func TestAuthenticationService_GenerateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(dbStorage)
+		service := services.NewAuthenticationService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -510,7 +510,7 @@ func TestAuthenticationService_GenerateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(dbStorage)
+		service := services.NewAuthenticationService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -541,7 +541,7 @@ func TestAuthenticationService_ValidateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(dbStorage)
+		service := services.NewAuthenticationService(dbStorage)
 
 		userId := uuid.NewString()
 
@@ -571,7 +571,7 @@ func TestAuthenticationService_ValidateJWT(t *testing.T) {
 		viper.AutomaticEnv()
 
 		dbStorage := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(dbStorage)
+		service := services.NewAuthenticationService(dbStorage)
 
 		userId := uuid.NewString()
 

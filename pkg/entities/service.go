@@ -40,6 +40,7 @@ type GroupService interface {
 	CheckUserInGroup(userId UserID, groupId string) (bool, error)
 }
 
+// TODO: Split to admin and user
 type AuthenticationService interface {
 	AccountService
 	SessionService

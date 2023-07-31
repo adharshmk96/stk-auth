@@ -26,7 +26,7 @@ var userCmd = &cobra.Command{
 
 		conn := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 		userStorage := sqlite.NewAccountStorage(conn)
-		userService := services.NewUserManagementService(userStorage)
+		userService := services.NewAuthenticationService(userStorage)
 
 		user := &entities.User{
 			Username: userName,

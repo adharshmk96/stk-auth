@@ -85,3 +85,9 @@ func (h *authenticationHandler) CreateGroup(gc *gsk.Context) {
 
 	gc.Status(http.StatusCreated).JSONResponse(response)
 }
+
+func (h *authenticationHandler) GetUserDetails(gc *gsk.Context) {
+	gc.Status(http.StatusNotImplemented).JSONResponse(gsk.Map{
+		"message": "not implemented",
+	})
+}

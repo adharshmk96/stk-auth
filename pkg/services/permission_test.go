@@ -24,7 +24,7 @@ func TestAuthenticationService_CreateGroup(t *testing.T) {
 
 		storage.On("SaveGroup", group).Return(nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		createdGroup, err := groupService.CreateGroup(group)
 		assert.NoError(t, err)
@@ -47,7 +47,7 @@ func TestAuthenticationService_CreateGroup(t *testing.T) {
 
 		storage.On("SaveGroup", group).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		createdGroup, err := groupService.CreateGroup(group)
 		assert.Error(t, err)
@@ -67,7 +67,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -83,7 +83,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.Error(t, err)
@@ -99,7 +99,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*entities.UserGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.AddUserToGroup(userId, groupId)
 		assert.Error(t, err)
@@ -121,7 +121,7 @@ func TestAuthenticationService_UpdateGroupByID(t *testing.T) {
 
 		storage.On("UpdateGroup", group).Return(nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.UpdateGroupByID(group)
 		assert.NoError(t, err)
@@ -140,7 +140,7 @@ func TestAuthenticationService_UpdateGroupByID(t *testing.T) {
 
 		storage.On("UpdateGroup", group).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.UpdateGroupByID(group)
 		assert.Error(t, err)
@@ -158,7 +158,7 @@ func TestAuthenticationService_DeleteGroupByID(t *testing.T) {
 
 		storage.On("DeleteGroupByID", groupId).Return(nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.DeleteGroupByID(groupId)
 		assert.NoError(t, err)
@@ -173,7 +173,7 @@ func TestAuthenticationService_DeleteGroupByID(t *testing.T) {
 
 		storage.On("DeleteGroupByID", groupId).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.DeleteGroupByID(groupId)
 		assert.Error(t, err)
@@ -191,7 +191,7 @@ func TestAuthenticationService_CheckUserInGroup(t *testing.T) {
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -207,7 +207,7 @@ func TestAuthenticationService_CheckUserInGroup(t *testing.T) {
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -237,7 +237,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return(groups, nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.NoError(t, err)
@@ -253,7 +253,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.Error(t, err)
@@ -269,7 +269,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 
 		storage.On("GetGroupsByUserID", userId.String()).Return([]*entities.Group{}, nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		userGroups, err := groupService.GetGroupsByUserID(userId)
 		assert.NoError(t, err)
@@ -289,7 +289,7 @@ func TestAuthenticationService_RemoveUserFromGrou(t *testing.T) {
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(nil).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.RemoveUserFromGroup(userId, groupId)
 		assert.NoError(t, err)
@@ -305,7 +305,7 @@ func TestAuthenticationService_RemoveUserFromGrou(t *testing.T) {
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(svrerr.ErrDBStorageFailed).Once()
 
-		groupService := services.NewUserManagementService(storage)
+		groupService := services.NewAuthenticationService(storage)
 
 		err := groupService.RemoveUserFromGroup(userId, groupId)
 		assert.Error(t, err)

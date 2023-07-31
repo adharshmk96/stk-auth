@@ -6,6 +6,7 @@ import (
 	"syscall"
 
 	"github.com/adharshmk96/stk-auth/server/infra"
+	svrmw "github.com/adharshmk96/stk-auth/server/middleware"
 	"github.com/adharshmk96/stk/gsk"
 	"github.com/adharshmk96/stk/pkg/middleware"
 )
@@ -21,7 +22,7 @@ func StartHttpServer(port string) (*gsk.Server, chan bool) {
 
 	server := gsk.New(serverConfig)
 
-	rateLimiter := rateLimiter()
+	rateLimiter := svrmw.RateLimiter()
 	server.Use(rateLimiter)
 	server.Use(middleware.RequestLogger)
 	server.Use(middleware.CORS(middleware.CORSConfig{
