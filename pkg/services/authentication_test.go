@@ -8,13 +8,26 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
+	"github.com/adharshmk96/stk-auth/server/infra"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
+	"github.com/adharshmk96/stk-auth/testHelpers"
 	"github.com/adharshmk96/stk/pkg/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAccountService_CreateUser(t *testing.T) {
+func TestNewAuthenticationService(t *testing.T) {
+	t.Run("returns a new AuthenticationService instance", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+		assert.NotNil(t, service)
+	})
+}
+
+func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	user_password := "testpassword"
 
@@ -86,10 +99,9 @@ func TestAccountService_CreateUser(t *testing.T) {
 		assert.ErrorIs(t, err, svrerr.ErrDBDuplicateEntry)
 		assert.Nil(t, user)
 	})
-
 }
 
-func TestAccountService_Authenticate(t *testing.T) {
+func TestAuthenticationService_Authenticate(t *testing.T) {
 
 	user_id := entities.UserID(uuid.New())
 	user_name := "testuser"
@@ -200,7 +212,7 @@ func TestAccountService_Authenticate(t *testing.T) {
 	})
 }
 
-func TestAccountService_GetUserByID(t *testing.T) {
+func TestAuthenticationService_GetUserByID(t *testing.T) {
 	user_id := entities.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
@@ -245,7 +257,7 @@ func TestAccountService_GetUserByID(t *testing.T) {
 		assert.Nil(t, user)
 	})
 }
-func TestAccountService_ChangePassword(t *testing.T) {
+func TestAuthenticationService_ChangePassword(t *testing.T) {
 
 	email := "user@email.com"
 	new_password := "new_password"
@@ -286,12 +298,129 @@ func TestAccountService_ChangePassword(t *testing.T) {
 	})
 }
 
-func TestAccountService_GetUserList(t *testing.T) {
+func TestAuthenticationService_CreateSession(t *testing.T) {
+
+	user_name := "testuser"
+
+	t.Run("valid username and password returns session data", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(nil).Once()
+
+		requestData := &entities.User{
+			ID:       entities.UserID(uuid.New()),
+			Username: user_name,
+		}
+		userSession, err := service.CreateSession(requestData)
+
+		mockStore.AssertExpectations(t)
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, userSession.SessionID)
+		assert.NotEmpty(t, userSession.CreatedAt)
+		assert.NotEmpty(t, userSession.UpdatedAt)
+		assert.True(t, userSession.Valid)
+	})
+
+	t.Run("returns store data error if session store failed", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(svrerr.ErrDBStorageFailed).Once()
+
+		requestData := &entities.User{
+			ID:       entities.UserID(uuid.New()),
+			Username: user_name,
+		}
+		userSession, err := service.CreateSession(requestData)
+
+		mockStore.AssertExpectations(t)
+
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
+		assert.Nil(t, userSession)
+	})
+
+	t.Run("returns error for empty userdata", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		requestData := &entities.User{}
+
+		userSession, err := service.CreateSession(requestData)
+
+		assert.Error(t, err)
+		assert.Nil(t, userSession)
+	})
+}
+
+func setupKeysDir() (string, string) {
+	privateKeyPEM, publicKeyPEM, err := testHelpers.GenerateKeyPair()
+	if err != nil {
+		return "", ""
+	}
+
+	viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, string(privateKeyPEM))
+	viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY, string(publicKeyPEM))
+
+	return string(privateKeyPEM), string(publicKeyPEM)
+}
+
+func TestAuthenticationService_LogoutUserBySessionId(t *testing.T) {
+
+	session_id := uuid.NewString()
+
+	t.Run("returns no error if session is invalidated", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("InvalidateSessionByID", session_id).Return(nil)
+
+		err := service.LogoutUserBySessionId(session_id)
+
+		mockStore.AssertCalled(t, "InvalidateSessionByID", session_id)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("returns error if session is not invalidated", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBStorageFailed)
+
+		err := service.LogoutUserBySessionId(session_id)
+
+		mockStore.AssertCalled(t, "InvalidateSessionByID", session_id)
+
+		assert.ErrorIs(t, err, svrerr.ErrInvalidSession)
+	})
+	t.Run("returns error if session is invalid", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("InvalidateSessionByID", session_id).Return(svrerr.ErrDBEntryNotFound)
+
+		err := service.LogoutUserBySessionId(session_id)
+
+		mockStore.AssertCalled(t, "InvalidateSessionByID", session_id)
+
+		assert.ErrorIs(t, err, svrerr.ErrInvalidSession)
+	})
+}
+
+func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
 	user_id := entities.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
+	// user_password := "testpassword"
 	created := time.Now()
 	updated := time.Now()
+
+	// salt, _ := utils.GenerateSalt()
+	// hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
+	session_id := uuid.NewString()
 
 	storedData := &entities.User{
 		ID:        user_id,
@@ -301,78 +430,168 @@ func TestAccountService_GetUserList(t *testing.T) {
 		UpdatedAt: updated,
 	}
 
-	t.Run("returns user list defaults 10 if limit is 0", func(t *testing.T) {
+	t.Run("returns user data if session id is valid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		mockStore.On("GetUserList", 10, 0).Return([]*entities.User{storedData}, nil).Once()
+		mockStore.On("GetUserBySessionID", session_id).Return(storedData, nil)
 
-		user, err := service.GetUserList(0, 0)
+		userData, err := service.GetUserBySessionId(session_id)
 
-		mockStore.AssertExpectations(t)
+		mockStore.AssertCalled(t, "GetUserBySessionID", session_id)
+
 		assert.NoError(t, err)
-		assert.Equal(t, storedData.ID.String(), user[0].ID.String())
-		assert.Equal(t, storedData.Username, user[0].Username)
-		assert.Equal(t, storedData.Email, user[0].Email)
-		assert.Equal(t, storedData.CreatedAt, user[0].CreatedAt)
-		assert.Equal(t, storedData.UpdatedAt, user[0].UpdatedAt)
+		assert.Equal(t, storedData, userData)
 	})
 
-	t.Run("storage error returns error", func(t *testing.T) {
+	t.Run("returns error if session id is invalid", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewUserManagementService(mockStore)
 
-		mockStore.On("GetUserList", 10, 0).Return(nil, svrerr.ErrDBStorageFailed).Once()
+		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBEntryNotFound)
 
-		user, err := service.GetUserList(0, 0)
+		userData, err := service.GetUserBySessionId(session_id)
 
-		assert.Error(t, err)
+		mockStore.AssertCalled(t, "GetUserBySessionID", session_id)
+
+		assert.ErrorIs(t, err, svrerr.ErrInvalidSession)
+		assert.Empty(t, userData)
+	})
+
+	t.Run("returns error if storage fails to retrieve", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(mockStore)
+
+		mockStore.On("GetUserBySessionID", session_id).Return(nil, svrerr.ErrDBStorageFailed)
+
+		userData, err := service.GetUserBySessionId(session_id)
+
+		mockStore.AssertCalled(t, "GetUserBySessionID", session_id)
+
 		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
-		assert.Nil(t, user)
-	})
-
-	t.Run("returns user list with limit and offset", func(t *testing.T) {
-		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
-
-		mockStore.On("GetUserList", 10, 10).Return([]*entities.User{storedData}, nil).Once()
-
-		user, err := service.GetUserList(10, 10)
-
-		mockStore.AssertExpectations(t)
-		assert.NoError(t, err)
-		assert.Equal(t, storedData.ID.String(), user[0].ID.String())
-		assert.Equal(t, storedData.Username, user[0].Username)
-		assert.Equal(t, storedData.Email, user[0].Email)
-		assert.Equal(t, storedData.CreatedAt, user[0].CreatedAt)
-		assert.Equal(t, storedData.UpdatedAt, user[0].UpdatedAt)
+		assert.Empty(t, userData)
 	})
 }
 
-func TestAccountService_GetTotalUsersCount(t *testing.T) {
-	t.Run("returns total user count", func(t *testing.T) {
-		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+func TestAuthenticationService_GenerateJWT(t *testing.T) {
 
-		mockStore.On("GetTotalUsersCount").Return(int64(10), nil).Once()
+	t.Run("generates a valid token", func(t *testing.T) {
+		setupKeysDir()
 
-		count, err := service.GetTotalUsersCount()
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
 
-		mockStore.AssertExpectations(t)
+		dbStorage := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(dbStorage)
+
+		userId := uuid.NewString()
+
+		claims := &entities.CustomClaims{
+			UserID: userId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
 		assert.NoError(t, err)
-		assert.Equal(t, int64(10), count)
+
+		parsedClaims, _ := parseToken(token)
+		assert.NoError(t, err)
+
+		assert.Equal(t, userId, parsedClaims.UserID)
 	})
 
-	t.Run("storage error returns error", func(t *testing.T) {
-		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewUserManagementService(mockStore)
+	t.Run("returns error if key is invalid", func(t *testing.T) {
+		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY, "")
+		viper.AutomaticEnv()
 
-		mockStore.On("GetTotalUsersCount").Return(int64(0), svrerr.ErrDBStorageFailed).Once()
+		dbStorage := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(dbStorage)
 
-		count, err := service.GetTotalUsersCount()
+		userId := uuid.NewString()
 
+		claims := &entities.CustomClaims{
+			UserID: userId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, svrerr.ErrDBStorageFailed)
-		assert.Equal(t, int64(0), count)
+
+		assert.Empty(t, token)
+
+	})
+}
+
+func TestAuthenticationService_ValidateJWT(t *testing.T) {
+
+	t.Run("returns no error if token is valid", func(t *testing.T) {
+		setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(dbStorage)
+
+		userId := uuid.NewString()
+
+		claims := &entities.CustomClaims{
+			UserID: userId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
+		assert.NoError(t, err)
+
+		validatedClaims, err := service.ValidateJWT(token)
+		assert.NoError(t, err)
+
+		assert.Equal(t, userId, validatedClaims.UserID)
+	})
+
+	t.Run("returns error if token is invalid", func(t *testing.T) {
+		setupKeysDir()
+
+		infra.LoadDefaultConfig()
+		viper.AutomaticEnv()
+
+		dbStorage := mocks.NewAuthenticationStore(t)
+		service := services.NewUserManagementService(dbStorage)
+
+		userId := uuid.NewString()
+
+		claims := &entities.CustomClaims{
+			UserID: userId,
+			RegisteredClaims: jwt.RegisteredClaims{
+				IssuedAt:  jwt.NewNumericDate(time.Now()),
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				Issuer:    viper.GetString(constants.ENV_JWT_ISSUER),
+				Subject:   viper.GetString(constants.ENV_JWT_SUBJECT),
+			},
+		}
+
+		token, err := service.GenerateJWT(claims)
+		assert.NoError(t, err)
+
+		invalidToken := token + "invalid"
+
+		_, err = service.ValidateJWT(invalidToken)
+		assert.Error(t, err)
+
 	})
 }
