@@ -17,11 +17,6 @@ func (_m *AuthenticationHandler) ChangeCredentials(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// CreateGroup provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) CreateGroup(gc *gsk.Context) {
-	_m.Called(gc)
-}
-
 // GetSessionUser provides a mock function with given fields: gc
 func (_m *AuthenticationHandler) GetSessionUser(gc *gsk.Context) {
 	_m.Called(gc)
@@ -29,11 +24,6 @@ func (_m *AuthenticationHandler) GetSessionUser(gc *gsk.Context) {
 
 // GetTokenUser provides a mock function with given fields: gc
 func (_m *AuthenticationHandler) GetTokenUser(gc *gsk.Context) {
-	_m.Called(gc)
-}
-
-// GetUserList provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetUserList(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

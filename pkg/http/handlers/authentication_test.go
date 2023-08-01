@@ -199,7 +199,7 @@ func TestChangePassword(t *testing.T) {
 	t.Run("returns 401 if authentication failed", func(t *testing.T) {
 
 		service := mocks.NewAuthenticationService(t)
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		handler := handlers.NewUserManagementHandler(service)
 
@@ -217,7 +217,7 @@ func TestChangePassword(t *testing.T) {
 		t.Run("authentication failed", func(t *testing.T) {
 
 			service := mocks.NewAuthenticationService(t)
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+			service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrDBStorageFailed).Once()
 
 			handler := handlers.NewUserManagementHandler(service)
 
@@ -233,8 +233,8 @@ func TestChangePassword(t *testing.T) {
 
 		t.Run("change password failed", func(t *testing.T) {
 			service := mocks.NewAuthenticationService(t)
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
-			service.On("ChangePassword", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+			service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(nil).Once()
+			service.On("ChangePassword", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrDBStorageFailed).Once()
 
 			handler := handlers.NewUserManagementHandler(service)
 
@@ -290,7 +290,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(nil).Once()
 		service.On("CreateSession", mock.Anything).Return(sessionData, nil).Once()
 		service.On("GetUserByID", userId.String()).Return(userData, nil).Once()
 
@@ -322,7 +322,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -351,7 +351,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrDBStorageFailed).Once()
 
 		s.Post("/login", handler.LoginUserSession)
 
@@ -380,7 +380,7 @@ func TestLoginUserSession(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(nil).Once()
 		service.On("CreateSession", mock.Anything).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
 		s.Post("/login", handler.LoginUserSession)
@@ -452,7 +452,7 @@ func TestLoginUserToken(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(nil).Once()
 		service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return(sessionToken, nil).Times(2)
 
 		s.Post("/login", handler.LoginUserToken)
@@ -488,7 +488,7 @@ func TestLoginUserToken(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewUserManagementHandler(service)
 
-		service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrInvalidCredentials).Once()
+		service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrInvalidCredentials).Once()
 
 		s.Post("/login", handler.LoginUserToken)
 
@@ -519,7 +519,7 @@ func TestLoginUserToken(t *testing.T) {
 			service := mocks.NewAuthenticationService(t)
 			handler := handlers.NewUserManagementHandler(service)
 
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(svrerr.ErrDBStorageFailed).Once()
+			service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(svrerr.ErrDBStorageFailed).Once()
 
 			s.Post("/login", handler.LoginUserToken)
 
@@ -548,7 +548,7 @@ func TestLoginUserToken(t *testing.T) {
 			service := mocks.NewAuthenticationService(t)
 			handler := handlers.NewUserManagementHandler(service)
 
-			service.On("Authenticate", mock.AnythingOfType("*entities.Account")).Return(nil).Once()
+			service.On("Authenticate", mock.AnythingOfType("*entities.User")).Return(nil).Once()
 			service.On("GenerateJWT", mock.AnythingOfType("*entities.CustomClaims")).Return("", jwt.ErrInvalidKey).Once()
 
 			s.Post("/login", handler.LoginUserToken)

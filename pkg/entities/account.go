@@ -31,11 +31,6 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserWithToken struct {
-	User
-	Token string
-}
-
 type Session struct {
 	UserID    UserID    `json:"user_id"`
 	SessionID string    `json:"session_id"`

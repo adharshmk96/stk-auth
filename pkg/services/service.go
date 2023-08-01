@@ -16,3 +16,13 @@ func NewAuthenticationService(storage entities.AuthenticationStore) entities.Aut
 		storage: storage,
 	}
 }
+
+type adminService struct {
+	storage entities.AuthenticationStore
+}
+
+func NewAdminService(storage entities.AuthenticationStore) entities.AdminService {
+	return &adminService{
+		storage: storage,
+	}
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
+func (h *adminHandler) GetUserList(gc *gsk.Context) {
 	limit := gc.QueryParam("limit")
 	offset := gc.QueryParam("offset")
 
@@ -20,14 +20,14 @@ func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
 		return
 	}
 
-	userList, err := h.userService.GetUserList(limitInt, offsetInt)
+	userList, err := h.adminService.GetUserList(limitInt, offsetInt)
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
 		})
 		return
 	}
-	userCount, err := h.userService.GetTotalUsersCount()
+	userCount, err := h.adminService.GetTotalUsersCount()
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
@@ -58,36 +58,64 @@ func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
 	gc.Status(200).JSONResponse(userListRespone)
 }
 
-func (h *authenticationHandler) CreateGroup(gc *gsk.Context) {
-	var group *entities.Group
+// func (h *adminHandler) CreateGroup(gc *gsk.Context) {
+// 	var group *entities.Group
 
-	err := gc.DecodeJSONBody(&group)
-	if err != nil {
+// 	err := gc.DecodeJSONBody(&group)
+// 	if err != nil {
+// 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+// 			"message": transport.INVALID_BODY,
+// 		})
+// 		return
+// 	}
+
+// 	createdGroup, err := h.adminService.CreateGroup(group)
+// 	if err != nil {
+// 		transport.HandleCreateGroupError(err, gc)
+// 		return
+// 	}
+
+// 	response := transport.GroupResponse{
+// 		ID:          createdGroup.ID,
+// 		Name:        createdGroup.Name,
+// 		Description: createdGroup.Description,
+// 		CreatedAt:   createdGroup.CreatedAt,
+// 		UpdatedAt:   createdGroup.UpdatedAt,
+// 	}
+
+// 	gc.Status(http.StatusCreated).JSONResponse(response)
+// }
+
+func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
+	userID := gc.QueryParam("uid")
+	if userID == "" {
 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_BODY,
+			"message": transport.INVALID_USER_ID,
 		})
 		return
 	}
 
-	createdGroup, err := h.userService.CreateGroup(group)
+	parsedUserID, err := entities.ParseUserId(userID)
 	if err != nil {
-		transport.HandleCreateGroupError(err, gc)
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_USER_ID,
+		})
 		return
 	}
 
-	response := transport.GroupResponse{
-		ID:          createdGroup.ID,
-		Name:        createdGroup.Name,
-		Description: createdGroup.Description,
-		CreatedAt:   createdGroup.CreatedAt,
-		UpdatedAt:   createdGroup.UpdatedAt,
+	user, err := h.adminService.GetUserDetails(parsedUserID)
+	if err != nil {
+		transport.HandleGetUserError(err, gc)
+		return
 	}
 
-	gc.Status(http.StatusCreated).JSONResponse(response)
-}
+	response := transport.UserResponse{
+		ID:        user.ID.String(),
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 
-func (h *authenticationHandler) GetUserDetails(gc *gsk.Context) {
-	gc.Status(http.StatusNotImplemented).JSONResponse(gsk.Map{
-		"message": "not implemented",
-	})
+	gc.Status(http.StatusOK).JSONResponse(response)
 }

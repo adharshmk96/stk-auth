@@ -13,3 +13,13 @@ func NewUserManagementHandler(userService entities.AuthenticationService) entiti
 		userService: userService,
 	}
 }
+
+type adminHandler struct {
+	adminService entities.AdminService
+}
+
+func NewAdminHandler(adminService entities.AdminService) entities.AdminHandler {
+	return &adminHandler{
+		adminService: adminService,
+	}
+}

@@ -2,13 +2,9 @@ package entities
 
 import "github.com/adharshmk96/stk/gsk"
 
-type AccountHandler interface {
+type UserHandler interface {
 	RegisterUser(gc *gsk.Context)
 	ChangeCredentials(gc *gsk.Context)
-
-	// Admin APIs
-	GetUserList(gc *gsk.Context)
-	GetUserDetails(gc *gsk.Context)
 }
 
 type SessionHandler interface {
@@ -20,7 +16,7 @@ type SessionHandler interface {
 }
 
 type GroupHandler interface {
-	CreateGroup(gc *gsk.Context)
+	// CreateGroup(gc *gsk.Context)
 	// GetGroup(gc *gsk.Context)
 	// GetGroups(gc *gsk.Context)
 	// UpdateGroup(gc *gsk.Context)
@@ -28,10 +24,12 @@ type GroupHandler interface {
 }
 
 type AuthenticationHandler interface {
-	AccountHandler
+	UserHandler
 	SessionHandler
-	GroupHandler
 }
 
-type AdministrationHandler interface {
+type AdminHandler interface {
+	// Admin APIs
+	GetUserList(gc *gsk.Context)
+	GetUserDetails(gc *gsk.Context)
 }

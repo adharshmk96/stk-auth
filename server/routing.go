@@ -12,20 +12,28 @@ import (
 )
 
 func intializeServer(server *gsk.Server) {
-
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
+	// Initialize the user service
 	userStorage := sqlite.NewAccountStorage(connection)
 	userService := services.NewAuthenticationService(userStorage)
 	userHandler := handlers.NewUserManagementHandler(userService)
 
-	CreateAdmin(userService)
+	// Initialize the admin service
+	adminService := services.NewAdminService(userStorage)
+	adminHandler := handlers.NewAdminHandler(adminService)
 
-	setupRoutes(server, userHandler)
+	// Health check
+	server.Get("/health", handlers.HealthCheckHandler)
+
+	apiRoutes := server.RouteGroup("/api")
+	setupUserRoutes(apiRoutes, userHandler)
+	setupAdminRoutes(apiRoutes, adminHandler)
+
+	CreateAdmin(userService)
 }
 
-func setupRoutes(server *gsk.Server, authHandler entities.AuthenticationHandler) {
-	apiRoutes := server.RouteGroup("/api")
+func setupUserRoutes(apiRoutes *gsk.RouteGroup, authHandler entities.AuthenticationHandler) {
 	apiAuth := apiRoutes.RouteGroup("/auth")
 
 	apiAuth.Post("/register", authHandler.RegisterUser)
@@ -40,11 +48,11 @@ func setupRoutes(server *gsk.Server, authHandler entities.AuthenticationHandler)
 
 	apiAuth.Post("/logout", authHandler.LogoutUser)
 
+}
+
+func setupAdminRoutes(apiRoutes *gsk.RouteGroup, adminHandler entities.AdminHandler) {
 	adminRoutes := apiRoutes.RouteGroup("/admin")
-	adminRoutes.Get("/users", authHandler.GetUserList)
 
-	// Health check
-	server.Get("/health", handlers.HealthCheckHandler)
-
-	// server.Static("/ui/*filepath", "./ui")
+	adminRoutes.Get("/users", adminHandler.GetUserList)
+	adminRoutes.Get("/user", adminHandler.GetUserDetails)
 }

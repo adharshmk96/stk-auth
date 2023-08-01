@@ -11,17 +11,11 @@ type TokenService interface {
 	GenerateJWT(claims *CustomClaims) (string, error)
 	ValidateJWT(token string) (*CustomClaims, error)
 }
-type AccountService interface {
+type UserService interface {
 	CreateUser(user *User) (*User, error)
 	Authenticate(login *User) error
 	ChangePassword(user *User) error
 	GetUserByID(userId string) (*User, error)
-
-	// For Admin
-	GetUserList(limit int, offset int) ([]*User, error)
-	GetTotalUsersCount() (int64, error)
-	// UpdateUser(user *Account) error
-	// DeleteUser(userId string) error
 }
 
 type SessionService interface {
@@ -42,8 +36,16 @@ type GroupService interface {
 
 // TODO: Split to admin and user
 type AuthenticationService interface {
-	AccountService
+	UserService
 	SessionService
 	GroupService
 	TokenService
+}
+
+type AdminService interface {
+	GetUserList(limit int, offset int) ([]*User, error)
+	GetTotalUsersCount() (int64, error)
+	GetUserDetails(userId UserID) (*User, error)
+	// UpdateUser(user *Account) error
+	// DeleteUser(userId string) error
 }

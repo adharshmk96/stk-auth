@@ -99,7 +99,10 @@ keygen:
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 	@chmod 666 .keys/public_key.pem
 
-	
+mockgen:
+	@rm -rf ./mocks
+	@mockery --all	
+
 ##########################
 ### STK Stuff
 ##########################

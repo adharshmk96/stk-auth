@@ -220,30 +220,6 @@ func (_m *AuthenticationService) GetGroupsByUserID(userId entities.UserID) ([]*e
 	return r0, r1
 }
 
-// GetTotalUsersCount provides a mock function with given fields:
-func (_m *AuthenticationService) GetTotalUsersCount() (int64, error) {
-	ret := _m.Called()
-
-	var r0 int64
-	var r1 error
-	if rf, ok := ret.Get(0).(func() (int64, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() int64); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetUserByID provides a mock function with given fields: userId
 func (_m *AuthenticationService) GetUserByID(userId string) (*entities.User, error) {
 	ret := _m.Called(userId)
@@ -289,32 +265,6 @@ func (_m *AuthenticationService) GetUserBySessionId(sessionId string) (*entities
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(sessionId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetUserList provides a mock function with given fields: limit, offset
-func (_m *AuthenticationService) GetUserList(limit int, offset int) ([]*entities.User, error) {
-	ret := _m.Called(limit, offset)
-
-	var r0 []*entities.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) ([]*entities.User, error)); ok {
-		return rf(limit, offset)
-	}
-	if rf, ok := ret.Get(0).(func(int, int) []*entities.User); ok {
-		r0 = rf(limit, offset)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*entities.User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}
