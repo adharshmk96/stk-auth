@@ -10,24 +10,24 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-type TokenService interface {
+type tokenService interface {
 	GenerateJWT(claims *CustomClaims) (string, error)
 	ValidateJWT(token string) (*CustomClaims, error)
 }
-type UserService interface {
+type userService interface {
 	CreateUser(user *ds.User) (*ds.User, error)
 	Authenticate(login *ds.User) error
 	ChangePassword(user *ds.User) error
 	GetUserByID(userId string) (*ds.User, error)
 }
 
-type SessionService interface {
+type sessionService interface {
 	CreateSession(user *ds.User) (*ds.Session, error)
 	GetUserBySessionId(sessionId string) (*ds.User, error)
 	LogoutUserBySessionId(sessionId string) error
 }
 
-type GroupService interface {
+type groupService interface {
 	CreateGroup(group *ds.Group) (*ds.Group, error)
 	GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error)
 	UpdateGroupByID(group *ds.Group) error
@@ -37,18 +37,17 @@ type GroupService interface {
 	CheckUserInGroup(userId ds.UserID, groupId string) (bool, error)
 }
 
-type (
-	AuthenticationService interface {
-		UserService
-		SessionService
-		GroupService
-		TokenService
-	}
-	AdminService interface {
-		GetUserList(limit int, offset int) ([]*ds.User, error)
-		GetTotalUsersCount() (int64, error)
-		GetUserDetails(userId ds.UserID) (*ds.User, error)
-		// UpdateUser(user *Account) error
-		// DeleteUser(userId string) error
-	}
-)
+type AuthenticationService interface {
+	userService
+	sessionService
+	groupService
+	tokenService
+}
+
+type AdminService interface {
+	GetUserList(limit int, offset int) ([]*ds.User, error)
+	GetTotalUsersCount() (int64, error)
+	GetUserDetails(userId ds.UserID) (*ds.User, error)
+	// UpdateUser(user *Account) error
+	// DeleteUser(userId string) error
+}

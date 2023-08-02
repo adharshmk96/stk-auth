@@ -8,7 +8,7 @@ const (
 	TableUser                 = "auth_user_accounts"
 	TableSession              = "auth_user_sessions"
 	TableGroup                = "auth_user_groups"
-	TableUserGroupAssociation = "auth_user_group_associations"
+	TableUserGroupAssociation = "auth_user_group_association"
 )
 
 var (

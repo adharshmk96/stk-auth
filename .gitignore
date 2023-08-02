@@ -24,3 +24,4 @@ go.work
 .keys
 *.db
 __debug*
+.idea

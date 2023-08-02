@@ -2,7 +2,6 @@ package helpers_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -14,9 +13,9 @@ import (
 )
 
 const (
-	TEST_KEY_DIR          = "./test_keys"
-	TEST_PRIVATE_KEY_PATH = TEST_KEY_DIR + "/private_key.pem"
-	TEST_PUBLIC_KEY_PATH  = TEST_KEY_DIR + "/public_key.pem"
+	TestKeyDir         = "./test_keys"
+	TestPrivateKeyPath = TestKeyDir + "/private_key.pem"
+	TestPublicKeyPath  = TestKeyDir + "/public_key.pem"
 )
 
 func generateTestKeys() error {
@@ -25,14 +24,14 @@ func generateTestKeys() error {
 		return err
 	}
 
-	os.Mkdir(TEST_KEY_DIR, 0700)
+	os.Mkdir(TestKeyDir, 0700)
 
-	err = ioutil.WriteFile(TEST_PRIVATE_KEY_PATH, privateKeyPEM, 0600)
+	err = os.WriteFile(TestPrivateKeyPath, privateKeyPEM, 0600)
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile(TEST_PUBLIC_KEY_PATH, publicKeyPEM, 0600)
+	err = os.WriteFile(TestPublicKeyPath, publicKeyPEM, 0600)
 	if err != nil {
 		return err
 	}
@@ -41,9 +40,9 @@ func generateTestKeys() error {
 }
 
 func removeTestKeys() {
-	os.Remove(TEST_PRIVATE_KEY_PATH)
-	os.Remove(TEST_PUBLIC_KEY_PATH)
-	os.Remove(TEST_KEY_DIR)
+	os.Remove(TestPrivateKeyPath)
+	os.Remove(TestPublicKeyPath)
+	os.Remove(TestKeyDir)
 }
 
 func TestReadFunctions(t *testing.T) {
@@ -62,7 +61,7 @@ func TestReadFunctions(t *testing.T) {
 	})
 
 	t.Run("test read private key from file", func(t *testing.T) {
-		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY_PATH, TEST_PRIVATE_KEY_PATH)
+		viper.SetDefault(constants.ENV_JWT_EDCA_PRIVATE_KEY_PATH, TestPrivateKeyPath)
 		viper.AutomaticEnv()
 		key := helpers.ReadPrivateKey()
 		assert.NotNil(t, key)
@@ -78,7 +77,7 @@ func TestReadFunctions(t *testing.T) {
 	})
 
 	t.Run("test read public key from file", func(t *testing.T) {
-		viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH, TEST_PUBLIC_KEY_PATH)
+		viper.SetDefault(constants.ENV_JWT_EDCA_PUBLIC_KEY_PATH, TestPublicKeyPath)
 		viper.AutomaticEnv()
 		key := helpers.ReadPublicKey()
 		assert.NotNil(t, key)

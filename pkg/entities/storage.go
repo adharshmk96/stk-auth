@@ -2,7 +2,7 @@ package entities
 
 import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
-type AccountStore interface {
+type userStore interface {
 	// Create
 	SaveUser(user *ds.User) error
 	// Read
@@ -17,7 +17,7 @@ type AccountStore interface {
 	DeleteUserByID(userID string) error
 }
 
-type SessionStore interface {
+type sessionStore interface {
 	// Create
 	SaveSession(session *ds.Session) error
 	// Read
@@ -27,7 +27,7 @@ type SessionStore interface {
 	InvalidateSessionByID(sessionID string) error
 }
 
-type GroupStore interface {
+type groupStore interface {
 	// Create
 	SaveGroup(group *ds.Group) error
 	SaveGroupAssociation(association *ds.UserGroupAssociation) error
@@ -43,7 +43,7 @@ type GroupStore interface {
 }
 
 type AuthenticationStore interface {
-	AccountStore
-	SessionStore
-	GroupStore
+	userStore
+	sessionStore
+	groupStore
 }
