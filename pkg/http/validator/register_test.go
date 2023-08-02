@@ -1,21 +1,21 @@
 package validator
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateUser(t *testing.T) {
 	tests := []struct {
 		name     string
-		user     *entities.User
+		user     *ds.User
 		expected map[string]string
 	}{
 		{
 			name: "Valid user",
-			user: &entities.User{
+			user: &ds.User{
 				Username: "TestUser",
 				Email:    "testuser@example.com",
 				Password: "Test$123",
@@ -24,7 +24,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty username and email",
-			user: &entities.User{
+			user: &ds.User{
 				Password: "Test$123",
 			},
 			expected: map[string]string{
@@ -33,7 +33,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Invalid email",
-			user: &entities.User{
+			user: &ds.User{
 				Username: "TestUser",
 				Email:    "invalid",
 				Password: "Test$123",
@@ -44,7 +44,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Invalid username",
-			user: &entities.User{
+			user: &ds.User{
 				Username: "a",
 				Email:    "test@email.com",
 				Password: "Test$123",
@@ -55,7 +55,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty password",
-			user: &entities.User{
+			user: &ds.User{
 				Email:    "test@email.com",
 				Password: "",
 			},
@@ -65,7 +65,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "invalid password",
-			user: &entities.User{
+			user: &ds.User{
 				Email:    "test@email.com",
 				Password: "test",
 			},
@@ -75,7 +75,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty email",
-			user: &entities.User{
+			user: &ds.User{
 				Username: "test",
 				Password: "Test$123",
 			},

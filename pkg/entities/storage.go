@@ -1,40 +1,42 @@
 package entities
 
+import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
 type AccountStore interface {
 	// Create
-	SaveUser(user *User) error
+	SaveUser(user *ds.User) error
 	// Read
 	GetTotalUsersCount() (int64, error)
-	GetUserByUserID(email string) (*User, error)
-	GetUserByEmail(email string) (*User, error)
-	GetUserByUsername(username string) (*User, error)
-	GetUserList(limit int, offset int) ([]*User, error)
+	GetUserByUserID(email string) (*ds.User, error)
+	GetUserByEmail(email string) (*ds.User, error)
+	GetUserByUsername(username string) (*ds.User, error)
+	GetUserList(limit int, offset int) ([]*ds.User, error)
 	// Update
-	UpdateUserByID(user *User) error
+	UpdateUserByID(user *ds.User) error
 	// Delete
 	DeleteUserByID(userID string) error
 }
 
 type SessionStore interface {
 	// Create
-	SaveSession(session *Session) error
+	SaveSession(session *ds.Session) error
 	// Read
-	GetSessionByID(sessionID string) (*Session, error)
-	GetUserBySessionID(sessionID string) (*User, error)
+	GetSessionByID(sessionID string) (*ds.Session, error)
+	GetUserBySessionID(sessionID string) (*ds.User, error)
 	// Update
 	InvalidateSessionByID(sessionID string) error
 }
 
 type GroupStore interface {
 	// Create
-	SaveGroup(group *Group) error
-	SaveGroupAssociation(association *UserGroupAssociation) error
+	SaveGroup(group *ds.Group) error
+	SaveGroupAssociation(association *ds.UserGroupAssociation) error
 	// Read
-	GetGroupByID(groupID string) (*Group, error)
-	GetGroupsByUserID(userID string) ([]*Group, error)
+	GetGroupByID(groupID string) (*ds.Group, error)
+	GetGroupsByUserID(userID string) ([]*ds.Group, error)
 	CheckUserGroupAssociation(userID string, groupID string) (bool, error)
 	// Update
-	UpdateGroup(group *Group) error
+	UpdateGroup(group *ds.Group) error
 	// Delete
 	DeleteGroupByID(groupID string) error
 	DeleteUserGroupAssociation(userID string, groupID string) error

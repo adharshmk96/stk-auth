@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"net/http"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk/gsk"
 )
@@ -58,6 +58,40 @@ func (h *adminHandler) GetUserList(gc *gsk.Context) {
 	gc.Status(200).JSONResponse(userListRespone)
 }
 
+func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
+	userID := gc.QueryParam("uid")
+	if userID == "" {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_USER_ID,
+		})
+		return
+	}
+
+	parsedUserID, err := ds.ParseUserId(userID)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_USER_ID,
+		})
+		return
+	}
+
+	user, err := h.adminService.GetUserDetails(parsedUserID)
+	if err != nil {
+		transport.HandleGetUserError(err, gc)
+		return
+	}
+
+	response := transport.UserResponse{
+		ID:        user.ID.String(),
+		Username:  user.Username,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	gc.Status(http.StatusOK).JSONResponse(response)
+}
+
 // func (h *adminHandler) CreateGroup(gc *gsk.Context) {
 // 	var group *entities.Group
 
@@ -85,37 +119,3 @@ func (h *adminHandler) GetUserList(gc *gsk.Context) {
 
 // 	gc.Status(http.StatusCreated).JSONResponse(response)
 // }
-
-func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
-	userID := gc.QueryParam("uid")
-	if userID == "" {
-		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_USER_ID,
-		})
-		return
-	}
-
-	parsedUserID, err := entities.ParseUserId(userID)
-	if err != nil {
-		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_USER_ID,
-		})
-		return
-	}
-
-	user, err := h.adminService.GetUserDetails(parsedUserID)
-	if err != nil {
-		transport.HandleGetUserError(err, gc)
-		return
-	}
-
-	response := transport.UserResponse{
-		ID:        user.ID.String(),
-		Username:  user.Username,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}
-
-	gc.Status(http.StatusOK).JSONResponse(response)
-}

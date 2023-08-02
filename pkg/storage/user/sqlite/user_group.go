@@ -1,15 +1,15 @@
 package sqlite
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"strings"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 // SaveGroupAssociation Stores Group Association in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
-func (s *sqliteStorage) SaveGroupAssociation(association *entities.UserGroupAssociation) error {
+func (s *sqliteStorage) SaveGroupAssociation(association *ds.UserGroupAssociation) error {
 	result, err := s.conn.Exec(
 		Q_InsertUserGroupAssociation,
 		association.UserID.String(),
@@ -35,7 +35,7 @@ func (s *sqliteStorage) SaveGroupAssociation(association *entities.UserGroupAsso
 
 // GetGroupsByUserID Retrieves Groups from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
-func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.Group, error) {
+func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*ds.Group, error) {
 	rows, err := s.conn.Query(Q_GetGroupsByUserID, userID)
 	if err != nil {
 		logger.Error("storage_error:", err)
@@ -43,9 +43,9 @@ func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*entities.Group, err
 	}
 	defer rows.Close()
 
-	groups := make([]*entities.Group, 0)
+	groups := make([]*ds.Group, 0)
 	for rows.Next() {
-		var group entities.Group
+		var group ds.Group
 		err := rows.Scan(
 			&group.ID,
 			&group.Name,

@@ -1,21 +1,21 @@
 package validator
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateLogin(t *testing.T) {
 	tests := []struct {
 		name  string
-		login *entities.User
+		login *ds.User
 		err   bool
 	}{
 		{
 			name: "Username and password",
-			login: &entities.User{
+			login: &ds.User{
 				Username: "TestUser",
 				Password: "Test$123",
 			},
@@ -23,7 +23,7 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Email and password",
-			login: &entities.User{
+			login: &ds.User{
 				Email:    "user@email.com",
 				Password: "Test$123",
 			},
@@ -31,7 +31,7 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Empty password",
-			login: &entities.User{
+			login: &ds.User{
 				Username: "TestUser",
 				Email:    "TestUser@email.com",
 			},
@@ -39,14 +39,14 @@ func TestValidateLogin(t *testing.T) {
 		},
 		{
 			name: "Empty username and email",
-			login: &entities.User{
+			login: &ds.User{
 				Password: "Test$123",
 			},
 			err: true,
 		},
 		{
 			name: "Username and email used together",
-			login: &entities.User{
+			login: &ds.User{
 				Username: "TestUser",
 				Email:    "TestUser@email.com",
 				Password: "Test$123",

@@ -1,9 +1,8 @@
 package transport
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
-
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 )
 
 type UserResponse struct {
@@ -21,8 +20,8 @@ type UserListResponse struct {
 }
 
 type CredentialUpdateRequest struct {
-	Credentials    *entities.User `json:"credentials"`
-	NewCredentials *entities.User `json:"updated_credentials"`
+	Credentials    *ds.User `json:"credentials"`
+	NewCredentials *ds.User `json:"updated_credentials"`
 }
 
-type GroupResponse = entities.Group
+type GroupResponse = ds.Group

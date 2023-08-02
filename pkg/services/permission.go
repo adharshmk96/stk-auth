@@ -1,13 +1,13 @@
 package services
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/google/uuid"
 )
 
-func (s *authenticationService) CreateGroup(group *entities.Group) (*entities.Group, error) {
+func (s *authenticationService) CreateGroup(group *ds.Group) (*ds.Group, error) {
 	groupId := uuid.NewString()
 	time_now := time.Now()
 
@@ -24,7 +24,7 @@ func (s *authenticationService) CreateGroup(group *entities.Group) (*entities.Gr
 	return group, nil
 }
 
-func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*entities.Group, error) {
+func (s *authenticationService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error) {
 	groups, err := s.storage.GetGroupsByUserID(userId.String())
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (s *authenticationService) GetGroupsByUserID(userId entities.UserID) ([]*en
 	return groups, nil
 }
 
-func (s *authenticationService) UpdateGroupByID(group *entities.Group) error {
+func (s *authenticationService) UpdateGroupByID(group *ds.Group) error {
 	group.UpdatedAt = time.Now()
 
 	err := s.storage.UpdateGroup(group)
@@ -53,10 +53,10 @@ func (s *authenticationService) DeleteGroupByID(groupId string) error {
 	return nil
 }
 
-func (s *authenticationService) AddUserToGroup(userId entities.UserID, groupId string) error {
+func (s *authenticationService) AddUserToGroup(userId ds.UserID, groupId string) error {
 	time_now := time.Now()
 
-	groupAssociation := &entities.UserGroupAssociation{
+	groupAssociation := &ds.UserGroupAssociation{
 		UserID:    userId,
 		GroupID:   groupId,
 		CreatedAt: time_now,
@@ -70,7 +70,7 @@ func (s *authenticationService) AddUserToGroup(userId entities.UserID, groupId s
 	return nil
 }
 
-func (s *authenticationService) RemoveUserFromGroup(userId entities.UserID, groupId string) error {
+func (s *authenticationService) RemoveUserFromGroup(userId ds.UserID, groupId string) error {
 	err := s.storage.DeleteUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (s *authenticationService) RemoveUserFromGroup(userId entities.UserID, grou
 	return nil
 }
 
-func (s *authenticationService) CheckUserInGroup(userId entities.UserID, groupId string) (bool, error) {
+func (s *authenticationService) CheckUserInGroup(userId ds.UserID, groupId string) (bool, error) {
 	groupAssociation, err := s.storage.CheckUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return false, err

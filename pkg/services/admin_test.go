@@ -1,11 +1,11 @@
 package services_test
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
 
 	"github.com/adharshmk96/stk-auth/mocks"
-	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
@@ -13,13 +13,13 @@ import (
 )
 
 func TestAdminService_GetUserList(t *testing.T) {
-	user_id := entities.UserID(uuid.New())
+	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &entities.User{
+	storedData := &ds.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,
@@ -31,7 +31,7 @@ func TestAdminService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAdminService(mockStore)
 
-		mockStore.On("GetUserList", 10, 0).Return([]*entities.User{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 0).Return([]*ds.User{storedData}, nil).Once()
 
 		user, err := service.GetUserList(0, 0)
 
@@ -61,7 +61,7 @@ func TestAdminService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAdminService(mockStore)
 
-		mockStore.On("GetUserList", 10, 10).Return([]*entities.User{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 10).Return([]*ds.User{storedData}, nil).Once()
 
 		user, err := service.GetUserList(10, 10)
 
@@ -104,13 +104,13 @@ func TestAdminService_GetTotalUsersCount(t *testing.T) {
 }
 
 func TestAdminService_GetUserDetails(t *testing.T) {
-	user_id := entities.UserID(uuid.New())
+	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &entities.User{
+	storedData := &ds.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,

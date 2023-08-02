@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
@@ -18,7 +19,7 @@ import (
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *authenticationService) CreateUser(user *entities.User) (*entities.User, error) {
+func (u *authenticationService) CreateUser(user *ds.User) (*ds.User, error) {
 	if user.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
@@ -34,7 +35,7 @@ func (u *authenticationService) CreateUser(user *entities.User) (*entities.User,
 	newUserId := uuid.New()
 	currentTimestamp := time.Now()
 
-	user.ID = entities.UserID(newUserId)
+	user.ID = ds.UserID(newUserId)
 	user.CreatedAt = currentTimestamp
 	user.UpdatedAt = currentTimestamp
 	user.Password = hashedPassword
@@ -54,8 +55,8 @@ func (u *authenticationService) CreateUser(user *entities.User) (*entities.User,
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
-func (u *authenticationService) Authenticate(login *entities.User) error {
-	var userRecord *entities.User
+func (u *authenticationService) Authenticate(login *ds.User) error {
+	var userRecord *ds.User
 	var err error
 	if login.Email == "" {
 		userRecord, err = u.storage.GetUserByUsername(login.Username)
@@ -85,7 +86,7 @@ func (u *authenticationService) Authenticate(login *entities.User) error {
 	return nil
 }
 
-func (u *authenticationService) GetUserByID(userId string) (*entities.User, error) {
+func (u *authenticationService) GetUserByID(userId string) (*ds.User, error) {
 	user, err := u.storage.GetUserByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -93,7 +94,7 @@ func (u *authenticationService) GetUserByID(userId string) (*entities.User, erro
 	return user, nil
 }
 
-func (u *authenticationService) ChangePassword(user *entities.User) error {
+func (u *authenticationService) ChangePassword(user *ds.User) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
@@ -121,17 +122,17 @@ func (u *authenticationService) ChangePassword(user *entities.User) error {
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *authenticationService) CreateSession(user *entities.User) (*entities.Session, error) {
+func (u *authenticationService) CreateSession(user *ds.User) (*ds.Session, error) {
 
 	userId := user.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 
-	if userId == entities.UserID(uuid.Nil) {
+	if userId == ds.UserID(uuid.Nil) {
 		return nil, svrerr.ErrInvalidSession
 	}
 
-	session := &entities.Session{
+	session := &ds.Session{
 		UserID:    userId,
 		SessionID: newSessionId,
 		CreatedAt: currentTimestamp,
@@ -151,7 +152,7 @@ func (u *authenticationService) CreateSession(user *entities.User) (*entities.Se
 // ERRORS:
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserBySessionId(sessionId string) (*entities.User, error) {
+func (u *authenticationService) GetUserBySessionId(sessionId string) (*ds.User, error) {
 	user, err := u.storage.GetUserBySessionID(sessionId)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrDBEntryNotFound) {

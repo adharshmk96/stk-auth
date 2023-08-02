@@ -1,6 +1,9 @@
 package entities
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type CustomClaims struct {
 	UserID string `json:"user_id"`
@@ -12,40 +15,40 @@ type TokenService interface {
 	ValidateJWT(token string) (*CustomClaims, error)
 }
 type UserService interface {
-	CreateUser(user *User) (*User, error)
-	Authenticate(login *User) error
-	ChangePassword(user *User) error
-	GetUserByID(userId string) (*User, error)
+	CreateUser(user *ds.User) (*ds.User, error)
+	Authenticate(login *ds.User) error
+	ChangePassword(user *ds.User) error
+	GetUserByID(userId string) (*ds.User, error)
 }
 
 type SessionService interface {
-	CreateSession(user *User) (*Session, error)
-	GetUserBySessionId(sessionId string) (*User, error)
+	CreateSession(user *ds.User) (*ds.Session, error)
+	GetUserBySessionId(sessionId string) (*ds.User, error)
 	LogoutUserBySessionId(sessionId string) error
 }
 
 type GroupService interface {
-	CreateGroup(group *Group) (*Group, error)
-	GetGroupsByUserID(userId UserID) ([]*Group, error)
-	UpdateGroupByID(group *Group) error
+	CreateGroup(group *ds.Group) (*ds.Group, error)
+	GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error)
+	UpdateGroupByID(group *ds.Group) error
 	DeleteGroupByID(groupId string) error
-	AddUserToGroup(userId UserID, groupId string) error
-	RemoveUserFromGroup(userId UserID, groupId string) error
-	CheckUserInGroup(userId UserID, groupId string) (bool, error)
+	AddUserToGroup(userId ds.UserID, groupId string) error
+	RemoveUserFromGroup(userId ds.UserID, groupId string) error
+	CheckUserInGroup(userId ds.UserID, groupId string) (bool, error)
 }
 
-// TODO: Split to admin and user
-type AuthenticationService interface {
-	UserService
-	SessionService
-	GroupService
-	TokenService
-}
-
-type AdminService interface {
-	GetUserList(limit int, offset int) ([]*User, error)
-	GetTotalUsersCount() (int64, error)
-	GetUserDetails(userId UserID) (*User, error)
-	// UpdateUser(user *Account) error
-	// DeleteUser(userId string) error
-}
+type (
+	AuthenticationService interface {
+		UserService
+		SessionService
+		GroupService
+		TokenService
+	}
+	AdminService interface {
+		GetUserList(limit int, offset int) ([]*ds.User, error)
+		GetTotalUsersCount() (int64, error)
+		GetUserDetails(userId ds.UserID) (*ds.User, error)
+		// UpdateUser(user *Account) error
+		// DeleteUser(userId string) error
+	}
+)

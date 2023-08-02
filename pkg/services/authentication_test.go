@@ -1,6 +1,7 @@
 package services_test
 
 import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 	user_password := "testpassword"
 
-	userData := &entities.User{
+	userData := &ds.User{
 		Username: "testuser",
 		Password: user_password,
 		Email:    "mail@email.com",
@@ -62,7 +63,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		newUserData := &entities.User{
+		newUserData := &ds.User{
 			Username: "testuser",
 			Password: user_password,
 		}
@@ -103,7 +104,7 @@ func TestAuthenticationService_CreateUser(t *testing.T) {
 
 func TestAuthenticationService_Authenticate(t *testing.T) {
 
-	user_id := entities.UserID(uuid.New())
+	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	user_password := "testpassword"
@@ -113,7 +114,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 	salt, _ := utils.GenerateSalt()
 	hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
 
-	storedData := &entities.User{
+	storedData := &ds.User{
 		ID:        user_id,
 		Username:  "testuser",
 		Password:  hashedPassword,
@@ -129,7 +130,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(storedData, nil)
 
-		user := &entities.User{
+		user := &ds.User{
 			Username: user_name,
 			Password: user_password,
 		}
@@ -153,7 +154,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		user := &entities.User{
+		user := &ds.User{
 			Email:    user_email,
 			Password: user_password,
 		}
@@ -177,7 +178,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByUsername", mock.Anything).Return(nil, svrerr.ErrDBEntryNotFound)
 
-		user := &entities.User{
+		user := &ds.User{
 			Username: user_name,
 			Password: user_password,
 		}
@@ -197,7 +198,7 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 
 		mockStore.On("GetUserByEmail", mock.Anything).Return(storedData, nil)
 
-		user := &entities.User{
+		user := &ds.User{
 			Email:    user_email,
 			Password: "wrongpassword",
 		}
@@ -213,13 +214,13 @@ func TestAuthenticationService_Authenticate(t *testing.T) {
 }
 
 func TestAuthenticationService_GetUserByID(t *testing.T) {
-	user_id := entities.UserID(uuid.New())
+	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &entities.User{
+	storedData := &ds.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,
@@ -265,7 +266,7 @@ func TestAuthenticationService_ChangePassword(t *testing.T) {
 	created_at := lastHour
 	updated_at := lastHour
 
-	inputUser := &entities.User{
+	inputUser := &ds.User{
 		Email:     email,
 		Password:  new_password,
 		CreatedAt: created_at,
@@ -306,10 +307,10 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(nil).Once()
+		mockStore.On("SaveSession", mock.AnythingOfType("*ds.Session")).Return(nil).Once()
 
-		requestData := &entities.User{
-			ID:       entities.UserID(uuid.New()),
+		requestData := &ds.User{
+			ID:       ds.UserID(uuid.New()),
 			Username: user_name,
 		}
 		userSession, err := service.CreateSession(requestData)
@@ -327,10 +328,10 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		mockStore.On("SaveSession", mock.AnythingOfType("*entities.Session")).Return(svrerr.ErrDBStorageFailed).Once()
+		mockStore.On("SaveSession", mock.AnythingOfType("*ds.Session")).Return(svrerr.ErrDBStorageFailed).Once()
 
-		requestData := &entities.User{
-			ID:       entities.UserID(uuid.New()),
+		requestData := &ds.User{
+			ID:       ds.UserID(uuid.New()),
 			Username: user_name,
 		}
 		userSession, err := service.CreateSession(requestData)
@@ -346,7 +347,7 @@ func TestAuthenticationService_CreateSession(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		requestData := &entities.User{}
+		requestData := &ds.User{}
 
 		userSession, err := service.CreateSession(requestData)
 
@@ -411,7 +412,7 @@ func TestAuthenticationService_LogoutUserBySessionId(t *testing.T) {
 }
 
 func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
-	user_id := entities.UserID(uuid.New())
+	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	// user_password := "testpassword"
@@ -422,7 +423,7 @@ func TestAuthenticationService_GetUserBySessionID(t *testing.T) {
 	// hashedPassword, hashedSalt := utils.HashPassword(user_password, salt)
 	session_id := uuid.NewString()
 
-	storedData := &entities.User{
+	storedData := &ds.User{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,

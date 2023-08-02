@@ -1,11 +1,13 @@
 package services
 
-import "github.com/adharshmk96/stk-auth/pkg/entities"
+import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+)
 
 // GetUserList retrieves the list of users from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *adminService) GetUserList(limit int, offset int) ([]*entities.User, error) {
+func (u *adminService) GetUserList(limit int, offset int) ([]*ds.User, error) {
 
 	if limit == 0 {
 		limit = 10
@@ -32,7 +34,7 @@ func (u *adminService) GetTotalUsersCount() (int64, error) {
 // GetUserDetails retrieves the user details from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *adminService) GetUserDetails(userID entities.UserID) (*entities.User, error) {
+func (u *adminService) GetUserDetails(userID ds.UserID) (*ds.User, error) {
 	user, err := u.storage.GetUserByUserID(userID.String())
 	if err != nil {
 		return nil, err

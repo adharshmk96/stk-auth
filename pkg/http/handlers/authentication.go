@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"net/http"
 	"time"
 
@@ -28,7 +29,7 @@ var (
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
 func (h *authenticationHandler) RegisterUser(gc *gsk.Context) {
-	var user *entities.User
+	var user *ds.User
 
 	err := gc.DecodeJSONBody(&user)
 	if err != nil {
@@ -110,7 +111,7 @@ func (h *authenticationHandler) ChangeCredentials(gc *gsk.Context) {
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
 func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
-	var userLogin *entities.User
+	var userLogin *ds.User
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
@@ -175,7 +176,7 @@ func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
 func (h *authenticationHandler) LoginUserToken(gc *gsk.Context) {
-	var userLogin *entities.User
+	var userLogin *ds.User
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
