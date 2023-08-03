@@ -15,11 +15,11 @@ type AuthenticationService struct {
 }
 
 // AddUserToGroup provides a mock function with given fields: userId, groupId
-func (_m *AuthenticationService) AddUserToGroup(userId ds.UserID, groupId string) error {
+func (_m *AuthenticationService) AddUserToGroup(userId ds.AccountID, groupId string) error {
 	ret := _m.Called(userId, groupId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) error); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Error(0)
@@ -29,11 +29,11 @@ func (_m *AuthenticationService) AddUserToGroup(userId ds.UserID, groupId string
 }
 
 // Authenticate provides a mock function with given fields: login
-func (_m *AuthenticationService) Authenticate(login *ds.User) error {
+func (_m *AuthenticationService) Authenticate(login *ds.Account) error {
 	ret := _m.Called(login)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) error); ok {
 		r0 = rf(login)
 	} else {
 		r0 = ret.Error(0)
@@ -43,11 +43,11 @@ func (_m *AuthenticationService) Authenticate(login *ds.User) error {
 }
 
 // ChangePassword provides a mock function with given fields: user
-func (_m *AuthenticationService) ChangePassword(user *ds.User) error {
+func (_m *AuthenticationService) ChangePassword(user *ds.Account) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -57,21 +57,21 @@ func (_m *AuthenticationService) ChangePassword(user *ds.User) error {
 }
 
 // CheckUserInGroup provides a mock function with given fields: userId, groupId
-func (_m *AuthenticationService) CheckUserInGroup(userId ds.UserID, groupId string) (bool, error) {
+func (_m *AuthenticationService) CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error) {
 	ret := _m.Called(userId, groupId)
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) (bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) (bool, error)); ok {
 		return rf(userId, groupId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) bool); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) bool); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID, string) error); ok {
 		r1 = rf(userId, groupId)
 	} else {
 		r1 = ret.Error(1)
@@ -107,15 +107,15 @@ func (_m *AuthenticationService) CreateGroup(group *ds.Group) (*ds.Group, error)
 }
 
 // CreateSession provides a mock function with given fields: user
-func (_m *AuthenticationService) CreateSession(user *ds.User) (*ds.Session, error) {
+func (_m *AuthenticationService) CreateSession(user *ds.Account) (*ds.Session, error) {
 	ret := _m.Called(user)
 
 	var r0 *ds.Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*ds.User) (*ds.Session, error)); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) (*ds.Session, error)); ok {
 		return rf(user)
 	}
-	if rf, ok := ret.Get(0).(func(*ds.User) *ds.Session); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) *ds.Session); ok {
 		r0 = rf(user)
 	} else {
 		if ret.Get(0) != nil {
@@ -123,7 +123,7 @@ func (_m *AuthenticationService) CreateSession(user *ds.User) (*ds.Session, erro
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(1).(func(*ds.Account) error); ok {
 		r1 = rf(user)
 	} else {
 		r1 = ret.Error(1)
@@ -133,23 +133,23 @@ func (_m *AuthenticationService) CreateSession(user *ds.User) (*ds.Session, erro
 }
 
 // CreateUser provides a mock function with given fields: user
-func (_m *AuthenticationService) CreateUser(user *ds.User) (*ds.User, error) {
+func (_m *AuthenticationService) CreateUser(user *ds.Account) (*ds.Account, error) {
 	ret := _m.Called(user)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*ds.User) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) (*ds.Account, error)); ok {
 		return rf(user)
 	}
-	if rf, ok := ret.Get(0).(func(*ds.User) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) *ds.Account); ok {
 		r0 = rf(user)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(1).(func(*ds.Account) error); ok {
 		r1 = rf(user)
 	} else {
 		r1 = ret.Error(1)
@@ -197,15 +197,15 @@ func (_m *AuthenticationService) GenerateJWT(claims *entities.CustomClaims) (str
 }
 
 // GetGroupsByUserID provides a mock function with given fields: userId
-func (_m *AuthenticationService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error) {
+func (_m *AuthenticationService) GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error) {
 	ret := _m.Called(userId)
 
 	var r0 []*ds.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID) ([]*ds.Group, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) ([]*ds.Group, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID) []*ds.Group); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) []*ds.Group); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
@@ -213,7 +213,7 @@ func (_m *AuthenticationService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Grou
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID) error); ok {
 		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
@@ -247,19 +247,19 @@ func (_m *AuthenticationService) GetTotalUsersCount() (int64, error) {
 }
 
 // GetUserByID provides a mock function with given fields: userId
-func (_m *AuthenticationService) GetUserByID(userId string) (*ds.User, error) {
+func (_m *AuthenticationService) GetUserByID(userId string) (*ds.Account, error) {
 	ret := _m.Called(userId)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(string) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
@@ -273,19 +273,19 @@ func (_m *AuthenticationService) GetUserByID(userId string) (*ds.User, error) {
 }
 
 // GetUserBySessionId provides a mock function with given fields: sessionId
-func (_m *AuthenticationService) GetUserBySessionId(sessionId string) (*ds.User, error) {
+func (_m *AuthenticationService) GetUserBySessionId(sessionId string) (*ds.Account, error) {
 	ret := _m.Called(sessionId)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
 		return rf(sessionId)
 	}
-	if rf, ok := ret.Get(0).(func(string) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
 		r0 = rf(sessionId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
@@ -299,23 +299,23 @@ func (_m *AuthenticationService) GetUserBySessionId(sessionId string) (*ds.User,
 }
 
 // GetUserDetails provides a mock function with given fields: userId
-func (_m *AuthenticationService) GetUserDetails(userId ds.UserID) (*ds.User, error) {
+func (_m *AuthenticationService) GetUserDetails(userId ds.AccountID) (*ds.Account, error) {
 	ret := _m.Called(userId)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) (*ds.Account, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) *ds.Account); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID) error); ok {
 		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
@@ -325,19 +325,19 @@ func (_m *AuthenticationService) GetUserDetails(userId ds.UserID) (*ds.User, err
 }
 
 // GetUserList provides a mock function with given fields: limit, offset
-func (_m *AuthenticationService) GetUserList(limit int, offset int) ([]*ds.User, error) {
+func (_m *AuthenticationService) GetUserList(limit int, offset int) ([]*ds.Account, error) {
 	ret := _m.Called(limit, offset)
 
-	var r0 []*ds.User
+	var r0 []*ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) ([]*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(int, int) ([]*ds.Account, error)); ok {
 		return rf(limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(int, int) []*ds.User); ok {
+	if rf, ok := ret.Get(0).(func(int, int) []*ds.Account); ok {
 		r0 = rf(limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ds.User)
+			r0 = ret.Get(0).([]*ds.Account)
 		}
 	}
 
@@ -365,11 +365,11 @@ func (_m *AuthenticationService) LogoutUserBySessionId(sessionId string) error {
 }
 
 // RemoveUserFromGroup provides a mock function with given fields: userId, groupId
-func (_m *AuthenticationService) RemoveUserFromGroup(userId ds.UserID, groupId string) error {
+func (_m *AuthenticationService) RemoveUserFromGroup(userId ds.AccountID, groupId string) error {
 	ret := _m.Called(userId, groupId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) error); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Error(0)

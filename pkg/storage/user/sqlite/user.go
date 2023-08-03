@@ -3,15 +3,16 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"strings"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
 
 // SaveUser Stores User in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
-func (s *sqliteStorage) SaveUser(user *ds.User) error {
+func (s *sqliteStorage) SaveUser(user *ds.Account) error {
 
 	result, err := s.conn.Exec(
 		Q_InsertUserQuery,
@@ -42,12 +43,12 @@ func (s *sqliteStorage) SaveUser(user *ds.User) error {
 
 // GetUserByEmail Retrieves User from the db by email
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByEmail(email string) (*ds.User, error) {
+func (s *sqliteStorage) GetUserByEmail(email string) (*ds.Account, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByEmail, email)
 
 	var userId string
-	var user ds.User
+	var user ds.Account
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -70,7 +71,7 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*ds.User, error) {
 	}
 
 	user.Username = username.String
-	user.ID, err = ds.ParseUserId(userId)
+	user.ID, err = ds.ParseAccountId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
 		return nil, svrerr.ErrParsingUserID
@@ -81,12 +82,12 @@ func (s *sqliteStorage) GetUserByEmail(email string) (*ds.User, error) {
 
 // GetUserByUsername Retrieves User from the db by username
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByUsername(uname string) (*ds.User, error) {
+func (s *sqliteStorage) GetUserByUsername(uname string) (*ds.Account, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByUsername, uname)
 
 	var userId string
-	var user ds.User
+	var user ds.Account
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -109,7 +110,7 @@ func (s *sqliteStorage) GetUserByUsername(uname string) (*ds.User, error) {
 	}
 
 	user.Username = username.String
-	user.ID, err = ds.ParseUserId(userId)
+	user.ID, err = ds.ParseAccountId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
 		return nil, svrerr.ErrDBStorageFailed
@@ -120,12 +121,12 @@ func (s *sqliteStorage) GetUserByUsername(uname string) (*ds.User, error) {
 
 // GetUserByUserID Retrieves User from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserByUserID(uid string) (*ds.User, error) {
+func (s *sqliteStorage) GetUserByUserID(uid string) (*ds.Account, error) {
 
 	row := s.conn.QueryRow(Q_GetUserByID, uid)
 
 	var userId string
-	var user ds.User
+	var user ds.Account
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -148,7 +149,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*ds.User, error) {
 	}
 
 	user.Username = username.String
-	user.ID, err = ds.ParseUserId(userId)
+	user.ID, err = ds.ParseAccountId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
 		return nil, err
@@ -159,7 +160,7 @@ func (s *sqliteStorage) GetUserByUserID(uid string) (*ds.User, error) {
 
 // UpdateUserByID Updates User in the db by user id
 // ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
-func (s *sqliteStorage) UpdateUserByID(user *ds.User) error {
+func (s *sqliteStorage) UpdateUserByID(user *ds.Account) error {
 	userName := NewNullString(user.Username)
 	result, err := s.conn.Exec(
 		Q_UpdateUserByID,
@@ -193,7 +194,7 @@ func (s *sqliteStorage) UpdateUserByID(user *ds.User) error {
 
 // GetUserList Retrieves User list from the db
 // ERRORS: ErrDBRetrievingData
-func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*ds.User, error) {
+func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*ds.Account, error) {
 
 	rows, err := s.conn.Query(Q_GetUserList, limit, offset)
 	if err != nil {
@@ -202,10 +203,10 @@ func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*ds.User, error) {
 	}
 	defer rows.Close()
 
-	var users []*ds.User
+	var users []*ds.Account
 	for rows.Next() {
 		var userId string
-		var user ds.User
+		var user ds.Account
 		var username sql.NullString
 		err := rows.Scan(
 			&userId,
@@ -220,7 +221,7 @@ func (s *sqliteStorage) GetUserList(limit int, offset int) ([]*ds.User, error) {
 		}
 
 		user.Username = username.String
-		user.ID, err = ds.ParseUserId(userId)
+		user.ID, err = ds.ParseAccountId(userId)
 		if err != nil {
 			logger.Error("error parsing user id: ", err)
 			return nil, svrerr.ErrDBStorageFailed

@@ -1,8 +1,9 @@
 package services_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/services"
@@ -62,7 +63,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 	t.Run("AddUserToGroup adds user to group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(nil).Once()
@@ -78,7 +79,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 	t.Run("AddUserToGroup returns error when user is not added to group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
@@ -94,7 +95,7 @@ func TestAuthenticationService_AddUserToGroup(t *testing.T) {
 	t.Run("returns error when same user is added to group again", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
@@ -186,7 +187,7 @@ func TestAuthenticationService_CheckUserInGroup(t *testing.T) {
 	t.Run("CheckUserInGroup returns true when user is in group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
@@ -202,7 +203,7 @@ func TestAuthenticationService_CheckUserInGroup(t *testing.T) {
 	t.Run("CheckUserInGroup returns false when user is not in group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
@@ -220,7 +221,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 	t.Run("GetUserGroups returns user groups without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 
 		groups := []*ds.Group{
 			{
@@ -249,7 +250,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 	t.Run("GetUserGroups returns error when user groups are not retrieved", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 
 		storage.On("GetGroupsByUserID", userId.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
@@ -265,7 +266,7 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 	t.Run("GetUserGroups returns empty user groups when user has no groups", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 
 		storage.On("GetGroupsByUserID", userId.String()).Return([]*ds.Group{}, nil).Once()
 
@@ -284,7 +285,7 @@ func TestAuthenticationService_RemoveUserFromGrou(t *testing.T) {
 	t.Run("RemoveUserFromGroup removes user from group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(nil).Once()
@@ -300,7 +301,7 @@ func TestAuthenticationService_RemoveUserFromGrou(t *testing.T) {
 	t.Run("RemoveUserFromGroup returns error when user is not removed from group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.UserID(uuid.New())
+		userId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
 		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(svrerr.ErrDBStorageFailed).Once()

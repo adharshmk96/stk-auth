@@ -1,8 +1,9 @@
 package sqlite
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"strings"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
@@ -12,7 +13,7 @@ import (
 func (s *sqliteStorage) SaveGroupAssociation(association *ds.UserGroupAssociation) error {
 	result, err := s.conn.Exec(
 		Q_InsertUserGroupAssociation,
-		association.UserID.String(),
+		association.AccountID.String(),
 		association.GroupID,
 		association.CreatedAt,
 	)

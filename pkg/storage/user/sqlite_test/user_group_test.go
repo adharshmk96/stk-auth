@@ -1,9 +1,10 @@
 package sqlite_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
@@ -37,8 +38,8 @@ func TestSaveGroupAssociation(t *testing.T) {
 		userId := uuid.New()
 
 		groupAssociation := &ds.UserGroupAssociation{
-			UserID:  ds.UserID(userId),
-			GroupID: groupId,
+			AccountID: ds.AccountID(userId),
+			GroupID:   groupId,
 		}
 
 		err := groupStorage.SaveGroupAssociation(groupAssociation)
@@ -52,8 +53,8 @@ func TestSaveGroupAssociation(t *testing.T) {
 		userId := uuid.New()
 
 		groupAssociation := &ds.UserGroupAssociation{
-			UserID:  ds.UserID(userId),
-			GroupID: groupId,
+			AccountID: ds.AccountID(userId),
+			GroupID:   groupId,
 		}
 
 		err := groupStorage.SaveGroupAssociation(groupAssociation)
@@ -91,8 +92,8 @@ func TestGetGroupsByUserId(t *testing.T) {
 		userId := uuid.New()
 
 		groupAssociation := &ds.UserGroupAssociation{
-			UserID:  ds.UserID(userId),
-			GroupID: groupId,
+			AccountID: ds.AccountID(userId),
+			GroupID:   groupId,
 		}
 
 		groupStorage.SaveGroupAssociation(groupAssociation)
@@ -138,8 +139,8 @@ func TestDeleteUserGroupAssociation(t *testing.T) {
 		userId := uuid.New()
 
 		groupAssociation := &ds.UserGroupAssociation{
-			UserID:  ds.UserID(userId),
-			GroupID: groupId,
+			AccountID: ds.AccountID(userId),
+			GroupID:   groupId,
 		}
 
 		groupStorage.SaveGroupAssociation(groupAssociation)

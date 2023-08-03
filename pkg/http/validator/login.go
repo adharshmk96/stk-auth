@@ -10,7 +10,7 @@ const (
 	EmailUserNameUsed       = "email cannot be used with username"
 )
 
-func ValidateLogin(login *ds.User) map[string]string {
+func ValidateLogin(login *ds.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if login.Username == "" && login.Email == "" {

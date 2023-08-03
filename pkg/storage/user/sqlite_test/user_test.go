@@ -1,9 +1,10 @@
 package sqlite_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
@@ -28,10 +29,10 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	time_now := time.Now()
 
-	user := &ds.User{
+	user := &ds.Account{
 		ID:        userId,
 		Username:  "test",
 		Password:  "test",
@@ -85,8 +86,8 @@ func TestUserStorage_EmptyDatabase(t *testing.T) {
 	})
 
 	t.Run("SaveUser returns error when same user is saved again", func(t *testing.T) {
-		user := &ds.User{
-			ID:        ds.UserID(uuid.New()),
+		user := &ds.Account{
+			ID:        ds.AccountID(uuid.New()),
 			Username:  "test2",
 			Password:  "test",
 			Salt:      "salt",
@@ -108,10 +109,10 @@ func TestUserStorage_GetUserByX(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	time_now := time.Now()
 
-	user := &ds.User{
+	user := &ds.Account{
 		ID:        userId,
 		Username:  "test",
 		Password:  "test",
@@ -196,14 +197,14 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	username := "test"
 	email := "test@user.com"
 	password := "test"
 	salt := "test"
 	time_now := time.Now()
 
-	user := &ds.User{
+	user := &ds.Account{
 		ID:        userId,
 		Username:  username,
 		Password:  password,
@@ -232,7 +233,7 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		newSalt := "newSalt"
 		newUpdatedAt := time.Now()
 
-		newUser := &ds.User{
+		newUser := &ds.Account{
 			ID:        userId,
 			Username:  newUsername,
 			Email:     newEmail,
@@ -266,8 +267,8 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 		newSalt := "newSalt"
 		newUpdatedAt := time.Now()
 
-		newUser := &ds.User{
-			ID:        ds.UserID(uuid.New()),
+		newUser := &ds.Account{
+			ID:        ds.AccountID(uuid.New()),
 			Username:  newUsername,
 			Email:     newEmail,
 			Password:  newPassword,
@@ -300,8 +301,8 @@ func TestUserStorage_UpdateUserByID(t *testing.T) {
 	})
 }
 
-func generateRandomUsers(n int) []*ds.User {
-	users := make([]*ds.User, n)
+func generateRandomUsers(n int) []*ds.Account {
+	users := make([]*ds.Account, n)
 	for i := 0; i < n; i++ {
 		users[i] = generateRandomUser()
 	}

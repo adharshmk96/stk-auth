@@ -2,8 +2,9 @@ package sqlite_test
 
 import (
 	"database/sql"
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk/pkg/db"
@@ -69,15 +70,15 @@ func tearDownDatabase() {
 	db.ResetSqliteConnection()
 }
 
-func generateRandomUser() *ds.User {
-	userId := ds.UserID(uuid.New())
+func generateRandomUser() *ds.Account {
+	userId := ds.AccountID(uuid.New())
 	username := "test" + uuid.NewString()
 	email := "u" + uuid.NewString() + "@mail.com"
 	password := "Test123#"
 	salt := "test" + uuid.NewString()
 	time_now := time.Now()
 
-	user := &ds.User{
+	user := &ds.Account{
 		ID:        userId,
 		Username:  username,
 		Password:  password,

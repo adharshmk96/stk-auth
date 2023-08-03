@@ -14,11 +14,11 @@ type groupService struct {
 }
 
 // AddUserToGroup provides a mock function with given fields: userId, groupId
-func (_m *groupService) AddUserToGroup(userId ds.UserID, groupId string) error {
+func (_m *groupService) AddUserToGroup(userId ds.AccountID, groupId string) error {
 	ret := _m.Called(userId, groupId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) error); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Error(0)
@@ -28,21 +28,21 @@ func (_m *groupService) AddUserToGroup(userId ds.UserID, groupId string) error {
 }
 
 // CheckUserInGroup provides a mock function with given fields: userId, groupId
-func (_m *groupService) CheckUserInGroup(userId ds.UserID, groupId string) (bool, error) {
+func (_m *groupService) CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error) {
 	ret := _m.Called(userId, groupId)
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) (bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) (bool, error)); ok {
 		return rf(userId, groupId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) bool); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) bool); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID, string) error); ok {
 		r1 = rf(userId, groupId)
 	} else {
 		r1 = ret.Error(1)
@@ -92,15 +92,15 @@ func (_m *groupService) DeleteGroupByID(groupId string) error {
 }
 
 // GetGroupsByUserID provides a mock function with given fields: userId
-func (_m *groupService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error) {
+func (_m *groupService) GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error) {
 	ret := _m.Called(userId)
 
 	var r0 []*ds.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID) ([]*ds.Group, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) ([]*ds.Group, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID) []*ds.Group); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) []*ds.Group); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
@@ -108,7 +108,7 @@ func (_m *groupService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID) error); ok {
 		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
@@ -118,11 +118,11 @@ func (_m *groupService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error)
 }
 
 // RemoveUserFromGroup provides a mock function with given fields: userId, groupId
-func (_m *groupService) RemoveUserFromGroup(userId ds.UserID, groupId string) error {
+func (_m *groupService) RemoveUserFromGroup(userId ds.AccountID, groupId string) error {
 	ret := _m.Called(userId, groupId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(ds.UserID, string) error); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID, string) error); ok {
 		r0 = rf(userId, groupId)
 	} else {
 		r0 = ret.Error(0)

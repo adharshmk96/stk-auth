@@ -1,9 +1,10 @@
 package validator
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"regexp"
 	"unicode"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 )
 
 const (
@@ -61,7 +62,7 @@ func registrationEmail(email string) error {
 	return nil
 }
 
-func ValidateRegistration(user *ds.User) map[string]string {
+func ValidateRegistration(user *ds.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if user.Email == "" {

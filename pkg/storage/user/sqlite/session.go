@@ -3,8 +3,9 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"strings"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 )
@@ -14,7 +15,7 @@ import (
 func (s *sqliteStorage) SaveSession(session *ds.Session) error {
 	result, err := s.conn.Exec(
 		Q_InsertSession,
-		session.UserID.String(),
+		session.AccountID.String(),
 		session.SessionID,
 		session.CreatedAt,
 		session.UpdatedAt,
@@ -62,7 +63,7 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*ds.Session, error) {
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
-	session.UserID, err = ds.ParseUserId(userId)
+	session.AccountID, err = ds.ParseAccountId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
 		return nil, svrerr.ErrParsingUserID
@@ -73,11 +74,11 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*ds.Session, error) {
 
 // GetUserBySessionID Retrieves Session from the db by user id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*ds.User, error) {
+func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*ds.Account, error) {
 	row := s.conn.QueryRow(Q_GetUserBySessionID, sessionId)
 
 	var userId string
-	var user ds.User
+	var user ds.Account
 	var username sql.NullString
 	err := row.Scan(
 		&userId,
@@ -98,7 +99,7 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*ds.User, error) {
 	}
 
 	user.Username = username.String
-	user.ID, err = ds.ParseUserId(userId)
+	user.ID, err = ds.ParseAccountId(userId)
 	if err != nil {
 		logger.Error("error parsing user id: ", err)
 		return nil, err

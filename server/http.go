@@ -70,14 +70,14 @@ func intializeServer(server *gsk.Server) {
 	authStorage := sqlite.NewAccountStorage(connection)
 	authService := services.NewAuthenticationService(authStorage)
 
-	userHandler := handlers.NewUserManagementHandler(authService)
+	userHandler := handlers.NewAccountHandler(authService)
 	adminHandler := handlers.NewAdminHandler(authService)
 
 	// Health check
 	server.Get("/health", handlers.HealthCheckHandler)
 
 	apiRoutes := server.RouteGroup("/api")
-	routing.SetupUserRoutes(apiRoutes, userHandler)
+	routing.SetupAccountRoutes(apiRoutes, userHandler)
 	routing.SetupAdminRoutes(apiRoutes, adminHandler)
 
 	CreateAdmin(authService)

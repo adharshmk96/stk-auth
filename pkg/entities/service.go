@@ -15,31 +15,31 @@ type tokenService interface {
 	ValidateJWT(token string) (*CustomClaims, error)
 }
 type userService interface {
-	CreateUser(user *ds.User) (*ds.User, error)
-	Authenticate(login *ds.User) error
-	ChangePassword(user *ds.User) error
-	GetUserByID(userId string) (*ds.User, error)
+	CreateUser(user *ds.Account) (*ds.Account, error)
+	Authenticate(login *ds.Account) error
+	ChangePassword(user *ds.Account) error
+	GetUserByID(userId string) (*ds.Account, error)
 
 	// Admin methods
-	GetUserList(limit int, offset int) ([]*ds.User, error)
+	GetUserList(limit int, offset int) ([]*ds.Account, error)
 	GetTotalUsersCount() (int64, error)
-	GetUserDetails(userId ds.UserID) (*ds.User, error)
+	GetUserDetails(userId ds.AccountID) (*ds.Account, error)
 }
 
 type sessionService interface {
-	CreateSession(user *ds.User) (*ds.Session, error)
-	GetUserBySessionId(sessionId string) (*ds.User, error)
+	CreateSession(user *ds.Account) (*ds.Session, error)
+	GetUserBySessionId(sessionId string) (*ds.Account, error)
 	LogoutUserBySessionId(sessionId string) error
 }
 
 type groupService interface {
 	CreateGroup(group *ds.Group) (*ds.Group, error)
-	GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error)
+	GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error)
 	UpdateGroupByID(group *ds.Group) error
 	DeleteGroupByID(groupId string) error
-	AddUserToGroup(userId ds.UserID, groupId string) error
-	RemoveUserFromGroup(userId ds.UserID, groupId string) error
-	CheckUserInGroup(userId ds.UserID, groupId string) (bool, error)
+	AddUserToGroup(userId ds.AccountID, groupId string) error
+	RemoveUserFromGroup(userId ds.AccountID, groupId string) error
+	CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error)
 }
 
 type AuthenticationService interface {

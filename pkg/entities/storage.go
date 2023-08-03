@@ -4,15 +4,15 @@ import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 type userStore interface {
 	// Create
-	SaveUser(user *ds.User) error
+	SaveUser(user *ds.Account) error
 	// Read
 	GetTotalUsersCount() (int64, error)
-	GetUserByUserID(email string) (*ds.User, error)
-	GetUserByEmail(email string) (*ds.User, error)
-	GetUserByUsername(username string) (*ds.User, error)
-	GetUserList(limit int, offset int) ([]*ds.User, error)
+	GetUserByUserID(email string) (*ds.Account, error)
+	GetUserByEmail(email string) (*ds.Account, error)
+	GetUserByUsername(username string) (*ds.Account, error)
+	GetUserList(limit int, offset int) ([]*ds.Account, error)
 	// Update
-	UpdateUserByID(user *ds.User) error
+	UpdateUserByID(user *ds.Account) error
 	// Delete
 	DeleteUserByID(userID string) error
 }
@@ -22,7 +22,7 @@ type sessionStore interface {
 	SaveSession(session *ds.Session) error
 	// Read
 	GetSessionByID(sessionID string) (*ds.Session, error)
-	GetUserBySessionID(sessionID string) (*ds.User, error)
+	GetUserBySessionID(sessionID string) (*ds.Account, error)
 	// Update
 	InvalidateSessionByID(sessionID string) error
 }

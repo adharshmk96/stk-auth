@@ -13,7 +13,7 @@ type Group struct {
 }
 
 type UserGroupAssociation struct {
-	UserID    UserID    `json:"user_id"`
+	AccountID AccountID `json:"user_id"`
 	GroupID   string    `json:"group_id"`
 	CreatedAt time.Time `json:"created_at"`
 }

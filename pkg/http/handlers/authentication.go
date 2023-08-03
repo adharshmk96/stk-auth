@@ -29,8 +29,8 @@ var (
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *authenticationHandler) RegisterUser(gc *gsk.Context) {
-	var user *ds.User
+func (h *accountHandler) RegisterUser(gc *gsk.Context) {
+	var user *ds.Account
 
 	err := gc.DecodeJSONBody(&user)
 	if err != nil {
@@ -69,7 +69,7 @@ func (h *authenticationHandler) RegisterUser(gc *gsk.Context) {
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
 // - storage: ErrDBStorageFailed
-func (h *authenticationHandler) ChangeCredentials(gc *gsk.Context) {
+func (h *accountHandler) ChangeCredentials(gc *gsk.Context) {
 	var credentials *transport.CredentialUpdateRequest
 
 	err := gc.DecodeJSONBody(&credentials)
@@ -111,8 +111,8 @@ func (h *authenticationHandler) ChangeCredentials(gc *gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
-	var userLogin *ds.User
+func (h *accountHandler) LoginUserSession(gc *gsk.Context) {
+	var userLogin *ds.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
@@ -138,7 +138,7 @@ func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
 		return
 	}
 
-	userData, err := h.authService.GetUserByID(sessionData.UserID.String())
+	userData, err := h.authService.GetUserByID(sessionData.AccountID.String())
 	if err != nil {
 		transport.HandleGetUserError(err, gc)
 		return
@@ -176,8 +176,8 @@ func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *authenticationHandler) LoginUserToken(gc *gsk.Context) {
-	var userLogin *ds.User
+func (h *accountHandler) LoginUserToken(gc *gsk.Context) {
+	var userLogin *ds.Account
 
 	err := gc.DecodeJSONBody(&userLogin)
 	if err != nil {
@@ -283,7 +283,7 @@ func generateTokens(userId, requestHost string, svc entities.AuthenticationServi
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *authenticationHandler) GetSessionUser(gc *gsk.Context) {
+func (h *accountHandler) GetSessionUser(gc *gsk.Context) {
 	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -325,7 +325,7 @@ func (h *authenticationHandler) GetSessionUser(gc *gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
+func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 	// TODO split to validate and refresh ?
 	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
@@ -440,7 +440,7 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *authenticationHandler) LogoutUser(gc *gsk.Context) {
+func (h *accountHandler) LogoutUser(gc *gsk.Context) {
 	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{

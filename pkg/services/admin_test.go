@@ -14,13 +14,13 @@ import (
 )
 
 func TestAuthenticationService_GetUserList(t *testing.T) {
-	user_id := ds.UserID(uuid.New())
+	user_id := ds.AccountID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &ds.User{
+	storedData := &ds.Account{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,
@@ -32,7 +32,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		mockStore.On("GetUserList", 10, 0).Return([]*ds.User{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 0).Return([]*ds.Account{storedData}, nil).Once()
 
 		user, err := service.GetUserList(0, 0)
 
@@ -62,7 +62,7 @@ func TestAuthenticationService_GetUserList(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
 		service := services.NewAuthenticationService(mockStore)
 
-		mockStore.On("GetUserList", 10, 10).Return([]*ds.User{storedData}, nil).Once()
+		mockStore.On("GetUserList", 10, 10).Return([]*ds.Account{storedData}, nil).Once()
 
 		user, err := service.GetUserList(10, 10)
 
@@ -105,13 +105,13 @@ func TestAuthenticationService_GetTotalUsersCount(t *testing.T) {
 }
 
 func TestAuthenticationService_GetUserDetails(t *testing.T) {
-	user_id := ds.UserID(uuid.New())
+	user_id := ds.AccountID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
 	created := time.Now()
 	updated := time.Now()
 
-	storedData := &ds.User{
+	storedData := &ds.Account{
 		ID:        user_id,
 		Username:  user_name,
 		Email:     user_email,

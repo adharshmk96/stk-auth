@@ -68,7 +68,7 @@ func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
 		return
 	}
 
-	parsedUserID, err := ds.ParseUserId(userID)
+	parsedUserID, err := ds.ParseAccountId(userID)
 	if err != nil {
 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
 			"message": transport.INVALID_USER_ID,

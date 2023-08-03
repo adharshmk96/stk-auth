@@ -7,7 +7,7 @@ import (
 // GetUserList retrieves the list of users from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserList(limit int, offset int) ([]*ds.User, error) {
+func (u *authenticationService) GetUserList(limit int, offset int) ([]*ds.Account, error) {
 
 	if limit == 0 {
 		limit = 10
@@ -34,7 +34,7 @@ func (u *authenticationService) GetTotalUsersCount() (int64, error) {
 // GetUserDetails retrieves the user details from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserDetails(userID ds.UserID) (*ds.User, error) {
+func (u *authenticationService) GetUserDetails(userID ds.AccountID) (*ds.Account, error) {
 	user, err := u.storage.GetUserByUserID(userID.String())
 	if err != nil {
 		return nil, err

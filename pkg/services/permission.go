@@ -1,8 +1,9 @@
 package services
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/google/uuid"
 )
@@ -24,7 +25,7 @@ func (s *authenticationService) CreateGroup(group *ds.Group) (*ds.Group, error) 
 	return group, nil
 }
 
-func (s *authenticationService) GetGroupsByUserID(userId ds.UserID) ([]*ds.Group, error) {
+func (s *authenticationService) GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error) {
 	groups, err := s.storage.GetGroupsByUserID(userId.String())
 	if err != nil {
 		return nil, err
@@ -53,11 +54,11 @@ func (s *authenticationService) DeleteGroupByID(groupId string) error {
 	return nil
 }
 
-func (s *authenticationService) AddUserToGroup(userId ds.UserID, groupId string) error {
+func (s *authenticationService) AddUserToGroup(userId ds.AccountID, groupId string) error {
 	time_now := time.Now()
 
 	groupAssociation := &ds.UserGroupAssociation{
-		UserID:    userId,
+		AccountID: userId,
 		GroupID:   groupId,
 		CreatedAt: time_now,
 	}
@@ -70,7 +71,7 @@ func (s *authenticationService) AddUserToGroup(userId ds.UserID, groupId string)
 	return nil
 }
 
-func (s *authenticationService) RemoveUserFromGroup(userId ds.UserID, groupId string) error {
+func (s *authenticationService) RemoveUserFromGroup(userId ds.AccountID, groupId string) error {
 	err := s.storage.DeleteUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return err
@@ -79,7 +80,7 @@ func (s *authenticationService) RemoveUserFromGroup(userId ds.UserID, groupId st
 	return nil
 }
 
-func (s *authenticationService) CheckUserInGroup(userId ds.UserID, groupId string) (bool, error) {
+func (s *authenticationService) CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error) {
 	groupAssociation, err := s.storage.CheckUserGroupAssociation(userId.String(), groupId)
 	if err != nil {
 		return false, err

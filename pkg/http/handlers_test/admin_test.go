@@ -25,9 +25,9 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewAdminHandler(service)
-		userList := []*ds.User{
+		userList := []*ds.Account{
 			{
-				ID:       ds.UserID(uuid.New()),
+				ID:       ds.AccountID(uuid.New()),
 				Username: "test",
 			},
 		}
@@ -46,9 +46,9 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewAdminHandler(service)
-		userList := []*ds.User{
+		userList := []*ds.Account{
 			{
-				ID:       ds.UserID(uuid.New()),
+				ID:       ds.AccountID(uuid.New()),
 				Username: "test",
 			},
 		}
@@ -67,9 +67,9 @@ func TestGetUserList(t *testing.T) {
 		// Arrange
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewAdminHandler(service)
-		userList := []*ds.User{
+		userList := []*ds.Account{
 			{
-				ID:       ds.UserID(uuid.New()),
+				ID:       ds.AccountID(uuid.New()),
 				Username: "test",
 			},
 		}
@@ -197,8 +197,8 @@ func TestCreateGroup(t *testing.T) {
 }
 
 func TestGetUserDetail(t *testing.T) {
-	storedUser := &ds.User{
-		ID:        ds.UserID(uuid.New()),
+	storedUser := &ds.Account{
+		ID:        ds.AccountID(uuid.New()),
 		Username:  "test",
 		Email:     "user@email.com",
 		CreatedAt: time.Now(),

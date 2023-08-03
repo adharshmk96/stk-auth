@@ -5,7 +5,7 @@ import (
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func SetupUserRoutes(apiRoutes *gsk.RouteGroup, authHandler entities.AuthenticationHandler) {
+func SetupAccountRoutes(apiRoutes *gsk.RouteGroup, authHandler entities.AuthenticationHandler) {
 	apiAuth := apiRoutes.RouteGroup("/auth")
 
 	apiAuth.Post("/register", authHandler.RegisterUser)

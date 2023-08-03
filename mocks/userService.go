@@ -14,11 +14,11 @@ type userService struct {
 }
 
 // Authenticate provides a mock function with given fields: login
-func (_m *userService) Authenticate(login *ds.User) error {
+func (_m *userService) Authenticate(login *ds.Account) error {
 	ret := _m.Called(login)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) error); ok {
 		r0 = rf(login)
 	} else {
 		r0 = ret.Error(0)
@@ -28,11 +28,11 @@ func (_m *userService) Authenticate(login *ds.User) error {
 }
 
 // ChangePassword provides a mock function with given fields: user
-func (_m *userService) ChangePassword(user *ds.User) error {
+func (_m *userService) ChangePassword(user *ds.Account) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -42,23 +42,23 @@ func (_m *userService) ChangePassword(user *ds.User) error {
 }
 
 // CreateUser provides a mock function with given fields: user
-func (_m *userService) CreateUser(user *ds.User) (*ds.User, error) {
+func (_m *userService) CreateUser(user *ds.Account) (*ds.Account, error) {
 	ret := _m.Called(user)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*ds.User) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) (*ds.Account, error)); ok {
 		return rf(user)
 	}
-	if rf, ok := ret.Get(0).(func(*ds.User) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(*ds.Account) *ds.Account); ok {
 		r0 = rf(user)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*ds.User) error); ok {
+	if rf, ok := ret.Get(1).(func(*ds.Account) error); ok {
 		r1 = rf(user)
 	} else {
 		r1 = ret.Error(1)
@@ -92,19 +92,19 @@ func (_m *userService) GetTotalUsersCount() (int64, error) {
 }
 
 // GetUserByID provides a mock function with given fields: userId
-func (_m *userService) GetUserByID(userId string) (*ds.User, error) {
+func (_m *userService) GetUserByID(userId string) (*ds.Account, error) {
 	ret := _m.Called(userId)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(string) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
@@ -118,23 +118,23 @@ func (_m *userService) GetUserByID(userId string) (*ds.User, error) {
 }
 
 // GetUserDetails provides a mock function with given fields: userId
-func (_m *userService) GetUserDetails(userId ds.UserID) (*ds.User, error) {
+func (_m *userService) GetUserDetails(userId ds.AccountID) (*ds.Account, error) {
 	ret := _m.Called(userId)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(ds.UserID) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) (*ds.Account, error)); ok {
 		return rf(userId)
 	}
-	if rf, ok := ret.Get(0).(func(ds.UserID) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(ds.AccountID) *ds.Account); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(ds.UserID) error); ok {
+	if rf, ok := ret.Get(1).(func(ds.AccountID) error); ok {
 		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
@@ -144,19 +144,19 @@ func (_m *userService) GetUserDetails(userId ds.UserID) (*ds.User, error) {
 }
 
 // GetUserList provides a mock function with given fields: limit, offset
-func (_m *userService) GetUserList(limit int, offset int) ([]*ds.User, error) {
+func (_m *userService) GetUserList(limit int, offset int) ([]*ds.Account, error) {
 	ret := _m.Called(limit, offset)
 
-	var r0 []*ds.User
+	var r0 []*ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) ([]*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(int, int) ([]*ds.Account, error)); ok {
 		return rf(limit, offset)
 	}
-	if rf, ok := ret.Get(0).(func(int, int) []*ds.User); ok {
+	if rf, ok := ret.Get(0).(func(int, int) []*ds.Account); ok {
 		r0 = rf(limit, offset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ds.User)
+			r0 = ret.Get(0).([]*ds.Account)
 		}
 	}
 

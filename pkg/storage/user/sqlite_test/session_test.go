@@ -1,9 +1,10 @@
 package sqlite_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
@@ -15,12 +16,12 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	sessionId := uuid.NewString()
 	time_now := time.Now()
 
 	session := &ds.Session{
-		UserID:    userId,
+		AccountID: userId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -29,7 +30,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 
 	conn.Exec(
 		sqlite.Q_InsertSession,
-		session.UserID.String(),
+		session.AccountID.String(),
 		session.SessionID,
 		session.CreatedAt,
 		session.UpdatedAt,
@@ -52,7 +53,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 
 	t.Run("SaveSession saves user session to database", func(t *testing.T) {
 		session := &ds.Session{
-			UserID:    userId,
+			AccountID: userId,
 			SessionID: sessionId + "sd",
 			CreatedAt: time_now,
 			UpdatedAt: time_now,
@@ -64,7 +65,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 
 	t.Run("SaveSession returns error when same session is saved again", func(t *testing.T) {
 		session := &ds.Session{
-			UserID:    userId,
+			AccountID: userId,
 			SessionID: sessionId + "xd2",
 			CreatedAt: time_now,
 			UpdatedAt: time_now,
@@ -80,7 +81,7 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 	t.Run("GetSessionByID retrieves valid session succesfully", func(t *testing.T) {
 		session, err := userStorage.GetSessionByID(sessionId)
 		assert.NoError(t, err)
-		assert.Equal(t, userId, session.UserID)
+		assert.Equal(t, userId, session.AccountID)
 		assert.Equal(t, sessionId, session.SessionID)
 		assert.Equal(t, time_now.Unix(), session.CreatedAt.Unix())
 		assert.Equal(t, time_now.Unix(), session.UpdatedAt.Unix())
@@ -93,7 +94,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	username := "test"
 	email := "test@user.com"
 	password := "test"
@@ -101,7 +102,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	time_now := time.Now()
 	sessionId := uuid.NewString()
 
-	user := &ds.User{
+	user := &ds.Account{
 		ID:        userId,
 		Username:  username,
 		Password:  password,
@@ -112,7 +113,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	}
 
 	session := &ds.Session{
-		UserID:    userId,
+		AccountID: userId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -131,7 +132,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	)
 	conn.Exec(
 		sqlite.Q_InsertSession,
-		session.UserID.String(),
+		session.AccountID.String(),
 		session.SessionID,
 		session.CreatedAt,
 		session.UpdatedAt,
@@ -166,12 +167,12 @@ func TestInvalidateSessionByID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.UserID(uuid.New())
+	userId := ds.AccountID(uuid.New())
 	sessionId := uuid.NewString()
 	time_now := time.Now()
 
 	session := &ds.Session{
-		UserID:    userId,
+		AccountID: userId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -180,7 +181,7 @@ func TestInvalidateSessionByID(t *testing.T) {
 
 	conn.Exec(
 		sqlite.Q_InsertSession,
-		session.UserID.String(),
+		session.AccountID.String(),
 		session.SessionID,
 		session.CreatedAt,
 		session.UpdatedAt,

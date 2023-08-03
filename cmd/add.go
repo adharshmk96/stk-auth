@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/services"
@@ -28,7 +29,7 @@ var userCmd = &cobra.Command{
 		userStorage := sqlite.NewAccountStorage(conn)
 		userService := services.NewAuthenticationService(userStorage)
 
-		user := &ds.User{
+		user := &ds.Account{
 			Username: userName,
 			Email:    email,
 			Password: password,

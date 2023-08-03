@@ -1,8 +1,9 @@
 package server
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"log"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
@@ -14,7 +15,7 @@ func CreateAdmin(service entities.AuthenticationService) {
 	adminPassword := viper.GetString(constants.ENV_ROOT_ADMIN_PASSWORD)
 	adminEmail := viper.GetString(constants.ENV_ROOT_ADMIN_EMAIL)
 	// Initialize the service
-	user := &ds.User{
+	user := &ds.Account{
 		Username: adminUsername,
 		Password: adminPassword,
 		Email:    adminEmail,

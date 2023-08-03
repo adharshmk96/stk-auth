@@ -40,19 +40,19 @@ func (_m *sessionStore) GetSessionByID(sessionID string) (*ds.Session, error) {
 }
 
 // GetUserBySessionID provides a mock function with given fields: sessionID
-func (_m *sessionStore) GetUserBySessionID(sessionID string) (*ds.User, error) {
+func (_m *sessionStore) GetUserBySessionID(sessionID string) (*ds.Account, error) {
 	ret := _m.Called(sessionID)
 
-	var r0 *ds.User
+	var r0 *ds.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*ds.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
 		return rf(sessionID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *ds.User); ok {
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
 		r0 = rf(sessionID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.User)
+			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 

@@ -2,8 +2,9 @@ package services
 
 import (
 	"errors"
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/services/helpers"
@@ -19,7 +20,7 @@ import (
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *authenticationService) CreateUser(user *ds.User) (*ds.User, error) {
+func (u *authenticationService) CreateUser(user *ds.Account) (*ds.Account, error) {
 	if user.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
@@ -35,7 +36,7 @@ func (u *authenticationService) CreateUser(user *ds.User) (*ds.User, error) {
 	newUserId := uuid.New()
 	currentTimestamp := time.Now()
 
-	user.ID = ds.UserID(newUserId)
+	user.ID = ds.AccountID(newUserId)
 	user.CreatedAt = currentTimestamp
 	user.UpdatedAt = currentTimestamp
 	user.Password = hashedPassword
@@ -55,8 +56,8 @@ func (u *authenticationService) CreateUser(user *ds.User) (*ds.User, error) {
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
-func (u *authenticationService) Authenticate(login *ds.User) error {
-	var userRecord *ds.User
+func (u *authenticationService) Authenticate(login *ds.Account) error {
+	var userRecord *ds.Account
 	var err error
 	if login.Email == "" {
 		userRecord, err = u.storage.GetUserByUsername(login.Username)
@@ -86,7 +87,7 @@ func (u *authenticationService) Authenticate(login *ds.User) error {
 	return nil
 }
 
-func (u *authenticationService) GetUserByID(userId string) (*ds.User, error) {
+func (u *authenticationService) GetUserByID(userId string) (*ds.Account, error) {
 	user, err := u.storage.GetUserByUserID(userId)
 	if err != nil {
 		return nil, err
@@ -94,7 +95,7 @@ func (u *authenticationService) GetUserByID(userId string) (*ds.User, error) {
 	return user, nil
 }
 
-func (u *authenticationService) ChangePassword(user *ds.User) error {
+func (u *authenticationService) ChangePassword(user *ds.Account) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
@@ -122,18 +123,18 @@ func (u *authenticationService) ChangePassword(user *ds.User) error {
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *authenticationService) CreateSession(user *ds.User) (*ds.Session, error) {
+func (u *authenticationService) CreateSession(user *ds.Account) (*ds.Session, error) {
 
 	userId := user.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 
-	if userId == ds.UserID(uuid.Nil) {
+	if userId == ds.AccountID(uuid.Nil) {
 		return nil, svrerr.ErrInvalidSession
 	}
 
 	session := &ds.Session{
-		UserID:    userId,
+		AccountID: userId,
 		SessionID: newSessionId,
 		CreatedAt: currentTimestamp,
 		UpdatedAt: currentTimestamp,
@@ -152,7 +153,7 @@ func (u *authenticationService) CreateSession(user *ds.User) (*ds.Session, error
 // ERRORS:
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserBySessionId(sessionId string) (*ds.User, error) {
+func (u *authenticationService) GetUserBySessionId(sessionId string) (*ds.Account, error) {
 	user, err := u.storage.GetUserBySessionID(sessionId)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
