@@ -63,7 +63,7 @@ func (h *adminHandler) GetAccountDetails(gc *gsk.Context) {
 	accountID := gc.QueryParam("uid")
 	if accountID == "" {
 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_USER_ID,
+			"message": transport.INVALID_ACCOUNT_ID,
 		})
 		return
 	}
@@ -71,7 +71,7 @@ func (h *adminHandler) GetAccountDetails(gc *gsk.Context) {
 	parsedAccountID, err := ds.ParseAccountId(accountID)
 	if err != nil {
 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-			"message": transport.INVALID_USER_ID,
+			"message": transport.INVALID_ACCOUNT_ID,
 		})
 		return
 	}
