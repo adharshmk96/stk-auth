@@ -6,7 +6,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/google/uuid"
 )
@@ -15,7 +15,7 @@ func setupDatabase() *sql.DB {
 	// this singleton pattern has a global effect. So it will make sure storage uses this instance.
 	conn := db.GetSqliteConnection(":memory:")
 
-	conn.Exec(`CREATE TABLE auth_user_accounts (
+	conn.Exec(`CREATE TABLE auth_account_accounts (
 		id TEXT PRIMARY KEY UNIQUE,
 		username TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
@@ -25,9 +25,9 @@ func setupDatabase() *sql.DB {
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`)
 
-	conn.Exec(`CREATE TABLE auth_user_sessions (
+	conn.Exec(`CREATE TABLE auth_account_sessions (
 		id integer NOT NULL,
-		user_id TEXT NOT NULL,
+		account_id TEXT NOT NULL,
 		session_id varchar(40) NOT NULL UNIQUE,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -35,7 +35,7 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	)`)
 
-	conn.Exec(`CREATE TABLE auth_user_groups (
+	conn.Exec(`CREATE TABLE auth_account_groups (
 		id TEXT UNIQUE NOT NULL,
 		name VARCHAR(255) UNIQUE NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -43,16 +43,16 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	);`)
 
-	table := sqlite.TableUserGroupAssociation
+	table := sqlite.TableAccountGroupAssociation
 
 	_, err := conn.Exec(`CREATE TABLE ` + table + ` (
 		id INTEGER AUTO INCREMENT,
-		user_id TEXT NOT NULL,
+		account_id TEXT NOT NULL,
 		group_id TEXT NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-		PRIMARY KEY (user_id, group_id),
-		FOREIGN KEY(user_id) REFERENCES  auth_user_accounts(id),
-		FOREIGN KEY(group_id) REFERENCES  auth_user_groups(id)
+		PRIMARY KEY (account_id, group_id),
+		FOREIGN KEY(account_id) REFERENCES  auth_account_accounts(id),
+		FOREIGN KEY(group_id) REFERENCES  auth_account_groups(id)
 	);`)
 
 	if err != nil {
@@ -64,22 +64,22 @@ func setupDatabase() *sql.DB {
 
 func tearDownDatabase() {
 	conn := db.GetSqliteConnection(":memory:")
-	conn.Exec("DROP TABLE auth_user_accounts")
-	conn.Exec("DROP TABLE auth_user_sessions")
+	conn.Exec("DROP TABLE auth_account_accounts")
+	conn.Exec("DROP TABLE auth_account_sessions")
 	conn.Close()
 	db.ResetSqliteConnection()
 }
 
-func generateRandomUser() *ds.Account {
-	userId := ds.AccountID(uuid.New())
+func generateRandomAccount() *ds.Account {
+	accountId := ds.AccountID(uuid.New())
 	username := "test" + uuid.NewString()
 	email := "u" + uuid.NewString() + "@mail.com"
 	password := "Test123#"
 	salt := "test" + uuid.NewString()
 	time_now := time.Now()
 
-	user := &ds.Account{
-		ID:        userId,
+	account := &ds.Account{
+		ID:        accountId,
 		Username:  username,
 		Password:  password,
 		Salt:      salt,
@@ -88,5 +88,5 @@ func generateRandomUser() *ds.Account {
 		UpdatedAt: time_now,
 	}
 
-	return user
+	return account
 }

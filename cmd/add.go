@@ -9,7 +9,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/services"
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/spf13/cobra"
@@ -35,15 +35,15 @@ var userCmd = &cobra.Command{
 			Password: password,
 		}
 
-		createdUser, err := userService.CreateUser(user)
+		createdAccount, err := userService.CreateAccount(user)
 		if err != nil {
 			fmt.Println("Error creating user", err)
 			return
 		}
 
-		fmt.Println(createdUser)
+		fmt.Println(createdAccount)
 
-		fmt.Println("User created successfully")
+		fmt.Println("Account created successfully")
 
 	},
 }

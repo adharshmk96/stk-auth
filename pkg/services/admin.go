@@ -4,40 +4,40 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 )
 
-// GetUserList retrieves the list of users from the storage layer
+// GetAccountList retrieves the list of accounts from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserList(limit int, offset int) ([]*ds.Account, error) {
+func (u *authenticationService) GetAccountList(limit int, offset int) ([]*ds.Account, error) {
 
 	if limit == 0 {
 		limit = 10
 	}
 
-	users, err := u.storage.GetUserList(limit, offset)
+	accounts, err := u.storage.GetAccountList(limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	return users, nil
+	return accounts, nil
 }
 
-// GetTotalUsersCount retrieves the total number of users from the storage layer
+// GetTotalAccountsCount retrieves the total number of accounts from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetTotalUsersCount() (int64, error) {
-	totalUsers, err := u.storage.GetTotalUsersCount()
+func (u *authenticationService) GetTotalAccountsCount() (int64, error) {
+	totalAccounts, err := u.storage.GetTotalAccountsCount()
 	if err != nil {
 		return 0, err
 	}
-	return totalUsers, nil
+	return totalAccounts, nil
 }
 
-// GetUserDetails retrieves the user details from the storage layer
+// GetAccountDetails retrieves the account details from the storage layer
 // ERRORS:
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserDetails(userID ds.AccountID) (*ds.Account, error) {
-	user, err := u.storage.GetUserByUserID(userID.String())
+func (u *authenticationService) GetAccountDetails(accountID ds.AccountID) (*ds.Account, error) {
+	account, err := u.storage.GetAccountByAccountID(accountID.String())
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return account, nil
 }

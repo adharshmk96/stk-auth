@@ -6,22 +6,22 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserStorage_GetSessionByID(t *testing.T) {
+func TestAccountStorage_GetSessionByID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.AccountID(uuid.New())
+	accountId := ds.AccountID(uuid.New())
 	sessionId := uuid.NewString()
 	time_now := time.Now()
 
 	session := &ds.Session{
-		AccountID: userId,
+		AccountID: accountId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -37,51 +37,51 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 		session.Valid,
 	)
 
-	userStorage := sqlite.NewAccountStorage(conn)
+	accountStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("GetSessionByID returns error when session is not found in empty db", func(t *testing.T) {
-		presaveSession, err := userStorage.GetSessionByID("test")
+		presaveSession, err := accountStorage.GetSessionByID("test")
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 		assert.Nil(t, presaveSession)
 	})
 
-	t.Run("GetSessionByID returns error when parsing invalid user id", func(t *testing.T) {
-		presaveUser, err := userStorage.GetSessionByID("invalid")
+	t.Run("GetSessionByID returns error when parsing invalid account id", func(t *testing.T) {
+		presaveAccount, err := accountStorage.GetSessionByID("invalid")
 		assert.Error(t, err)
-		assert.Nil(t, presaveUser)
+		assert.Nil(t, presaveAccount)
 	})
 
-	t.Run("SaveSession saves user session to database", func(t *testing.T) {
+	t.Run("SaveSession saves account session to database", func(t *testing.T) {
 		session := &ds.Session{
-			AccountID: userId,
+			AccountID: accountId,
 			SessionID: sessionId + "sd",
 			CreatedAt: time_now,
 			UpdatedAt: time_now,
 			Valid:     true,
 		}
-		err := userStorage.SaveSession(session)
+		err := accountStorage.SaveSession(session)
 		assert.NoError(t, err)
 	})
 
 	t.Run("SaveSession returns error when same session is saved again", func(t *testing.T) {
 		session := &ds.Session{
-			AccountID: userId,
+			AccountID: accountId,
 			SessionID: sessionId + "xd2",
 			CreatedAt: time_now,
 			UpdatedAt: time_now,
 			Valid:     true,
 		}
-		err := userStorage.SaveSession(session)
+		err := accountStorage.SaveSession(session)
 		assert.NoError(t, err)
-		err = userStorage.SaveSession(session)
+		err = accountStorage.SaveSession(session)
 		assert.Error(t, err)
 		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
 	})
 
 	t.Run("GetSessionByID retrieves valid session succesfully", func(t *testing.T) {
-		session, err := userStorage.GetSessionByID(sessionId)
+		session, err := accountStorage.GetSessionByID(sessionId)
 		assert.NoError(t, err)
-		assert.Equal(t, userId, session.AccountID)
+		assert.Equal(t, accountId, session.AccountID)
 		assert.Equal(t, sessionId, session.SessionID)
 		assert.Equal(t, time_now.Unix(), session.CreatedAt.Unix())
 		assert.Equal(t, time_now.Unix(), session.UpdatedAt.Unix())
@@ -90,20 +90,20 @@ func TestUserStorage_GetSessionByID(t *testing.T) {
 
 }
 
-func TestUserStorage_GetUserBySessionID(t *testing.T) {
+func TestAccountStorage_GetAccountBySessionID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.AccountID(uuid.New())
+	accountId := ds.AccountID(uuid.New())
 	username := "test"
-	email := "test@user.com"
+	email := "test@account.com"
 	password := "test"
 	salt := "test"
 	time_now := time.Now()
 	sessionId := uuid.NewString()
 
-	user := &ds.Account{
-		ID:        userId,
+	account := &ds.Account{
+		ID:        accountId,
 		Username:  username,
 		Password:  password,
 		Salt:      salt,
@@ -113,7 +113,7 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	}
 
 	session := &ds.Session{
-		AccountID: userId,
+		AccountID: accountId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -121,14 +121,14 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 	}
 
 	conn.Exec(
-		sqlite.Q_InsertUserQuery,
-		user.ID.String(),
-		user.Username,
-		user.Password,
-		user.Salt,
-		user.Email,
-		user.CreatedAt,
-		user.UpdatedAt,
+		sqlite.Q_InsertAccountQuery,
+		account.ID.String(),
+		account.Username,
+		account.Password,
+		account.Salt,
+		account.Email,
+		account.CreatedAt,
+		account.UpdatedAt,
 	)
 	conn.Exec(
 		sqlite.Q_InsertSession,
@@ -139,27 +139,27 @@ func TestUserStorage_GetUserBySessionID(t *testing.T) {
 		session.Valid,
 	)
 
-	userStorage := sqlite.NewAccountStorage(conn)
+	accountStorage := sqlite.NewAccountStorage(conn)
 
-	t.Run("GetUserBySessionID retrieves user by session id", func(t *testing.T) {
-		retrievedUser, err := userStorage.GetUserBySessionID(sessionId)
+	t.Run("GetAccountBySessionID retrieves account by session id", func(t *testing.T) {
+		retrievedAccount, err := accountStorage.GetAccountBySessionID(sessionId)
 		assert.NoError(t, err)
-		assert.Equal(t, userId.String(), retrievedUser.ID.String())
-		assert.Equal(t, username, retrievedUser.Username)
-		assert.Equal(t, email, retrievedUser.Email)
-		assert.Equal(t, time_now.Unix(), retrievedUser.CreatedAt.Unix())
-		assert.Equal(t, time_now.Unix(), retrievedUser.UpdatedAt.Unix())
+		assert.Equal(t, accountId.String(), retrievedAccount.ID.String())
+		assert.Equal(t, username, retrievedAccount.Username)
+		assert.Equal(t, email, retrievedAccount.Email)
+		assert.Equal(t, time_now.Unix(), retrievedAccount.CreatedAt.Unix())
+		assert.Equal(t, time_now.Unix(), retrievedAccount.UpdatedAt.Unix())
 	})
 
-	t.Run("GetUserBySessionID returns error when session id is not found in populated db", func(t *testing.T) {
-		presaveUser, err := userStorage.GetUserBySessionID("session" + "xd")
+	t.Run("GetAccountBySessionID returns error when session id is not found in populated db", func(t *testing.T) {
+		presaveAccount, err := accountStorage.GetAccountBySessionID("session" + "xd")
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
-		assert.Nil(t, presaveUser)
+		assert.Nil(t, presaveAccount)
 	})
 
 }
 
-func TestUserStorage_InvalidateSessionByID(t *testing.T) {
+func TestAccountStorage_InvalidateSessionByID(t *testing.T) {
 
 }
 
@@ -167,12 +167,12 @@ func TestInvalidateSessionByID(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	userId := ds.AccountID(uuid.New())
+	accountId := ds.AccountID(uuid.New())
 	sessionId := uuid.NewString()
 	time_now := time.Now()
 
 	session := &ds.Session{
-		AccountID: userId,
+		AccountID: accountId,
 		SessionID: sessionId,
 		CreatedAt: time_now,
 		UpdatedAt: time_now,
@@ -188,19 +188,19 @@ func TestInvalidateSessionByID(t *testing.T) {
 		session.Valid,
 	)
 
-	userStorage := sqlite.NewAccountStorage(conn)
+	accountStorage := sqlite.NewAccountStorage(conn)
 
 	t.Run("InvalidateSessionByID invalidates session by id", func(t *testing.T) {
-		err := userStorage.InvalidateSessionByID(sessionId)
+		err := accountStorage.InvalidateSessionByID(sessionId)
 		assert.NoError(t, err)
 
-		retrievedSession, err := userStorage.GetSessionByID(sessionId)
+		retrievedSession, err := accountStorage.GetSessionByID(sessionId)
 		assert.Error(t, err)
 		assert.Nil(t, retrievedSession)
 	})
 
 	t.Run("InvalidateSessionByID returns error when session id is not found in populated db", func(t *testing.T) {
-		err := userStorage.InvalidateSessionByID("session" + "xd")
+		err := accountStorage.InvalidateSessionByID("session" + "xd")
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 	})
 

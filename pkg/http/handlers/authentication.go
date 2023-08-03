@@ -21,48 +21,48 @@ var (
 	secureCookie, sameSite = transport.GetCookieModes()
 )
 
-// RegisterUser registers a new user
-// - Decodes and Validates the user information from body
-// - Calls the service layer to store the user information
-// - Returns the user information
+// RegisterAccount registers a new account
+// - Decodes and Validates the account information from body
+// - Calls the service layer to store the account information
+// - Returns the account information
 // ERRORS:
 // - handler: ErrJsonDecodeFailed, ErrValidationFailed
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (h *accountHandler) RegisterUser(gc *gsk.Context) {
-	var user *ds.Account
+func (h *accountHandler) RegisterAccount(gc *gsk.Context) {
+	var account *ds.Account
 
-	err := gc.DecodeJSONBody(&user)
+	err := gc.DecodeJSONBody(&account)
 	if err != nil {
 		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
-	errorMessages := validator.ValidateRegistration(user)
+	errorMessages := validator.ValidateRegistration(account)
 	if len(errorMessages) > 0 {
 		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
-	createdUser, err := h.authService.CreateUser(user)
+	createdAccount, err := h.authService.CreateAccount(account)
 	if err != nil {
 		transport.HandleRegistrationError(err, gc)
 		return
 	}
 
-	response := transport.UserResponse{
-		ID:        createdUser.ID.String(),
-		Username:  createdUser.Username,
-		Email:     createdUser.Email,
-		CreatedAt: createdUser.CreatedAt,
-		UpdatedAt: createdUser.UpdatedAt,
+	response := transport.AccountResponse{
+		ID:        createdAccount.ID.String(),
+		Username:  createdAccount.Username,
+		Email:     createdAccount.Email,
+		CreatedAt: createdAccount.CreatedAt,
+		UpdatedAt: createdAccount.UpdatedAt,
 	}
 
 	gc.Status(http.StatusCreated).JSONResponse(response)
 }
 
-// ChangeCredentials changes the password of the user
-// - Decodes and Validates the user information from body
+// ChangeCredentials changes the password of the account
+// - Decodes and Validates the account information from body
 // - Calls the service layer to change the password
 // - Returns the success message
 // ERRORS:
@@ -80,17 +80,17 @@ func (h *accountHandler) ChangeCredentials(gc *gsk.Context) {
 		return
 	}
 
-	user := credentials.Credentials
+	creds := credentials.Credentials
 
-	err = h.authService.Authenticate(user)
+	err = h.authService.Authenticate(creds)
 	if err != nil {
 		transport.HandleChangePasswordError(err, gc)
 		return
 	}
 
-	updatedUser := credentials.NewCredentials
+	newCreds := credentials.NewCredentials
 
-	err = h.authService.ChangePassword(updatedUser)
+	err = h.authService.ChangePassword(newCreds)
 	if err != nil {
 		transport.HandleChangePasswordError(err, gc)
 		return
@@ -101,8 +101,8 @@ func (h *accountHandler) ChangeCredentials(gc *gsk.Context) {
 	})
 }
 
-// LoginUserSession creates a new session for the user and sets the session id in cookie
-// - Decodes and Validates the user information from body
+// LoginAccountSession creates a new session for the account and sets the session id in cookie
+// - Decodes and Validates the account information from body
 // - Calls the service layer to authenticate and store the session information
 // - Sets the session id in cookie
 // ERRORS:
@@ -111,36 +111,36 @@ func (h *accountHandler) ChangeCredentials(gc *gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session id should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserSession(gc *gsk.Context) {
-	var userLogin *ds.Account
+func (h *accountHandler) LoginAccountSession(gc *gsk.Context) {
+	var accountLogin *ds.Account
 
-	err := gc.DecodeJSONBody(&userLogin)
+	err := gc.DecodeJSONBody(&accountLogin)
 	if err != nil {
 		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
-	errorMessages := validator.ValidateLogin(userLogin)
+	errorMessages := validator.ValidateLogin(accountLogin)
 	if len(errorMessages) > 0 {
 		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
-	err = h.authService.Authenticate(userLogin)
+	err = h.authService.Authenticate(accountLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
 	}
 
-	sessionData, err := h.authService.CreateSession(userLogin)
+	sessionData, err := h.authService.CreateSession(accountLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
 	}
 
-	userData, err := h.authService.GetUserByID(sessionData.AccountID.String())
+	accountData, err := h.authService.GetAccountByID(sessionData.AccountID.String())
 	if err != nil {
-		transport.HandleGetUserError(err, gc)
+		transport.HandleGetAccountError(err, gc)
 		return
 	}
 
@@ -154,20 +154,20 @@ func (h *accountHandler) LoginUserSession(gc *gsk.Context) {
 		Secure:   secureCookie,
 	}
 
-	response := transport.UserResponse{
-		ID:        userData.ID.String(),
-		Username:  userData.Username,
-		Email:     userData.Email,
-		CreatedAt: userData.CreatedAt,
-		UpdatedAt: userData.UpdatedAt,
+	response := transport.AccountResponse{
+		ID:        accountData.ID.String(),
+		Username:  accountData.Username,
+		Email:     accountData.Email,
+		CreatedAt: accountData.CreatedAt,
+		UpdatedAt: accountData.UpdatedAt,
 	}
 
 	gc.SetCookie(cookie)
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-// LoginUserToken creates a new session for the user and sets the session id in cookie
-// - Decodes and Validates the user information from body
+// LoginAccountToken creates a new session for the account and sets the session id in cookie
+// - Decodes and Validates the account information from body
 // - Calls the service layer to authenticate, generate access and refresh tokens
 // - Sets the session token in cookie
 // ERRORS:
@@ -176,32 +176,32 @@ func (h *accountHandler) LoginUserSession(gc *gsk.Context) {
 // - storage: ErrDBStorageFailed
 // NOTE:
 // - session token should not be exposed to client, it should be in httpOnly cookie
-func (h *accountHandler) LoginUserToken(gc *gsk.Context) {
-	var userLogin *ds.Account
+func (h *accountHandler) LoginAccountToken(gc *gsk.Context) {
+	var accountLogin *ds.Account
 
-	err := gc.DecodeJSONBody(&userLogin)
+	err := gc.DecodeJSONBody(&accountLogin)
 	if err != nil {
 		transport.HandleJsonDecodeError(err, gc)
 		return
 	}
 
-	errorMessages := validator.ValidateLogin(userLogin)
+	errorMessages := validator.ValidateLogin(accountLogin)
 	if len(errorMessages) > 0 {
 		transport.HandleValidationError(errorMessages, gc)
 		return
 	}
 
-	err = h.authService.Authenticate(userLogin)
+	err = h.authService.Authenticate(accountLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
 	}
 
 	// Generate Access Token
-	userId := userLogin.ID.String()
+	accountId := accountLogin.ID.String()
 	requestHost := gc.Request.Host
 
-	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.authService)
+	atjwt, rtjwt, err := generateTokens(accountId, requestHost, h.authService)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
@@ -236,15 +236,15 @@ func (h *accountHandler) LoginUserToken(gc *gsk.Context) {
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-func generateTokens(userId, requestHost string, svc entities.AuthenticationService) (string, string, error) {
+func generateTokens(accountId, requestHost string, svc entities.AuthenticationService) (string, string, error) {
 	timeNow := time.Now()
 	accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 	refreshExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_REFRESH_JWT_EXPIRATION_DURATION))
 
 	atClaims := &entities.CustomClaims{
-		UserID: userId,
+		AccountID: accountId,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,
+			Subject:   accountId,
 			Issuer:    viper.GetString(constants.ENV_SERVER_DOMAIN),
 			Audience:  jwt.ClaimStrings{requestHost},
 			IssuedAt:  jwt.NewNumericDate(timeNow),
@@ -253,9 +253,9 @@ func generateTokens(userId, requestHost string, svc entities.AuthenticationServi
 	}
 
 	rtClaims := &entities.CustomClaims{
-		UserID: userId,
+		AccountID: accountId,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,
+			Subject:   accountId,
 			Issuer:    viper.GetString(constants.ENV_SERVER_DOMAIN),
 			Audience:  jwt.ClaimStrings{requestHost},
 			IssuedAt:  jwt.NewNumericDate(timeNow),
@@ -275,15 +275,15 @@ func generateTokens(userId, requestHost string, svc entities.AuthenticationServi
 	return atjwt, rtjwt, nil
 }
 
-// GetSessionUser returns the user information from session id
+// GetSessionAccount returns the account information from session id
 // - Gets the session id from cookie
-// - Calls the service layer to get the user information
-// - Returns the user information
+// - Calls the service layer to get the account information
+// - Returns the account information
 // ERRORS:
 // - handler: cookie_error
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetSessionUser(gc *gsk.Context) {
+func (h *accountHandler) GetSessionAccount(gc *gsk.Context) {
 	sessionCookie, err := gc.GetCookie(viper.GetString(constants.ENV_SESSION_COOKIE_NAME))
 	if err != nil || sessionCookie == nil || sessionCookie.Value == "" {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -292,7 +292,7 @@ func (h *accountHandler) GetSessionUser(gc *gsk.Context) {
 		return
 	}
 
-	user, err := h.authService.GetUserBySessionId(sessionCookie.Value)
+	account, err := h.authService.GetAccountBySessionId(sessionCookie.Value)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrInvalidSession) {
 			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -306,26 +306,26 @@ func (h *accountHandler) GetSessionUser(gc *gsk.Context) {
 		return
 	}
 
-	response := transport.UserResponse{
-		ID:        user.ID.String(),
-		Username:  user.Username,
-		Email:     user.Email,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+	response := transport.AccountResponse{
+		ID:        account.ID.String(),
+		Username:  account.Username,
+		Email:     account.Email,
+		CreatedAt: account.CreatedAt,
+		UpdatedAt: account.UpdatedAt,
 	}
 
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-// GetTokenUser returns the user information from access token
+// GetTokenAccount returns the account information from access token
 // - Gets the session token from cookie
-// - Calls the service layer to validate token and get the user information
-// - Returns the user information
+// - Calls the service layer to validate token and get the account information
+// - Returns the account information
 // ERRORS:
 // - handler: cookie_error
 // - service: ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
+func (h *accountHandler) GetTokenAccount(gc *gsk.Context) {
 	// TODO split to validate and refresh ?
 	accessTokenCookie, err := gc.GetCookie(viper.GetString(constants.ENV_JWT_ACCESS_TOKEN_COOKIE_NAME))
 	if err != nil || accessTokenCookie == nil || accessTokenCookie.Value == "" {
@@ -355,9 +355,9 @@ func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 	}
 	// TODO: check token claims are logically valid
 
-	userData, err := h.authService.GetUserByID(claims.UserID)
+	accountData, err := h.authService.GetAccountByID(claims.AccountID)
 	if err != nil {
-		transport.HandleGetUserError(err, gc)
+		transport.HandleGetAccountError(err, gc)
 		return
 	}
 
@@ -384,7 +384,7 @@ func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 			return
 		}
 
-		userId := userData.ID.String()
+		accountId := accountData.ID.String()
 		timeNow := time.Now()
 		accessExpiry := timeNow.Add(time.Minute * viper.GetDuration(constants.ENV_ACCESS_JWT_EXPIRATION_DURATION))
 
@@ -393,9 +393,9 @@ func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 		}
 
 		atClaims := &entities.CustomClaims{
-			UserID: userId,
+			AccountID: accountId,
 			RegisteredClaims: jwt.RegisteredClaims{
-				Subject:   userId,
+				Subject:   accountId,
 				Issuer:    viper.GetString(constants.ENV_SERVER_DOMAIN),
 				IssuedAt:  jwt.NewNumericDate(timeNow),
 				ExpiresAt: jwt.NewNumericDate(accessExpiry),
@@ -421,18 +421,18 @@ func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 		gc.SetCookie(cookie)
 	}
 
-	response := transport.UserResponse{
-		ID:        userData.ID.String(),
-		Username:  userData.Username,
-		Email:     userData.Email,
-		CreatedAt: userData.CreatedAt,
-		UpdatedAt: userData.UpdatedAt,
+	response := transport.AccountResponse{
+		ID:        accountData.ID.String(),
+		Username:  accountData.Username,
+		Email:     accountData.Email,
+		CreatedAt: accountData.CreatedAt,
+		UpdatedAt: accountData.UpdatedAt,
 	}
 
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-// LogoutUser logs out the user
+// LogoutAccount logs out the account
 // - Gets the session id or session toekn from cookie
 // - Calls the service layer to invalidate the session
 // - Returns the success message
@@ -440,7 +440,7 @@ func (h *accountHandler) GetTokenUser(gc *gsk.Context) {
 // - handler: cookie_error
 // - service: ErrInvalidSession, ErrInvalidToken
 // - storage: ErrDBStorageFailed
-func (h *accountHandler) LogoutUser(gc *gsk.Context) {
+func (h *accountHandler) LogoutAccount(gc *gsk.Context) {
 	sessionCookie, refreshToken, err := transport.GetSessionOrTokenFromCookie(gc)
 	if err != nil {
 		gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -450,7 +450,7 @@ func (h *accountHandler) LogoutUser(gc *gsk.Context) {
 	}
 
 	if sessionCookie != nil && sessionCookie.Value != "" {
-		err := h.authService.LogoutUserBySessionId(sessionCookie.Value)
+		err := h.authService.LogoutAccountBySessionId(sessionCookie.Value)
 		if err != nil {
 			transport.HandleLogoutError(err, gc)
 			return

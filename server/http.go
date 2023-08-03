@@ -7,7 +7,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
 	"github.com/adharshmk96/stk-auth/pkg/services"
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/server/infra"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	svrmw "github.com/adharshmk96/stk-auth/server/middleware"
@@ -66,18 +66,18 @@ func StartHttpServer(port string) (*gsk.Server, chan bool) {
 func intializeServer(server *gsk.Server) {
 	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 
-	// Initialize the user service
+	// Initialize the account service
 	authStorage := sqlite.NewAccountStorage(connection)
 	authService := services.NewAuthenticationService(authStorage)
 
-	userHandler := handlers.NewAccountHandler(authService)
+	accountHandler := handlers.NewAccountHandler(authService)
 	adminHandler := handlers.NewAdminHandler(authService)
 
 	// Health check
 	server.Get("/health", handlers.HealthCheckHandler)
 
 	apiRoutes := server.RouteGroup("/api")
-	routing.SetupAccountRoutes(apiRoutes, userHandler)
+	routing.SetupAccountRoutes(apiRoutes, accountHandler)
 	routing.SetupAdminRoutes(apiRoutes, adminHandler)
 
 	CreateAdmin(authService)

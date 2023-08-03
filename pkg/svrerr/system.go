@@ -3,8 +3,8 @@ package svrerr
 import "errors"
 
 var (
-	ErrParsingUserID  = errors.New("invalid_user_id")
-	ErrHasingPassword = errors.New("error_hashing_password")
+	ErrParsingAccountID = errors.New("invalid_account_id")
+	ErrHasingPassword   = errors.New("error_hashing_password")
 
 	// Storage errors
 	ErrDBStorageFailed  = errors.New("storage_error")

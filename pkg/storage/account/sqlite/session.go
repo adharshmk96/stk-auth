@@ -39,14 +39,14 @@ func (s *sqliteStorage) SaveSession(session *ds.Session) error {
 }
 
 // GetSessionByID Retrieves Valid Sessions from the db by session id
-// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingAccountID
 func (s *sqliteStorage) GetSessionByID(sessionID string) (*ds.Session, error) {
 	row := s.conn.QueryRow(Q_GetSessionByID, sessionID)
 
-	var userId string
+	var accountId string
 	var session ds.Session
 	err := row.Scan(
-		&userId,
+		&accountId,
 		&session.SessionID,
 		&session.CreatedAt,
 		&session.UpdatedAt,
@@ -59,33 +59,33 @@ func (s *sqliteStorage) GetSessionByID(sessionID string) (*ds.Session, error) {
 			return nil, svrerr.ErrDBEntryNotFound
 		}
 
-		logger.Error("error retrieving user from database: ", err)
+		logger.Error("error retrieving account from database: ", err)
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
-	session.AccountID, err = ds.ParseAccountId(userId)
+	session.AccountID, err = ds.ParseAccountId(accountId)
 	if err != nil {
-		logger.Error("error parsing user id: ", err)
-		return nil, svrerr.ErrParsingUserID
+		logger.Error("error parsing account id: ", err)
+		return nil, svrerr.ErrParsingAccountID
 	}
 
 	return &session, nil
 }
 
-// GetUserBySessionID Retrieves Session from the db by user id
-// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingUserID
-func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*ds.Account, error) {
-	row := s.conn.QueryRow(Q_GetUserBySessionID, sessionId)
+// GetAccountBySessionID Retrieves Session from the db by account id
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingAccountID
+func (s *sqliteStorage) GetAccountBySessionID(sessionId string) (*ds.Account, error) {
+	row := s.conn.QueryRow(Q_GetAccountBySessionID, sessionId)
 
-	var userId string
-	var user ds.Account
+	var accountId string
+	var account ds.Account
 	var username sql.NullString
 	err := row.Scan(
-		&userId,
+		&accountId,
 		&username,
-		&user.Email,
-		&user.CreatedAt,
-		&user.UpdatedAt,
+		&account.Email,
+		&account.CreatedAt,
+		&account.UpdatedAt,
 	)
 
 	if err != nil {
@@ -94,18 +94,18 @@ func (s *sqliteStorage) GetUserBySessionID(sessionId string) (*ds.Account, error
 			return nil, svrerr.ErrDBEntryNotFound
 		}
 
-		logger.Error("error retrieving user from database: ", err)
+		logger.Error("error retrieving account from database: ", err)
 		return nil, svrerr.ErrDBStorageFailed
 	}
 
-	user.Username = username.String
-	user.ID, err = ds.ParseAccountId(userId)
+	account.Username = username.String
+	account.ID, err = ds.ParseAccountId(accountId)
 	if err != nil {
-		logger.Error("error parsing user id: ", err)
+		logger.Error("error parsing account id: ", err)
 		return nil, err
 	}
 
-	return &user, nil
+	return &account, nil
 }
 
 // InvalidateSessionByID Invalidates Session in the db by session id

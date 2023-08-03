@@ -13,28 +13,42 @@ type groupStore struct {
 	mock.Mock
 }
 
-// CheckUserGroupAssociation provides a mock function with given fields: userID, groupID
-func (_m *groupStore) CheckUserGroupAssociation(userID string, groupID string) (bool, error) {
-	ret := _m.Called(userID, groupID)
+// CheckAccountGroupAssociation provides a mock function with given fields: accountID, groupID
+func (_m *groupStore) CheckAccountGroupAssociation(accountID string, groupID string) (bool, error) {
+	ret := _m.Called(accountID, groupID)
 
 	var r0 bool
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string, string) (bool, error)); ok {
-		return rf(userID, groupID)
+		return rf(accountID, groupID)
 	}
 	if rf, ok := ret.Get(0).(func(string, string) bool); ok {
-		r0 = rf(userID, groupID)
+		r0 = rf(accountID, groupID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(userID, groupID)
+		r1 = rf(accountID, groupID)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
+}
+
+// DeleteAccountGroupAssociation provides a mock function with given fields: accountID, groupID
+func (_m *groupStore) DeleteAccountGroupAssociation(accountID string, groupID string) error {
+	ret := _m.Called(accountID, groupID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(accountID, groupID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // DeleteGroupByID provides a mock function with given fields: groupID
@@ -44,20 +58,6 @@ func (_m *groupStore) DeleteGroupByID(groupID string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(groupID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// DeleteUserGroupAssociation provides a mock function with given fields: userID, groupID
-func (_m *groupStore) DeleteUserGroupAssociation(userID string, groupID string) error {
-	ret := _m.Called(userID, groupID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(userID, groupID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -91,17 +91,17 @@ func (_m *groupStore) GetGroupByID(groupID string) (*ds.Group, error) {
 	return r0, r1
 }
 
-// GetGroupsByUserID provides a mock function with given fields: userID
-func (_m *groupStore) GetGroupsByUserID(userID string) ([]*ds.Group, error) {
-	ret := _m.Called(userID)
+// GetGroupsByAccountID provides a mock function with given fields: accountID
+func (_m *groupStore) GetGroupsByAccountID(accountID string) ([]*ds.Group, error) {
+	ret := _m.Called(accountID)
 
 	var r0 []*ds.Group
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) ([]*ds.Group, error)); ok {
-		return rf(userID)
+		return rf(accountID)
 	}
 	if rf, ok := ret.Get(0).(func(string) []*ds.Group); ok {
-		r0 = rf(userID)
+		r0 = rf(accountID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*ds.Group)
@@ -109,7 +109,7 @@ func (_m *groupStore) GetGroupsByUserID(userID string) ([]*ds.Group, error) {
 	}
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(userID)
+		r1 = rf(accountID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -132,11 +132,11 @@ func (_m *groupStore) SaveGroup(group *ds.Group) error {
 }
 
 // SaveGroupAssociation provides a mock function with given fields: association
-func (_m *groupStore) SaveGroupAssociation(association *ds.UserGroupAssociation) error {
+func (_m *groupStore) SaveGroupAssociation(association *ds.AccountGroupAssociation) error {
 	ret := _m.Called(association)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*ds.UserGroupAssociation) error); ok {
+	if rf, ok := ret.Get(0).(func(*ds.AccountGroupAssociation) error); ok {
 		r0 = rf(association)
 	} else {
 		r0 = ret.Error(0)

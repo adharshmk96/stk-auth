@@ -6,7 +6,7 @@ import (
 )
 
 type CustomClaims struct {
-	UserID string `json:"user_id"`
+	AccountID string `json:"account_id"`
 	jwt.RegisteredClaims
 }
 
@@ -14,36 +14,36 @@ type tokenService interface {
 	GenerateJWT(claims *CustomClaims) (string, error)
 	ValidateJWT(token string) (*CustomClaims, error)
 }
-type userService interface {
-	CreateUser(user *ds.Account) (*ds.Account, error)
+type accountService interface {
+	CreateAccount(account *ds.Account) (*ds.Account, error)
 	Authenticate(login *ds.Account) error
-	ChangePassword(user *ds.Account) error
-	GetUserByID(userId string) (*ds.Account, error)
+	ChangePassword(account *ds.Account) error
+	GetAccountByID(accountId string) (*ds.Account, error)
 
 	// Admin methods
-	GetUserList(limit int, offset int) ([]*ds.Account, error)
-	GetTotalUsersCount() (int64, error)
-	GetUserDetails(userId ds.AccountID) (*ds.Account, error)
+	GetAccountList(limit int, offset int) ([]*ds.Account, error)
+	GetTotalAccountsCount() (int64, error)
+	GetAccountDetails(accountId ds.AccountID) (*ds.Account, error)
 }
 
 type sessionService interface {
-	CreateSession(user *ds.Account) (*ds.Session, error)
-	GetUserBySessionId(sessionId string) (*ds.Account, error)
-	LogoutUserBySessionId(sessionId string) error
+	CreateSession(account *ds.Account) (*ds.Session, error)
+	GetAccountBySessionId(sessionId string) (*ds.Account, error)
+	LogoutAccountBySessionId(sessionId string) error
 }
 
 type groupService interface {
 	CreateGroup(group *ds.Group) (*ds.Group, error)
-	GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error)
+	GetGroupsByAccountID(accountId ds.AccountID) ([]*ds.Group, error)
 	UpdateGroupByID(group *ds.Group) error
 	DeleteGroupByID(groupId string) error
-	AddUserToGroup(userId ds.AccountID, groupId string) error
-	RemoveUserFromGroup(userId ds.AccountID, groupId string) error
-	CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error)
+	AddAccountToGroup(accountId ds.AccountID, groupId string) error
+	RemoveAccountFromGroup(accountId ds.AccountID, groupId string) error
+	CheckAccountInGroup(accountId ds.AccountID, groupId string) (bool, error)
 }
 
 type AuthenticationService interface {
-	userService
+	accountService
 	sessionService
 	groupService
 	tokenService

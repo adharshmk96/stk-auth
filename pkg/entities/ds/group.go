@@ -12,8 +12,8 @@ type Group struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-type UserGroupAssociation struct {
-	AccountID AccountID `json:"user_id"`
+type AccountGroupAssociation struct {
+	AccountID AccountID `json:"account_id"`
 	GroupID   string    `json:"group_id"`
 	CreatedAt time.Time `json:"created_at"`
 }

@@ -2,7 +2,7 @@ package handlers_test
 
 import "net/http"
 
-type UserLogin struct {
+type AccountLogin struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`

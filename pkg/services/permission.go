@@ -25,8 +25,8 @@ func (s *authenticationService) CreateGroup(group *ds.Group) (*ds.Group, error) 
 	return group, nil
 }
 
-func (s *authenticationService) GetGroupsByUserID(userId ds.AccountID) ([]*ds.Group, error) {
-	groups, err := s.storage.GetGroupsByUserID(userId.String())
+func (s *authenticationService) GetGroupsByAccountID(accountId ds.AccountID) ([]*ds.Group, error) {
+	groups, err := s.storage.GetGroupsByAccountID(accountId.String())
 	if err != nil {
 		return nil, err
 	}
@@ -54,11 +54,11 @@ func (s *authenticationService) DeleteGroupByID(groupId string) error {
 	return nil
 }
 
-func (s *authenticationService) AddUserToGroup(userId ds.AccountID, groupId string) error {
+func (s *authenticationService) AddAccountToGroup(accountId ds.AccountID, groupId string) error {
 	time_now := time.Now()
 
-	groupAssociation := &ds.UserGroupAssociation{
-		AccountID: userId,
+	groupAssociation := &ds.AccountGroupAssociation{
+		AccountID: accountId,
 		GroupID:   groupId,
 		CreatedAt: time_now,
 	}
@@ -71,8 +71,8 @@ func (s *authenticationService) AddUserToGroup(userId ds.AccountID, groupId stri
 	return nil
 }
 
-func (s *authenticationService) RemoveUserFromGroup(userId ds.AccountID, groupId string) error {
-	err := s.storage.DeleteUserGroupAssociation(userId.String(), groupId)
+func (s *authenticationService) RemoveAccountFromGroup(accountId ds.AccountID, groupId string) error {
+	err := s.storage.DeleteAccountGroupAssociation(accountId.String(), groupId)
 	if err != nil {
 		return err
 	}
@@ -80,8 +80,8 @@ func (s *authenticationService) RemoveUserFromGroup(userId ds.AccountID, groupId
 	return nil
 }
 
-func (s *authenticationService) CheckUserInGroup(userId ds.AccountID, groupId string) (bool, error) {
-	groupAssociation, err := s.storage.CheckUserGroupAssociation(userId.String(), groupId)
+func (s *authenticationService) CheckAccountInGroup(accountId ds.AccountID, groupId string) (bool, error) {
+	groupAssociation, err := s.storage.CheckAccountGroupAssociation(accountId.String(), groupId)
 	if err != nil {
 		return false, err
 	}

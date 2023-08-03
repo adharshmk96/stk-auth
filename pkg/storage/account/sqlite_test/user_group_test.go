@@ -6,7 +6,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +16,7 @@ func TestSaveGroupAssociation(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
-	conn.Exec("select * from auth_user_group_associations")
+	conn.Exec("select * from auth_account_group_associations")
 
 	groupId := uuid.NewString()
 	groupName := "testGroup"
@@ -35,10 +35,10 @@ func TestSaveGroupAssociation(t *testing.T) {
 	t.Run("SaveGroupAssociation saves group association to database without error", func(t *testing.T) {
 		groupStorage.SaveGroup(group)
 
-		userId := uuid.New()
+		accountId := uuid.New()
 
-		groupAssociation := &ds.UserGroupAssociation{
-			AccountID: ds.AccountID(userId),
+		groupAssociation := &ds.AccountGroupAssociation{
+			AccountID: ds.AccountID(accountId),
 			GroupID:   groupId,
 		}
 
@@ -50,10 +50,10 @@ func TestSaveGroupAssociation(t *testing.T) {
 	t.Run("SaveGroupAssociation returns error when same group association is saved again", func(t *testing.T) {
 		groupStorage.SaveGroup(group)
 
-		userId := uuid.New()
+		accountId := uuid.New()
 
-		groupAssociation := &ds.UserGroupAssociation{
-			AccountID: ds.AccountID(userId),
+		groupAssociation := &ds.AccountGroupAssociation{
+			AccountID: ds.AccountID(accountId),
 			GroupID:   groupId,
 		}
 
@@ -68,7 +68,7 @@ func TestSaveGroupAssociation(t *testing.T) {
 	})
 }
 
-func TestGetGroupsByUserId(t *testing.T) {
+func TestGetGroupsByAccountId(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
@@ -86,19 +86,19 @@ func TestGetGroupsByUserId(t *testing.T) {
 
 	groupStorage := sqlite.NewAccountStorage(conn)
 
-	t.Run("GetGroupsByUserId returns groups from database without error", func(t *testing.T) {
+	t.Run("GetGroupsByAccountId returns groups from database without error", func(t *testing.T) {
 		groupStorage.SaveGroup(group)
 
-		userId := uuid.New()
+		accountId := uuid.New()
 
-		groupAssociation := &ds.UserGroupAssociation{
-			AccountID: ds.AccountID(userId),
+		groupAssociation := &ds.AccountGroupAssociation{
+			AccountID: ds.AccountID(accountId),
 			GroupID:   groupId,
 		}
 
 		groupStorage.SaveGroupAssociation(groupAssociation)
 
-		groups, err := groupStorage.GetGroupsByUserID(userId.String())
+		groups, err := groupStorage.GetGroupsByAccountID(accountId.String())
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(groups))
@@ -108,14 +108,14 @@ func TestGetGroupsByUserId(t *testing.T) {
 		assert.Equal(t, time_now.Unix(), groups[0].UpdatedAt.Unix())
 	})
 
-	t.Run("GetGroupsByUserId returns error when user is not found in populated db", func(t *testing.T) {
-		_, err := groupStorage.GetGroupsByUserID(uuid.NewString())
+	t.Run("GetGroupsByAccountId returns error when account is not found in populated db", func(t *testing.T) {
+		_, err := groupStorage.GetGroupsByAccountID(uuid.NewString())
 
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 	})
 }
 
-func TestDeleteUserGroupAssociation(t *testing.T) {
+func TestDeleteAccountGroupAssociation(t *testing.T) {
 	conn := setupDatabase()
 	defer tearDownDatabase()
 
@@ -133,29 +133,29 @@ func TestDeleteUserGroupAssociation(t *testing.T) {
 
 	groupStorage := sqlite.NewAccountStorage(conn)
 
-	t.Run("DeleteUserGroupAssociation deletes group association from database without error", func(t *testing.T) {
+	t.Run("DeleteAccountGroupAssociation deletes group association from database without error", func(t *testing.T) {
 		groupStorage.SaveGroup(group)
 
-		userId := uuid.New()
+		accountId := uuid.New()
 
-		groupAssociation := &ds.UserGroupAssociation{
-			AccountID: ds.AccountID(userId),
+		groupAssociation := &ds.AccountGroupAssociation{
+			AccountID: ds.AccountID(accountId),
 			GroupID:   groupId,
 		}
 
 		groupStorage.SaveGroupAssociation(groupAssociation)
 
-		err := groupStorage.DeleteUserGroupAssociation(userId.String(), groupId)
+		err := groupStorage.DeleteAccountGroupAssociation(accountId.String(), groupId)
 
 		assert.NoError(t, err)
 
-		_, err = groupStorage.GetGroupsByUserID(userId.String())
+		_, err = groupStorage.GetGroupsByAccountID(accountId.String())
 
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 	})
 
-	t.Run("DeleteUserGroupAssociation returns error when group association is not found in populated db", func(t *testing.T) {
-		err := groupStorage.DeleteUserGroupAssociation(uuid.NewString(), uuid.NewString())
+	t.Run("DeleteAccountGroupAssociation returns error when group association is not found in populated db", func(t *testing.T) {
+		err := groupStorage.DeleteAccountGroupAssociation(uuid.NewString(), uuid.NewString())
 
 		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
 	})

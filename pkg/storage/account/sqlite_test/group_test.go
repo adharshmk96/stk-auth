@@ -1,11 +1,12 @@
 package sqlite_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
 
-	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

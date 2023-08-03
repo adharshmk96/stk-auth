@@ -13,6 +13,32 @@ type sessionStore struct {
 	mock.Mock
 }
 
+// GetAccountBySessionID provides a mock function with given fields: sessionID
+func (_m *sessionStore) GetAccountBySessionID(sessionID string) (*ds.Account, error) {
+	ret := _m.Called(sessionID)
+
+	var r0 *ds.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
+		return rf(sessionID)
+	}
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
+		r0 = rf(sessionID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ds.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(sessionID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetSessionByID provides a mock function with given fields: sessionID
 func (_m *sessionStore) GetSessionByID(sessionID string) (*ds.Session, error) {
 	ret := _m.Called(sessionID)
@@ -27,32 +53,6 @@ func (_m *sessionStore) GetSessionByID(sessionID string) (*ds.Session, error) {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*ds.Session)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(sessionID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetUserBySessionID provides a mock function with given fields: sessionID
-func (_m *sessionStore) GetUserBySessionID(sessionID string) (*ds.Account, error) {
-	ret := _m.Called(sessionID)
-
-	var r0 *ds.Account
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
-		return rf(sessionID)
-	}
-	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
-		r0 = rf(sessionID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*ds.Account)
 		}
 	}
 

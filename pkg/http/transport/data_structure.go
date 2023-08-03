@@ -6,7 +6,7 @@ import (
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 )
 
-type UserResponse struct {
+type AccountResponse struct {
 	ID        string    `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
@@ -15,9 +15,9 @@ type UserResponse struct {
 	Groups    []string  `json:"groups,omitempty"`
 }
 
-type UserListResponse struct {
-	Total int64          `json:"total"`
-	Data  []UserResponse `json:"data"`
+type AccountListResponse struct {
+	Total int64             `json:"total"`
+	Data  []AccountResponse `json:"data"`
 }
 
 type CredentialUpdateRequest struct {

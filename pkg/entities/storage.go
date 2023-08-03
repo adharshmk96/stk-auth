@@ -2,19 +2,19 @@ package entities
 
 import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
-type userStore interface {
+type accountStore interface {
 	// Create
-	SaveUser(user *ds.Account) error
+	SaveAccount(account *ds.Account) error
 	// Read
-	GetTotalUsersCount() (int64, error)
-	GetUserByUserID(email string) (*ds.Account, error)
-	GetUserByEmail(email string) (*ds.Account, error)
-	GetUserByUsername(username string) (*ds.Account, error)
-	GetUserList(limit int, offset int) ([]*ds.Account, error)
+	GetTotalAccountsCount() (int64, error)
+	GetAccountByAccountID(email string) (*ds.Account, error)
+	GetAccountByEmail(email string) (*ds.Account, error)
+	GetAccountByUsername(username string) (*ds.Account, error)
+	GetAccountList(limit int, offset int) ([]*ds.Account, error)
 	// Update
-	UpdateUserByID(user *ds.Account) error
+	UpdateAccountByID(account *ds.Account) error
 	// Delete
-	DeleteUserByID(userID string) error
+	DeleteAccountByID(accountID string) error
 }
 
 type sessionStore interface {
@@ -22,7 +22,7 @@ type sessionStore interface {
 	SaveSession(session *ds.Session) error
 	// Read
 	GetSessionByID(sessionID string) (*ds.Session, error)
-	GetUserBySessionID(sessionID string) (*ds.Account, error)
+	GetAccountBySessionID(sessionID string) (*ds.Account, error)
 	// Update
 	InvalidateSessionByID(sessionID string) error
 }
@@ -30,20 +30,20 @@ type sessionStore interface {
 type groupStore interface {
 	// Create
 	SaveGroup(group *ds.Group) error
-	SaveGroupAssociation(association *ds.UserGroupAssociation) error
+	SaveGroupAssociation(association *ds.AccountGroupAssociation) error
 	// Read
 	GetGroupByID(groupID string) (*ds.Group, error)
-	GetGroupsByUserID(userID string) ([]*ds.Group, error)
-	CheckUserGroupAssociation(userID string, groupID string) (bool, error)
+	GetGroupsByAccountID(accountID string) ([]*ds.Group, error)
+	CheckAccountGroupAssociation(accountID string, groupID string) (bool, error)
 	// Update
 	UpdateGroup(group *ds.Group) error
 	// Delete
 	DeleteGroupByID(groupID string) error
-	DeleteUserGroupAssociation(userID string, groupID string) error
+	DeleteAccountGroupAssociation(accountID string, groupID string) error
 }
 
 type AuthenticationStore interface {
-	userStore
+	accountStore
 	sessionStore
 	groupStore
 }

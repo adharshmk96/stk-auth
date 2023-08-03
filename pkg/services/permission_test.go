@@ -58,51 +58,51 @@ func TestAuthenticationService_CreateGroup(t *testing.T) {
 	})
 }
 
-func TestAuthenticationService_AddUserToGroup(t *testing.T) {
+func TestAuthenticationService_AddAccountToGroup(t *testing.T) {
 
-	t.Run("AddUserToGroup adds user to group without error", func(t *testing.T) {
+	t.Run("AddAccountToGroup adds account to group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(nil).Once()
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.AccountGroupAssociation")).Return(nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		err := groupService.AddUserToGroup(userId, groupId)
+		err := groupService.AddAccountToGroup(accountId, groupId)
 		assert.NoError(t, err)
 
 		storage.AssertExpectations(t)
 	})
 
-	t.Run("AddUserToGroup returns error when user is not added to group", func(t *testing.T) {
+	t.Run("AddAccountToGroup returns error when account is not added to group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.AccountGroupAssociation")).Return(svrerr.ErrDBStorageFailed).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		err := groupService.AddUserToGroup(userId, groupId)
+		err := groupService.AddAccountToGroup(accountId, groupId)
 		assert.Error(t, err)
 
 		storage.AssertExpectations(t)
 	})
 
-	t.Run("returns error when same user is added to group again", func(t *testing.T) {
+	t.Run("returns error when same account is added to group again", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.UserGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
+		storage.On("SaveGroupAssociation", mock.AnythingOfType("*ds.AccountGroupAssociation")).Return(svrerr.ErrDBDuplicateEntry).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		err := groupService.AddUserToGroup(userId, groupId)
+		err := groupService.AddAccountToGroup(accountId, groupId)
 		assert.Error(t, err)
 
 		storage.AssertExpectations(t)
@@ -183,45 +183,45 @@ func TestAuthenticationService_DeleteGroupByID(t *testing.T) {
 	})
 }
 
-func TestAuthenticationService_CheckUserInGroup(t *testing.T) {
-	t.Run("CheckUserInGroup returns true when user is in group", func(t *testing.T) {
+func TestAuthenticationService_CheckAccountInGroup(t *testing.T) {
+	t.Run("CheckAccountInGroup returns true when account is in group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(true, nil).Once()
+		storage.On("CheckAccountGroupAssociation", accountId.String(), groupId).Return(true, nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
+		isAccountInGroup, err := groupService.CheckAccountInGroup(accountId, groupId)
 		assert.NoError(t, err)
-		assert.True(t, isUserInGroup)
+		assert.True(t, isAccountInGroup)
 
 	})
 
-	t.Run("CheckUserInGroup returns false when user is not in group", func(t *testing.T) {
+	t.Run("CheckAccountInGroup returns false when account is not in group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("CheckUserGroupAssociation", userId.String(), groupId).Return(false, nil).Once()
+		storage.On("CheckAccountGroupAssociation", accountId.String(), groupId).Return(false, nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		isUserInGroup, err := groupService.CheckUserInGroup(userId, groupId)
+		isAccountInGroup, err := groupService.CheckAccountInGroup(accountId, groupId)
 		assert.NoError(t, err)
-		assert.False(t, isUserInGroup)
+		assert.False(t, isAccountInGroup)
 
 	})
 }
-func TestAuthenticationService_GetUserGroups(t *testing.T) {
+func TestAuthenticationService_GetAccountGroups(t *testing.T) {
 
-	t.Run("GetUserGroups returns user groups without error", func(t *testing.T) {
+	t.Run("GetAccountGroups returns account groups without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 
 		groups := []*ds.Group{
 			{
@@ -236,79 +236,79 @@ func TestAuthenticationService_GetUserGroups(t *testing.T) {
 			},
 		}
 
-		storage.On("GetGroupsByUserID", userId.String()).Return(groups, nil).Once()
+		storage.On("GetGroupsByAccountID", accountId.String()).Return(groups, nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		userGroups, err := groupService.GetGroupsByUserID(userId)
+		accountGroups, err := groupService.GetGroupsByAccountID(accountId)
 		assert.NoError(t, err)
-		assert.Equal(t, groups, userGroups)
+		assert.Equal(t, groups, accountGroups)
 
 		storage.AssertExpectations(t)
 	})
 
-	t.Run("GetUserGroups returns error when user groups are not retrieved", func(t *testing.T) {
+	t.Run("GetAccountGroups returns error when account groups are not retrieved", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 
-		storage.On("GetGroupsByUserID", userId.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
+		storage.On("GetGroupsByAccountID", accountId.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		userGroups, err := groupService.GetGroupsByUserID(userId)
+		accountGroups, err := groupService.GetGroupsByAccountID(accountId)
 		assert.Error(t, err)
-		assert.Nil(t, userGroups)
+		assert.Nil(t, accountGroups)
 
 		storage.AssertExpectations(t)
 	})
 
-	t.Run("GetUserGroups returns empty user groups when user has no groups", func(t *testing.T) {
+	t.Run("GetAccountGroups returns empty account groups when account has no groups", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 
-		storage.On("GetGroupsByUserID", userId.String()).Return([]*ds.Group{}, nil).Once()
+		storage.On("GetGroupsByAccountID", accountId.String()).Return([]*ds.Group{}, nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		userGroups, err := groupService.GetGroupsByUserID(userId)
+		accountGroups, err := groupService.GetGroupsByAccountID(accountId)
 		assert.NoError(t, err)
-		assert.Empty(t, userGroups)
+		assert.Empty(t, accountGroups)
 
 		storage.AssertExpectations(t)
 	})
 }
 
-func TestAuthenticationService_RemoveUserFromGrou(t *testing.T) {
+func TestAuthenticationService_RemoveAccountFromGrou(t *testing.T) {
 
-	t.Run("RemoveUserFromGroup removes user from group without error", func(t *testing.T) {
+	t.Run("RemoveAccountFromGroup removes account from group without error", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(nil).Once()
+		storage.On("DeleteAccountGroupAssociation", accountId.String(), groupId).Return(nil).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		err := groupService.RemoveUserFromGroup(userId, groupId)
+		err := groupService.RemoveAccountFromGroup(accountId, groupId)
 		assert.NoError(t, err)
 
 		storage.AssertExpectations(t)
 	})
 
-	t.Run("RemoveUserFromGroup returns error when user is not removed from group", func(t *testing.T) {
+	t.Run("RemoveAccountFromGroup returns error when account is not removed from group", func(t *testing.T) {
 		storage := mocks.NewAuthenticationStore(t)
 
-		userId := ds.AccountID(uuid.New())
+		accountId := ds.AccountID(uuid.New())
 		groupId := "testGroupId"
 
-		storage.On("DeleteUserGroupAssociation", userId.String(), groupId).Return(svrerr.ErrDBStorageFailed).Once()
+		storage.On("DeleteAccountGroupAssociation", accountId.String(), groupId).Return(svrerr.ErrDBStorageFailed).Once()
 
 		groupService := services.NewAuthenticationService(storage)
 
-		err := groupService.RemoveUserFromGroup(userId, groupId)
+		err := groupService.RemoveAccountFromGroup(accountId, groupId)
 		assert.Error(t, err)
 
 		storage.AssertExpectations(t)

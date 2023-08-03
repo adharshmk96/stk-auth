@@ -17,7 +17,7 @@ func TestValidateLogin(t *testing.T) {
 		{
 			name: "Username and password",
 			login: &ds.Account{
-				Username: "TestUser",
+				Username: "TestAccount",
 				Password: "Test$123",
 			},
 			err: false,
@@ -25,7 +25,7 @@ func TestValidateLogin(t *testing.T) {
 		{
 			name: "Email and password",
 			login: &ds.Account{
-				Email:    "user@email.com",
+				Email:    "account@email.com",
 				Password: "Test$123",
 			},
 			err: false,
@@ -33,8 +33,8 @@ func TestValidateLogin(t *testing.T) {
 		{
 			name: "Empty password",
 			login: &ds.Account{
-				Username: "TestUser",
-				Email:    "TestUser@email.com",
+				Username: "TestAccount",
+				Email:    "TestAccount@email.com",
 			},
 			err: true,
 		},
@@ -48,8 +48,8 @@ func TestValidateLogin(t *testing.T) {
 		{
 			name: "Username and email used together",
 			login: &ds.Account{
-				Username: "TestUser",
-				Email:    "TestUser@email.com",
+				Username: "TestAccount",
+				Email:    "TestAccount@email.com",
 				Password: "Test$123",
 			},
 			err: true,

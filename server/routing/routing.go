@@ -8,23 +8,23 @@ import (
 func SetupAccountRoutes(apiRoutes *gsk.RouteGroup, authHandler entities.AuthenticationHandler) {
 	apiAuth := apiRoutes.RouteGroup("/auth")
 
-	apiAuth.Post("/register", authHandler.RegisterUser)
+	apiAuth.Post("/register", authHandler.RegisterAccount)
 
-	apiAuth.Post("/session/login", authHandler.LoginUserSession)
-	apiAuth.Post("/token/login", authHandler.LoginUserToken)
+	apiAuth.Post("/session/login", authHandler.LoginAccountSession)
+	apiAuth.Post("/token/login", authHandler.LoginAccountToken)
 
-	apiAuth.Get("/session/user", authHandler.GetSessionUser)
-	apiAuth.Get("/token/user", authHandler.GetTokenUser)
+	apiAuth.Get("/session/account", authHandler.GetSessionAccount)
+	apiAuth.Get("/token/account", authHandler.GetTokenAccount)
 
 	apiAuth.Post("/update/credentials", authHandler.ChangeCredentials)
 
-	apiAuth.Post("/logout", authHandler.LogoutUser)
+	apiAuth.Post("/logout", authHandler.LogoutAccount)
 
 }
 
 func SetupAdminRoutes(apiRoutes *gsk.RouteGroup, adminHandler entities.AdminHandler) {
 	adminRoutes := apiRoutes.RouteGroup("/admin")
 
-	adminRoutes.Get("/users", adminHandler.GetUserList)
-	adminRoutes.Get("/user", adminHandler.GetUserDetails)
+	adminRoutes.Get("/accounts", adminHandler.GetAccountList)
+	adminRoutes.Get("/account", adminHandler.GetAccountDetails)
 }

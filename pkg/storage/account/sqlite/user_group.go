@@ -10,9 +10,9 @@ import (
 
 // SaveGroupAssociation Stores Group Association in the db
 // ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
-func (s *sqliteStorage) SaveGroupAssociation(association *ds.UserGroupAssociation) error {
+func (s *sqliteStorage) SaveGroupAssociation(association *ds.AccountGroupAssociation) error {
 	result, err := s.conn.Exec(
-		Q_InsertUserGroupAssociation,
+		Q_InsertAccountGroupAssociation,
 		association.AccountID.String(),
 		association.GroupID,
 		association.CreatedAt,
@@ -34,10 +34,10 @@ func (s *sqliteStorage) SaveGroupAssociation(association *ds.UserGroupAssociatio
 	return nil
 }
 
-// GetGroupsByUserID Retrieves Groups from the db by user id
+// GetGroupsByAccountID Retrieves Groups from the db by account id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
-func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*ds.Group, error) {
-	rows, err := s.conn.Query(Q_GetGroupsByUserID, userID)
+func (s *sqliteStorage) GetGroupsByAccountID(accountID string) ([]*ds.Group, error) {
+	rows, err := s.conn.Query(Q_GetGroupsByAccountID, accountID)
 	if err != nil {
 		logger.Error("storage_error:", err)
 		return nil, svrerr.ErrDBStorageFailed
@@ -68,12 +68,12 @@ func (s *sqliteStorage) GetGroupsByUserID(userID string) ([]*ds.Group, error) {
 	return groups, nil
 }
 
-// DeleteUserGroupAssociation Deletes Group Association from the db by user id and group id
+// DeleteAccountGroupAssociation Deletes Group Association from the db by account id and group id
 // ERRORS: ErrDBDeletingData, ErrDBEntryNotFound
-func (s *sqliteStorage) DeleteUserGroupAssociation(userID string, groupID string) error {
+func (s *sqliteStorage) DeleteAccountGroupAssociation(accountID string, groupID string) error {
 	result, err := s.conn.Exec(
-		Q_DeleteUserGroupAssociation,
-		userID,
+		Q_DeleteAccountGroupAssociation,
+		accountID,
 		groupID,
 	)
 	if err != nil {
@@ -94,10 +94,10 @@ func (s *sqliteStorage) DeleteUserGroupAssociation(userID string, groupID string
 	return nil
 }
 
-// CheckUserGroupAssociation Retrieves Group Association from the db by user id and group id
+// CheckAccountGroupAssociation Retrieves Group Association from the db by account id and group id
 // ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
-func (s *sqliteStorage) CheckUserGroupAssociation(userID string, groupID string) (bool, error) {
-	row := s.conn.QueryRow(Q_CheckUserGroupAssociation, userID, groupID)
+func (s *sqliteStorage) CheckAccountGroupAssociation(accountID string, groupID string) (bool, error) {
+	row := s.conn.QueryRow(Q_CheckAccountGroupAssociation, accountID, groupID)
 
 	var rows int
 	row.Scan(&rows)

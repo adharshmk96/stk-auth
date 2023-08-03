@@ -16,7 +16,7 @@ func (u *AccountID) String() string {
 func ParseAccountId(id string) (AccountID, error) {
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return AccountID{}, svrerr.ErrParsingUserID
+		return AccountID{}, svrerr.ErrParsingAccountID
 	}
 	return AccountID(uid), nil
 }

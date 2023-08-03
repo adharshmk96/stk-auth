@@ -17,13 +17,13 @@ func (_m *AdminHandler) CreateGroup(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// GetUserDetails provides a mock function with given fields: gc
-func (_m *AdminHandler) GetUserDetails(gc *gsk.Context) {
+// GetAccountDetails provides a mock function with given fields: gc
+func (_m *AdminHandler) GetAccountDetails(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// GetUserList provides a mock function with given fields: gc
-func (_m *AdminHandler) GetUserList(gc *gsk.Context) {
+// GetAccountList provides a mock function with given fields: gc
+func (_m *AdminHandler) GetAccountList(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

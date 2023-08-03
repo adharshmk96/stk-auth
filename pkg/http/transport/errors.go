@@ -71,7 +71,7 @@ func HandleLogoutError(err error, ctx *gsk.Context) {
 	}
 }
 
-func HandleGetUserError(err error, ctx *gsk.Context) {
+func HandleGetAccountError(err error, ctx *gsk.Context) {
 	switch err {
 	case svrerr.ErrDBEntryNotFound, svrerr.ErrInvalidSession:
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{

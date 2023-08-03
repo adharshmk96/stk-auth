@@ -14,14 +14,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateUser stores user details and returns the stored user details
-// - Hashes the password, Assigns a user id, Generates a salt
-// - Calls the storage layer to store the user information
+// CreateAccount stores account details and returns the stored account details
+// - Hashes the password, Assigns a account id, Generates a salt
+// - Calls the storage layer to store the account information
 // ERRORS:
 // - service: ErrHasingPassword,
 // - storage: ErrDBStorageFailed, ErrDBDuplicateEntry
-func (u *authenticationService) CreateUser(user *ds.Account) (*ds.Account, error) {
-	if user.Email == "" {
+func (u *authenticationService) CreateAccount(account *ds.Account) (*ds.Account, error) {
+	if account.Email == "" {
 		return nil, svrerr.ErrValidationFailed
 	}
 
@@ -31,38 +31,38 @@ func (u *authenticationService) CreateUser(user *ds.Account) (*ds.Account, error
 		return nil, svrerr.ErrHasingPassword
 	}
 
-	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
+	hashedPassword, hashedSalt := utils.HashPassword(account.Password, salt)
 
-	newUserId := uuid.New()
+	newAccountId := uuid.New()
 	currentTimestamp := time.Now()
 
-	user.ID = ds.AccountID(newUserId)
-	user.CreatedAt = currentTimestamp
-	user.UpdatedAt = currentTimestamp
-	user.Password = hashedPassword
-	user.Salt = hashedSalt
+	account.ID = ds.AccountID(newAccountId)
+	account.CreatedAt = currentTimestamp
+	account.UpdatedAt = currentTimestamp
+	account.Password = hashedPassword
+	account.Salt = hashedSalt
 
-	if err = u.storage.SaveUser(user); err != nil {
+	if err = u.storage.SaveAccount(account); err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return account, nil
 }
 
-// Authenticate validates the user login information
-// - Retrieves the user from the storage layer
+// Authenticate validates the account login information
+// - Retrieves the account from the storage layer
 // - Verifies the password
-// - fills the user info retrieved from storage layer
+// - fills the account info retrieved from storage layer
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBEntryNotFound, ErrDBStorageFailed
 func (u *authenticationService) Authenticate(login *ds.Account) error {
-	var userRecord *ds.Account
+	var accountRecord *ds.Account
 	var err error
 	if login.Email == "" {
-		userRecord, err = u.storage.GetUserByUsername(login.Username)
+		accountRecord, err = u.storage.GetAccountByUsername(login.Username)
 	} else {
-		userRecord, err = u.storage.GetUserByEmail(login.Email)
+		accountRecord, err = u.storage.GetAccountByEmail(login.Email)
 	}
 	if err != nil {
 		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
@@ -71,7 +71,7 @@ func (u *authenticationService) Authenticate(login *ds.Account) error {
 		return err
 	}
 
-	valid, err := utils.VerifyPassword(userRecord.Password, userRecord.Salt, login.Password)
+	valid, err := utils.VerifyPassword(accountRecord.Password, accountRecord.Salt, login.Password)
 	if err != nil {
 		logger.Error("error verifying password: ", err)
 		return err
@@ -79,62 +79,62 @@ func (u *authenticationService) Authenticate(login *ds.Account) error {
 	if !valid {
 		return svrerr.ErrInvalidCredentials
 	}
-	login.ID = userRecord.ID
-	login.Username = userRecord.Username
-	login.Email = userRecord.Email
-	login.CreatedAt = userRecord.CreatedAt
-	login.UpdatedAt = userRecord.UpdatedAt
+	login.ID = accountRecord.ID
+	login.Username = accountRecord.Username
+	login.Email = accountRecord.Email
+	login.CreatedAt = accountRecord.CreatedAt
+	login.UpdatedAt = accountRecord.UpdatedAt
 	return nil
 }
 
-func (u *authenticationService) GetUserByID(userId string) (*ds.Account, error) {
-	user, err := u.storage.GetUserByUserID(userId)
+func (u *authenticationService) GetAccountByID(accountId string) (*ds.Account, error) {
+	account, err := u.storage.GetAccountByAccountID(accountId)
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
+	return account, nil
 }
 
-func (u *authenticationService) ChangePassword(user *ds.Account) error {
+func (u *authenticationService) ChangePassword(account *ds.Account) error {
 	salt, err := utils.GenerateSalt()
 	if err != nil {
 		logger.Error("error generating salt: ", err)
 		return svrerr.ErrHasingPassword
 	}
 
-	hashedPassword, hashedSalt := utils.HashPassword(user.Password, salt)
+	hashedPassword, hashedSalt := utils.HashPassword(account.Password, salt)
 
 	currentTimestamp := time.Now()
 
-	user.UpdatedAt = currentTimestamp
-	user.Password = hashedPassword
-	user.Salt = hashedSalt
+	account.UpdatedAt = currentTimestamp
+	account.Password = hashedPassword
+	account.Salt = hashedSalt
 
-	if err = u.storage.UpdateUserByID(user); err != nil {
+	if err = u.storage.UpdateAccountByID(account); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// CreateSession creates a new session for the user and returns the session id
+// CreateSession creates a new session for the account and returns the session id
 // - Generates a new session id
 // - Calls the storage layer to store the session information
 // ERRORS:
 // - service: ErrInvalidCredentials
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *authenticationService) CreateSession(user *ds.Account) (*ds.Session, error) {
+func (u *authenticationService) CreateSession(account *ds.Account) (*ds.Session, error) {
 
-	userId := user.ID
+	accountId := account.ID
 	newSessionId := uuid.New().String()
 	currentTimestamp := time.Now()
 
-	if userId == ds.AccountID(uuid.Nil) {
+	if accountId == ds.AccountID(uuid.Nil) {
 		return nil, svrerr.ErrInvalidSession
 	}
 
 	session := &ds.Session{
-		AccountID: userId,
+		AccountID: accountId,
 		SessionID: newSessionId,
 		CreatedAt: currentTimestamp,
 		UpdatedAt: currentTimestamp,
@@ -148,13 +148,13 @@ func (u *authenticationService) CreateSession(user *ds.Account) (*ds.Session, er
 	return session, nil
 }
 
-// GetUserBySessionId retrieves and returns the user information by sesion id
+// GetAccountBySessionId retrieves and returns the account information by sesion id
 // - Calls the storage layer to retrieve the session information
 // ERRORS:
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed
-func (u *authenticationService) GetUserBySessionId(sessionId string) (*ds.Account, error) {
-	user, err := u.storage.GetUserBySessionID(sessionId)
+func (u *authenticationService) GetAccountBySessionId(sessionId string) (*ds.Account, error) {
+	account, err := u.storage.GetAccountBySessionID(sessionId)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
 			return nil, svrerr.ErrInvalidSession
@@ -162,15 +162,15 @@ func (u *authenticationService) GetUserBySessionId(sessionId string) (*ds.Accoun
 		return nil, err
 	}
 
-	return user, nil
+	return account, nil
 }
 
-// LogoutUserBySessionId invalidates the session id
+// LogoutAccountBySessionId invalidates the session id
 // - Calls the storage layer to set the session validity
 // ERRORS:
 // - service: ErrInvalidSession
 // - storage: ErrDBStorageFailed, ErrDBEntryNotFound
-func (u *authenticationService) LogoutUserBySessionId(sessionId string) error {
+func (u *authenticationService) LogoutAccountBySessionId(sessionId string) error {
 
 	err := u.storage.InvalidateSessionByID(sessionId)
 	if err != nil {
