@@ -5,10 +5,17 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/adharshmk96/stk-auth/pkg/http/handlers"
+	"github.com/adharshmk96/stk-auth/pkg/services"
+	"github.com/adharshmk96/stk-auth/pkg/storage/user/sqlite"
 	"github.com/adharshmk96/stk-auth/server/infra"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	svrmw "github.com/adharshmk96/stk-auth/server/middleware"
+	"github.com/adharshmk96/stk-auth/server/routing"
 	"github.com/adharshmk96/stk/gsk"
+	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/adharshmk96/stk/pkg/middleware"
+	"github.com/spf13/viper"
 )
 
 func StartHttpServer(port string) (*gsk.Server, chan bool) {
@@ -30,6 +37,7 @@ func StartHttpServer(port string) (*gsk.Server, chan bool) {
 	}))
 
 	infra.LoadDefaultConfig()
+
 	intializeServer(server)
 
 	server.Start()
@@ -53,4 +61,24 @@ func StartHttpServer(port string) (*gsk.Server, chan bool) {
 	}()
 
 	return server, done
+}
+
+func intializeServer(server *gsk.Server) {
+	connection := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
+
+	// Initialize the user service
+	authStorage := sqlite.NewAccountStorage(connection)
+	authService := services.NewAuthenticationService(authStorage)
+
+	userHandler := handlers.NewUserManagementHandler(authService)
+	adminHandler := handlers.NewAdminHandler(authService)
+
+	// Health check
+	server.Get("/health", handlers.HealthCheckHandler)
+
+	apiRoutes := server.RouteGroup("/api")
+	routing.SetupUserRoutes(apiRoutes, userHandler)
+	routing.SetupAdminRoutes(apiRoutes, adminHandler)
+
+	CreateAdmin(authService)
 }

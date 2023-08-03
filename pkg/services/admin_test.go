@@ -1,9 +1,10 @@
 package services_test
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"testing"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/mocks"
 	"github.com/adharshmk96/stk-auth/pkg/services"
@@ -12,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAdminService_GetUserList(t *testing.T) {
+func TestAuthenticationService_GetUserList(t *testing.T) {
 	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
@@ -29,7 +30,7 @@ func TestAdminService_GetUserList(t *testing.T) {
 
 	t.Run("returns user list defaults 10 if limit is 0", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 0).Return([]*ds.User{storedData}, nil).Once()
 
@@ -46,7 +47,7 @@ func TestAdminService_GetUserList(t *testing.T) {
 
 	t.Run("storage error returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 0).Return(nil, svrerr.ErrDBStorageFailed).Once()
 
@@ -59,7 +60,7 @@ func TestAdminService_GetUserList(t *testing.T) {
 
 	t.Run("returns user list with limit and offset", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserList", 10, 10).Return([]*ds.User{storedData}, nil).Once()
 
@@ -75,10 +76,10 @@ func TestAdminService_GetUserList(t *testing.T) {
 	})
 }
 
-func TestAdminService_GetTotalUsersCount(t *testing.T) {
+func TestAuthenticationService_GetTotalUsersCount(t *testing.T) {
 	t.Run("returns total user count", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetTotalUsersCount").Return(int64(10), nil).Once()
 
@@ -91,7 +92,7 @@ func TestAdminService_GetTotalUsersCount(t *testing.T) {
 
 	t.Run("storage error returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetTotalUsersCount").Return(int64(0), svrerr.ErrDBStorageFailed).Once()
 
@@ -103,7 +104,7 @@ func TestAdminService_GetTotalUsersCount(t *testing.T) {
 	})
 }
 
-func TestAdminService_GetUserDetails(t *testing.T) {
+func TestAuthenticationService_GetUserDetails(t *testing.T) {
 	user_id := ds.UserID(uuid.New())
 	user_name := "testuser"
 	user_email := "user@email.com"
@@ -120,7 +121,7 @@ func TestAdminService_GetUserDetails(t *testing.T) {
 
 	t.Run("returns user details", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(storedData, nil).Once()
 
@@ -137,7 +138,7 @@ func TestAdminService_GetUserDetails(t *testing.T) {
 
 	t.Run("storage error returns error", func(t *testing.T) {
 		mockStore := mocks.NewAuthenticationStore(t)
-		service := services.NewAdminService(mockStore)
+		service := services.NewAuthenticationService(mockStore)
 
 		mockStore.On("GetUserByUserID", user_id.String()).Return(nil, svrerr.ErrDBStorageFailed).Once()
 

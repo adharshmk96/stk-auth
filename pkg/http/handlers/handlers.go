@@ -5,21 +5,21 @@ import (
 )
 
 type authenticationHandler struct {
-	userService entities.AuthenticationService
+	authService entities.AuthenticationService
 }
 
 func NewUserManagementHandler(userService entities.AuthenticationService) entities.AuthenticationHandler {
 	return &authenticationHandler{
-		userService: userService,
+		authService: userService,
 	}
 }
 
 type adminHandler struct {
-	adminService entities.AdminService
+	authService entities.AuthenticationService
 }
 
-func NewAdminHandler(adminService entities.AdminService) entities.AdminHandler {
+func NewAdminHandler(authService entities.AuthenticationService) entities.AdminHandler {
 	return &adminHandler{
-		adminService: adminService,
+		authService: authService,
 	}
 }

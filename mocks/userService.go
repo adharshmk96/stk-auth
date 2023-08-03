@@ -67,6 +67,30 @@ func (_m *userService) CreateUser(user *ds.User) (*ds.User, error) {
 	return r0, r1
 }
 
+// GetTotalUsersCount provides a mock function with given fields:
+func (_m *userService) GetTotalUsersCount() (int64, error) {
+	ret := _m.Called()
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (int64, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() int64); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserByID provides a mock function with given fields: userId
 func (_m *userService) GetUserByID(userId string) (*ds.User, error) {
 	ret := _m.Called(userId)
@@ -86,6 +110,58 @@ func (_m *userService) GetUserByID(userId string) (*ds.User, error) {
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserDetails provides a mock function with given fields: userId
+func (_m *userService) GetUserDetails(userId ds.UserID) (*ds.User, error) {
+	ret := _m.Called(userId)
+
+	var r0 *ds.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(ds.UserID) (*ds.User, error)); ok {
+		return rf(userId)
+	}
+	if rf, ok := ret.Get(0).(func(ds.UserID) *ds.User); ok {
+		r0 = rf(userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ds.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(ds.UserID) error); ok {
+		r1 = rf(userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserList provides a mock function with given fields: limit, offset
+func (_m *userService) GetUserList(limit int, offset int) ([]*ds.User, error) {
+	ret := _m.Called(limit, offset)
+
+	var r0 []*ds.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int) ([]*ds.User, error)); ok {
+		return rf(limit, offset)
+	}
+	if rf, ok := ret.Get(0).(func(int, int) []*ds.User); ok {
+		r0 = rf(limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*ds.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}

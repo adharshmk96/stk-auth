@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"net/http"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk/gsk"
@@ -20,14 +21,14 @@ func (h *adminHandler) GetUserList(gc *gsk.Context) {
 		return
 	}
 
-	userList, err := h.adminService.GetUserList(limitInt, offsetInt)
+	userList, err := h.authService.GetUserList(limitInt, offsetInt)
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
 		})
 		return
 	}
-	userCount, err := h.adminService.GetTotalUsersCount()
+	userCount, err := h.authService.GetTotalUsersCount()
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
@@ -75,7 +76,7 @@ func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
 		return
 	}
 
-	user, err := h.adminService.GetUserDetails(parsedUserID)
+	user, err := h.authService.GetUserDetails(parsedUserID)
 	if err != nil {
 		transport.HandleGetUserError(err, gc)
 		return
@@ -92,30 +93,30 @@ func (h *adminHandler) GetUserDetails(gc *gsk.Context) {
 	gc.Status(http.StatusOK).JSONResponse(response)
 }
 
-// func (h *adminHandler) CreateGroup(gc *gsk.Context) {
-// 	var group *entities.Group
+func (h *adminHandler) CreateGroup(gc *gsk.Context) {
+	var group *ds.Group
 
-// 	err := gc.DecodeJSONBody(&group)
-// 	if err != nil {
-// 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
-// 			"message": transport.INVALID_BODY,
-// 		})
-// 		return
-// 	}
+	err := gc.DecodeJSONBody(&group)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_BODY,
+		})
+		return
+	}
 
-// 	createdGroup, err := h.adminService.CreateGroup(group)
-// 	if err != nil {
-// 		transport.HandleCreateGroupError(err, gc)
-// 		return
-// 	}
+	createdGroup, err := h.authService.CreateGroup(group)
+	if err != nil {
+		transport.HandleCreateGroupError(err, gc)
+		return
+	}
 
-// 	response := transport.GroupResponse{
-// 		ID:          createdGroup.ID,
-// 		Name:        createdGroup.Name,
-// 		Description: createdGroup.Description,
-// 		CreatedAt:   createdGroup.CreatedAt,
-// 		UpdatedAt:   createdGroup.UpdatedAt,
-// 	}
+	response := transport.GroupResponse{
+		ID:          createdGroup.ID,
+		Name:        createdGroup.Name,
+		Description: createdGroup.Description,
+		CreatedAt:   createdGroup.CreatedAt,
+		UpdatedAt:   createdGroup.UpdatedAt,
+	}
 
-// 	gc.Status(http.StatusCreated).JSONResponse(response)
-// }
+	gc.Status(http.StatusCreated).JSONResponse(response)
+}

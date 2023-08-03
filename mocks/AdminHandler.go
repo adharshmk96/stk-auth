@@ -12,6 +12,11 @@ type AdminHandler struct {
 	mock.Mock
 }
 
+// CreateGroup provides a mock function with given fields: gc
+func (_m *AdminHandler) CreateGroup(gc *gsk.Context) {
+	_m.Called(gc)
+}
+
 // GetUserDetails provides a mock function with given fields: gc
 func (_m *AdminHandler) GetUserDetails(gc *gsk.Context) {
 	_m.Called(gc)

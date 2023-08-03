@@ -19,6 +19,11 @@ type userService interface {
 	Authenticate(login *ds.User) error
 	ChangePassword(user *ds.User) error
 	GetUserByID(userId string) (*ds.User, error)
+
+	// Admin methods
+	GetUserList(limit int, offset int) ([]*ds.User, error)
+	GetTotalUsersCount() (int64, error)
+	GetUserDetails(userId ds.UserID) (*ds.User, error)
 }
 
 type sessionService interface {
@@ -42,12 +47,4 @@ type AuthenticationService interface {
 	sessionService
 	groupService
 	tokenService
-}
-
-type AdminService interface {
-	GetUserList(limit int, offset int) ([]*ds.User, error)
-	GetTotalUsersCount() (int64, error)
-	GetUserDetails(userId ds.UserID) (*ds.User, error)
-	// UpdateUser(user *Account) error
-	// DeleteUser(userId string) error
 }

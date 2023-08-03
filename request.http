@@ -56,3 +56,8 @@ Content-Type: application/json
         "password": "#Password123",
     }
 }
+
+### 
+
+GET http://localhost:8080/api/admin/user?uid=e649e1ba-c512-4519-83c4-2edd1d108315
+Content-Type: application/json

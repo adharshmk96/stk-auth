@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"errors"
-	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 	"net/http"
 	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
@@ -43,7 +44,7 @@ func (h *authenticationHandler) RegisterUser(gc *gsk.Context) {
 		return
 	}
 
-	createdUser, err := h.userService.CreateUser(user)
+	createdUser, err := h.authService.CreateUser(user)
 	if err != nil {
 		transport.HandleRegistrationError(err, gc)
 		return
@@ -81,7 +82,7 @@ func (h *authenticationHandler) ChangeCredentials(gc *gsk.Context) {
 
 	user := credentials.Credentials
 
-	err = h.userService.Authenticate(user)
+	err = h.authService.Authenticate(user)
 	if err != nil {
 		transport.HandleChangePasswordError(err, gc)
 		return
@@ -89,7 +90,7 @@ func (h *authenticationHandler) ChangeCredentials(gc *gsk.Context) {
 
 	updatedUser := credentials.NewCredentials
 
-	err = h.userService.ChangePassword(updatedUser)
+	err = h.authService.ChangePassword(updatedUser)
 	if err != nil {
 		transport.HandleChangePasswordError(err, gc)
 		return
@@ -125,19 +126,19 @@ func (h *authenticationHandler) LoginUserSession(gc *gsk.Context) {
 		return
 	}
 
-	err = h.userService.Authenticate(userLogin)
+	err = h.authService.Authenticate(userLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
 	}
 
-	sessionData, err := h.userService.CreateSession(userLogin)
+	sessionData, err := h.authService.CreateSession(userLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
 	}
 
-	userData, err := h.userService.GetUserByID(sessionData.UserID.String())
+	userData, err := h.authService.GetUserByID(sessionData.UserID.String())
 	if err != nil {
 		transport.HandleGetUserError(err, gc)
 		return
@@ -190,7 +191,7 @@ func (h *authenticationHandler) LoginUserToken(gc *gsk.Context) {
 		return
 	}
 
-	err = h.userService.Authenticate(userLogin)
+	err = h.authService.Authenticate(userLogin)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
@@ -200,7 +201,7 @@ func (h *authenticationHandler) LoginUserToken(gc *gsk.Context) {
 	userId := userLogin.ID.String()
 	requestHost := gc.Request.Host
 
-	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.userService)
+	atjwt, rtjwt, err := generateTokens(userId, requestHost, h.authService)
 	if err != nil {
 		transport.HandleLoginError(err, gc)
 		return
@@ -291,7 +292,7 @@ func (h *authenticationHandler) GetSessionUser(gc *gsk.Context) {
 		return
 	}
 
-	user, err := h.userService.GetUserBySessionId(sessionCookie.Value)
+	user, err := h.authService.GetUserBySessionId(sessionCookie.Value)
 	if err != nil {
 		if errors.Is(err, svrerr.ErrInvalidSession) {
 			gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -335,7 +336,7 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 	}
 
 	refreshToken := false
-	claims, err := h.userService.ValidateJWT(accessTokenCookie.Value)
+	claims, err := h.authService.ValidateJWT(accessTokenCookie.Value)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			refreshToken = true
@@ -354,7 +355,7 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 	}
 	// TODO: check token claims are logically valid
 
-	userData, err := h.userService.GetUserByID(claims.UserID)
+	userData, err := h.authService.GetUserByID(claims.UserID)
 	if err != nil {
 		transport.HandleGetUserError(err, gc)
 		return
@@ -369,7 +370,7 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 			return
 		}
 
-		rtClaims, err := h.userService.ValidateJWT(refreshTokenCookie.Value)
+		rtClaims, err := h.authService.ValidateJWT(refreshTokenCookie.Value)
 		if err != nil {
 			if errors.Is(err, svrerr.ErrInvalidToken) || errors.Is(err, jwt.ErrTokenExpired) {
 				gc.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -401,7 +402,7 @@ func (h *authenticationHandler) GetTokenUser(gc *gsk.Context) {
 			},
 		}
 
-		accessToken, err := h.userService.GenerateJWT(atClaims)
+		accessToken, err := h.authService.GenerateJWT(atClaims)
 		if err != nil {
 			transport.HandleLoginError(err, gc)
 			return
@@ -449,13 +450,13 @@ func (h *authenticationHandler) LogoutUser(gc *gsk.Context) {
 	}
 
 	if sessionCookie != nil && sessionCookie.Value != "" {
-		err := h.userService.LogoutUserBySessionId(sessionCookie.Value)
+		err := h.authService.LogoutUserBySessionId(sessionCookie.Value)
 		if err != nil {
 			transport.HandleLogoutError(err, gc)
 			return
 		}
 	} else {
-		_, err := h.userService.ValidateJWT(refreshToken.Value)
+		_, err := h.authService.ValidateJWT(refreshToken.Value)
 		if err != nil && !errors.Is(err, jwt.ErrTokenExpired) {
 			transport.HandleLogoutError(err, gc)
 			return

@@ -24,5 +24,5 @@ type AdminHandler interface {
 	GetUserList(gc *gsk.Context)
 	GetUserDetails(gc *gsk.Context)
 
-	//CreateGroup(gc *gsk.Context)
+	CreateGroup(gc *gsk.Context)
 }
