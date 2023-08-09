@@ -56,5 +56,8 @@ func (h *oauthHandler) GoogleOauthCallback(gc *gsk.Context) {
 	}
 	defer resp.Body.Close()
 
+	// TODO: save account details to database
+	// TODO: create session and return session token
+
 	gc.Status(http.StatusOK).JSONResponse("login successful")
 }
