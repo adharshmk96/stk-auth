@@ -27,4 +27,6 @@ func SetupAdminRoutes(apiRoutes *gsk.RouteGroup, adminHandler entities.AdminHand
 
 	adminRoutes.Get("/accounts", adminHandler.GetAccountList)
 	adminRoutes.Get("/account", adminHandler.GetAccountDetails)
+
+	adminRoutes.Post("/group", adminHandler.CreateGroup)
 }

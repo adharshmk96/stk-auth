@@ -1,4 +1,4 @@
-CREATE TABLE auth_user_accounts (
+CREATE TABLE auth_accounts (
     id TEXT PRIMARY KEY UNIQUE,
     username TEXT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,

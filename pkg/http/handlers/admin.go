@@ -60,7 +60,7 @@ func (h *adminHandler) GetAccountList(gc *gsk.Context) {
 }
 
 func (h *adminHandler) GetAccountDetails(gc *gsk.Context) {
-	accountID := gc.QueryParam("uid")
+	accountID := gc.QueryParam("id")
 	if accountID == "" {
 		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
 			"message": transport.INVALID_ACCOUNT_ID,

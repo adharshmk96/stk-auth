@@ -229,7 +229,7 @@ func TestGetAccountDetail(t *testing.T) {
 		// Act
 		s.Get("/account", handler.GetAccountDetails)
 
-		w, err := s.Test(http.MethodGet, "/account"+"?uid="+storedAccount.ID.String(), nil)
+		w, err := s.Test(http.MethodGet, "/account"+"?id="+storedAccount.ID.String(), nil)
 		// Assert
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, w.Code)

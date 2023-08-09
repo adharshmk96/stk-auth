@@ -23,3 +23,13 @@ func NewAdminHandler(authService entities.AuthenticationService) entities.AdminH
 		authService: authService,
 	}
 }
+
+type oauthHandler struct {
+	authService entities.AuthenticationService
+}
+
+func NewOauthHandler(authService entities.AuthenticationService) entities.OauthHandler {
+	return &oauthHandler{
+		authService: authService,
+	}
+}

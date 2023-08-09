@@ -5,10 +5,10 @@ import (
 )
 
 const (
-	TableAccount                 = "auth_account_accounts"
-	TableSession                 = "auth_account_sessions"
-	TableGroup                   = "auth_account_groups"
-	TableAccountGroupAssociation = "auth_account_group_association"
+	TableAccount                 = "auth_accounts"
+	TableSession                 = "auth_sessions"
+	TableGroup                   = "auth_groups"
+	TableAccountGroupAssociation = "auth_accounts_groups_associations"
 )
 
 var (

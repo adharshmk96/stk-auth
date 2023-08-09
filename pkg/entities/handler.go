@@ -26,3 +26,8 @@ type AdminHandler interface {
 
 	CreateGroup(gc *gsk.Context)
 }
+
+type OauthHandler interface {
+	GoogleOauthLogin(gc *gsk.Context)
+	GoogleOauthCallback(gc *gsk.Context)
+}
