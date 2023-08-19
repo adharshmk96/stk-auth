@@ -1,14 +1,16 @@
 package infra
 
-import "github.com/sirupsen/logrus"
+import (
+	"log/slog"
+	"os"
+)
 
-var logger *logrus.Logger
+var logger *slog.Logger
 
 func init() {
-	logger = logrus.New()
-	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 }
 
-func GetLogger() *logrus.Logger {
+func GetLogger() *slog.Logger {
 	return logger
 }

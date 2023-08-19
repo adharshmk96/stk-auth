@@ -54,7 +54,7 @@ func StartHttpServer(port string) (*gsk.Server, chan bool) {
 		<-sigint
 
 		if err := server.Shutdown(); err != nil {
-			logger.Error(err)
+			logger.Error(err.Error())
 		}
 
 		close(done)
