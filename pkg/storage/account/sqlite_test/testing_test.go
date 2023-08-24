@@ -15,7 +15,7 @@ func setupDatabase() *sql.DB {
 	// this singleton pattern has a global effect. So it will make sure storage uses this instance.
 	conn := db.GetSqliteConnection(":memory:")
 
-	conn.Exec(`CREATE TABLE auth_account_accounts (
+	conn.Exec(`CREATE TABLE ` + sqlite.TableAccount + ` (
 		id TEXT PRIMARY KEY UNIQUE,
 		username TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
@@ -25,7 +25,7 @@ func setupDatabase() *sql.DB {
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);`)
 
-	conn.Exec(`CREATE TABLE auth_account_sessions (
+	conn.Exec(`CREATE TABLE ` + sqlite.TableSession + ` (
 		id integer NOT NULL,
 		account_id TEXT NOT NULL,
 		session_id varchar(40) NOT NULL UNIQUE,
@@ -35,7 +35,7 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	)`)
 
-	conn.Exec(`CREATE TABLE auth_account_groups (
+	conn.Exec(`CREATE TABLE ` + sqlite.TableGroup + ` (
 		id TEXT UNIQUE NOT NULL,
 		name VARCHAR(255) UNIQUE NOT NULL,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -43,9 +43,7 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	);`)
 
-	table := sqlite.TableAccountGroupAssociation
-
-	_, err := conn.Exec(`CREATE TABLE ` + table + ` (
+	_, err := conn.Exec(`CREATE TABLE ` + sqlite.TableAccountGroupAssociation + ` (
 		id INTEGER AUTO INCREMENT,
 		account_id TEXT NOT NULL,
 		group_id TEXT NOT NULL,

@@ -32,6 +32,7 @@ func LoadDefaultConfig() {
 
 	viper.AutomaticEnv()
 
+	// use this to write down default config to a file
 	// viper.WriteConfigAs("./config.yaml")
 
 }
