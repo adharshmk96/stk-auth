@@ -1,42 +1,50 @@
 package entities
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+	"github.com/golang-jwt/jwt/v5"
+)
 
 type CustomClaims struct {
-	UserID string `json:"user_id"`
+	AccountID string `json:"account_id"`
 	jwt.RegisteredClaims
 }
 
-type TokenService interface {
+type tokenService interface {
 	GenerateJWT(claims *CustomClaims) (string, error)
 	ValidateJWT(token string) (*CustomClaims, error)
 }
-type AccountService interface {
-	CreateUser(user *Account) (*Account, error)
-	Authenticate(login *Account) error
-	ChangePassword(user *Account) error
-	GetUserByID(userId string) (*Account, error)
+type accountService interface {
+	CreateAccount(account *ds.Account) (*ds.Account, error)
+	Authenticate(login *ds.Account) error
+	ChangePassword(account *ds.Account) error
+	GetAccountByID(accountId string) (*ds.Account, error)
+
+	// Admin methods
+	GetAccountList(limit int, offset int) ([]*ds.Account, error)
+	GetTotalAccountsCount() (int64, error)
+	GetAccountDetails(accountId ds.AccountID) (*ds.Account, error)
 }
 
-type SessionService interface {
-	CreateSession(user *Account) (*Session, error)
-	GetUserBySessionId(sessionId string) (*Account, error)
-	LogoutUserBySessionId(sessionId string) error
+type sessionService interface {
+	CreateSession(account *ds.Account) (*ds.Session, error)
+	GetAccountBySessionId(sessionId string) (*ds.Account, error)
+	LogoutAccountBySessionId(sessionId string) error
 }
 
-type GroupService interface {
-	CreateGroup(group *UserGroup) (*UserGroup, error)
-	GetGroupsByUserID(userId UserID) ([]*UserGroup, error)
-	UpdateGroupByID(group *UserGroup) error
+type groupService interface {
+	CreateGroup(group *ds.Group) (*ds.Group, error)
+	GetGroupsByAccountID(accountId ds.AccountID) ([]*ds.Group, error)
+	UpdateGroupByID(group *ds.Group) error
 	DeleteGroupByID(groupId string) error
-	AddUserToGroup(userId UserID, groupId string) error
-	RemoveUserFromGroup(userId UserID, groupId string) error
-	CheckUserInGroup(userId UserID, groupId string) (bool, error)
+	AddAccountToGroup(accountId ds.AccountID, groupId string) error
+	RemoveAccountFromGroup(accountId ds.AccountID, groupId string) error
+	CheckAccountInGroup(accountId ds.AccountID, groupId string) (bool, error)
 }
 
-type UserManagementService interface {
-	AccountService
-	SessionService
-	GroupService
-	TokenService
+type AuthenticationService interface {
+	accountService
+	sessionService
+	groupService
+	tokenService
 }

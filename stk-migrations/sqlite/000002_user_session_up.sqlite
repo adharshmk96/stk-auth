@@ -1,4 +1,4 @@
-CREATE TABLE auth_user_sessions (
+CREATE TABLE auth_sessions (
     id integer NOT NULL,
     user_id TEXT NOT NULL,
     session_id varchar(40) NOT NULL UNIQUE,

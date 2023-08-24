@@ -6,9 +6,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
 	"github.com/adharshmk96/stk-auth/pkg/services"
-	"github.com/adharshmk96/stk-auth/pkg/storage/sqlite"
+	"github.com/adharshmk96/stk-auth/pkg/storage/account/sqlite"
 	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/pkg/db"
 	"github.com/spf13/cobra"
@@ -26,23 +27,23 @@ var userCmd = &cobra.Command{
 
 		conn := db.GetSqliteConnection(viper.GetString(constants.ENV_SQLITE_FILE))
 		userStorage := sqlite.NewAccountStorage(conn)
-		userService := services.NewUserManagementService(userStorage)
+		userService := services.NewAuthenticationService(userStorage)
 
-		user := &entities.Account{
+		user := &ds.Account{
 			Username: userName,
 			Email:    email,
 			Password: password,
 		}
 
-		createdUser, err := userService.CreateUser(user)
+		createdAccount, err := userService.CreateAccount(user)
 		if err != nil {
 			fmt.Println("Error creating user", err)
 			return
 		}
 
-		fmt.Println(createdUser)
+		fmt.Println(createdAccount)
 
-		fmt.Println("User created successfully")
+		fmt.Println("Account created successfully")
 
 	},
 }

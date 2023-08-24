@@ -2,29 +2,32 @@ package entities
 
 import "github.com/adharshmk96/stk/gsk"
 
-type AccountHandler interface {
-	RegisterUser(gc gsk.Context)
-	ChangeCredentials(gc gsk.Context)
+type accountHandler interface {
+	RegisterAccount(gc *gsk.Context)
+	ChangeCredentials(gc *gsk.Context)
 }
 
-type SessionHandler interface {
-	LoginUserSession(gc gsk.Context)
-	LoginUserToken(gc gsk.Context)
-	LogoutUser(gc gsk.Context)
-	GetSessionUser(gc gsk.Context)
-	GetTokenUser(gc gsk.Context)
+type sessionHandler interface {
+	LoginAccountSession(gc *gsk.Context)
+	LoginAccountToken(gc *gsk.Context)
+	LogoutAccount(gc *gsk.Context)
+	GetSessionAccount(gc *gsk.Context)
+	GetTokenAccount(gc *gsk.Context)
 }
 
-type GroupHandler interface {
-	CreateGroup(gc gsk.Context)
-	// GetGroup(gc gsk.Context)
-	// GetGroups(gc gsk.Context)
-	// UpdateGroup(gc gsk.Context)
-	// DeleteGroup(gc gsk.Context)
+type AuthenticationHandler interface {
+	accountHandler
+	sessionHandler
 }
 
-type UserManagmentHandler interface {
-	AccountHandler
-	SessionHandler
-	GroupHandler
+type AdminHandler interface {
+	GetAccountList(gc *gsk.Context)
+	GetAccountDetails(gc *gsk.Context)
+
+	CreateGroup(gc *gsk.Context)
+}
+
+type OauthHandler interface {
+	GoogleOauthLogin(gc *gsk.Context)
+	GoogleOauthCallback(gc *gsk.Context)
 }

@@ -33,6 +33,25 @@ func setupRoutes(server *stk.Server) {
 }
 ```
 
+## Responsibility Organization
+
+Routing level ( server )
+- binding handler and route
+- user authentication and authorization via middlewares
+
+Handler layer
+- request validation, parsing and response
+- interacting with services
+
+Service layer
+- business logic & processing data
+- interacting with storage
+
+Storage layer
+- preparing and executing queries
+- interacting with database
+
+
 Dependencies are only allowed within these layers (anything from storage shouldn't be imported in handlers or storage), it is considered that the code needs to be shared only within these layers. for eg: services layer may need common functions to within the services layer, but no functions are being imported or exported directly with handlers or storage.
 
 The important parts like datastructures and interfaces are defined in the `entities` section. which can be directly imported by any layer. These layers import the interfaces and implement them and use the datastructures to pass data around.

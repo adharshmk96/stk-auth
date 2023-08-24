@@ -7,12 +7,12 @@ import (
 
 var logger = infra.GetLogger()
 
-type userManagementService struct {
-	storage entities.UserManagementStore
+type authenticationService struct {
+	storage entities.AuthenticationStore
 }
 
-func NewUserManagementService(storage entities.UserManagementStore) entities.UserManagementService {
-	return &userManagementService{
+func NewAuthenticationService(storage entities.AuthenticationStore) entities.AuthenticationService {
+	return &authenticationService{
 		storage: storage,
 	}
 }
