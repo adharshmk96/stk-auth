@@ -11,7 +11,7 @@ type authenticationService struct {
 	storage entities.AuthenticationStore
 }
 
-func NewUserManagementService(storage entities.AuthenticationStore) entities.AuthenticationService {
+func NewAuthenticationService(storage entities.AuthenticationStore) entities.AuthenticationService {
 	return &authenticationService{
 		storage: storage,
 	}

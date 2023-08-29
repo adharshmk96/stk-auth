@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"net/http"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk/gsk"
 )
 
-func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
+func (h *adminHandler) GetAccountList(gc *gsk.Context) {
 	limit := gc.QueryParam("limit")
 	offset := gc.QueryParam("offset")
 
@@ -17,31 +21,31 @@ func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
 		return
 	}
 
-	userList, err := h.userService.GetUserList(limitInt, offsetInt)
+	accountList, err := h.authService.GetAccountList(limitInt, offsetInt)
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
 		})
 		return
 	}
-	userCount, err := h.userService.GetTotalUsersCount()
+	accountCount, err := h.authService.GetTotalAccountsCount()
 	if err != nil {
 		gc.Status(500).JSONResponse(gsk.Map{
 			"error": "internal server error",
 		})
 	}
 
-	userListRespone := transport.UserListResponse{
-		Data:  make([]transport.UserResponse, len(userList)),
-		Total: userCount,
+	accountListRespone := transport.AccountListResponse{
+		Data:  make([]transport.AccountResponse, len(accountList)),
+		Total: accountCount,
 	}
-	for i, user := range userList {
-		userListRespone.Data[i] = transport.UserResponse{
-			ID:        user.ID.String(),
-			Username:  user.Username,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+	for i, account := range accountList {
+		accountListRespone.Data[i] = transport.AccountResponse{
+			ID:        account.ID.String(),
+			Username:  account.Username,
+			Email:     account.Email,
+			CreatedAt: account.CreatedAt,
+			UpdatedAt: account.UpdatedAt,
 		}
 	}
 
@@ -52,5 +56,67 @@ func (h *authenticationHandler) GetUserList(gc *gsk.Context) {
 		return
 	}
 
-	gc.Status(200).JSONResponse(userListRespone)
+	gc.Status(200).JSONResponse(accountListRespone)
+}
+
+func (h *adminHandler) GetAccountDetails(gc *gsk.Context) {
+	accountID := gc.QueryParam("id")
+	if accountID == "" {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_ACCOUNT_ID,
+		})
+		return
+	}
+
+	parsedAccountID, err := ds.ParseAccountId(accountID)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_ACCOUNT_ID,
+		})
+		return
+	}
+
+	account, err := h.authService.GetAccountDetails(parsedAccountID)
+	if err != nil {
+		transport.HandleGetAccountError(err, gc)
+		return
+	}
+
+	response := transport.AccountResponse{
+		ID:        account.ID.String(),
+		Username:  account.Username,
+		Email:     account.Email,
+		CreatedAt: account.CreatedAt,
+		UpdatedAt: account.UpdatedAt,
+	}
+
+	gc.Status(http.StatusOK).JSONResponse(response)
+}
+
+func (h *adminHandler) CreateGroup(gc *gsk.Context) {
+	var group *ds.Group
+
+	err := gc.DecodeJSONBody(&group)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_BODY,
+		})
+		return
+	}
+
+	createdGroup, err := h.authService.CreateGroup(group)
+	if err != nil {
+		transport.HandleCreateGroupError(err, gc)
+		return
+	}
+
+	response := transport.GroupResponse{
+		ID:          createdGroup.ID,
+		Name:        createdGroup.Name,
+		Description: createdGroup.Description,
+		CreatedAt:   createdGroup.CreatedAt,
+		UpdatedAt:   createdGroup.UpdatedAt,
+	}
+
+	gc.Status(http.StatusCreated).JSONResponse(response)
 }

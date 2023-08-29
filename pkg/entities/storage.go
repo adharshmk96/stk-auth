@@ -1,47 +1,49 @@
 package entities
 
-type AccountStore interface {
+import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
+type accountStore interface {
 	// Create
-	SaveUser(user *Account) error
+	SaveAccount(account *ds.Account) error
 	// Read
-	GetTotalUsersCount() (int64, error)
-	GetUserByUserID(email string) (*Account, error)
-	GetUserByEmail(email string) (*Account, error)
-	GetUserByUsername(username string) (*Account, error)
-	GetUserList(limit int, offset int) ([]*Account, error)
+	GetTotalAccountsCount() (int64, error)
+	GetAccountByAccountID(email string) (*ds.Account, error)
+	GetAccountByEmail(email string) (*ds.Account, error)
+	GetAccountByUsername(username string) (*ds.Account, error)
+	GetAccountList(limit int, offset int) ([]*ds.Account, error)
 	// Update
-	UpdateUserByID(user *Account) error
+	UpdateAccountByID(account *ds.Account) error
 	// Delete
-	DeleteUserByID(userID string) error
+	DeleteAccountByID(accountID string) error
 }
 
-type SessionStore interface {
+type sessionStore interface {
 	// Create
-	SaveSession(session *Session) error
+	SaveSession(session *ds.Session) error
 	// Read
-	GetSessionByID(sessionID string) (*Session, error)
-	GetUserBySessionID(sessionID string) (*Account, error)
+	GetSessionByID(sessionID string) (*ds.Session, error)
+	GetAccountBySessionID(sessionID string) (*ds.Account, error)
 	// Update
 	InvalidateSessionByID(sessionID string) error
 }
 
-type GroupStore interface {
+type groupStore interface {
 	// Create
-	SaveGroup(group *UserGroup) error
-	SaveGroupAssociation(association *UserGroupAssociation) error
+	SaveGroup(group *ds.Group) error
+	SaveGroupAssociation(association *ds.AccountGroupAssociation) error
 	// Read
-	GetGroupByID(groupID string) (*UserGroup, error)
-	GetGroupsByUserID(userID string) ([]*UserGroup, error)
-	CheckUserGroupAssociation(userID string, groupID string) (bool, error)
+	GetGroupByID(groupID string) (*ds.Group, error)
+	GetGroupsByAccountID(accountID string) ([]*ds.Group, error)
+	CheckAccountGroupAssociation(accountID string, groupID string) (bool, error)
 	// Update
-	UpdateGroup(group *UserGroup) error
+	UpdateGroup(group *ds.Group) error
 	// Delete
 	DeleteGroupByID(groupID string) error
-	DeleteUserGroupAssociation(userID string, groupID string) error
+	DeleteAccountGroupAssociation(accountID string, groupID string) error
 }
 
 type AuthenticationStore interface {
-	AccountStore
-	SessionStore
-	GroupStore
+	accountStore
+	sessionStore
+	groupStore
 }

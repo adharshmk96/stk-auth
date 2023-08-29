@@ -1,71 +1,72 @@
-VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-MAJOR := $(shell echo $(VERSION) | cut -d . -f 1 | sed 's/v//')
-MINOR := $(shell echo $(VERSION) | cut -d . -f 2)
-PATCH := $(shell echo $(VERSION) | cut -d . -f 3)
-NEW_PATCH := $(shell echo $$(($(PATCH) + 1)))
-NEW_MINOR := $(shell echo $$(($(MINOR) + 1)))
-NEW_MAJOR := $(shell echo $$(($(MAJOR) + 1)))
-NEW_TAG_PATCH := v$(MAJOR).$(MINOR).$(NEW_PATCH)
-NEW_TAG_MINOR := v$(MAJOR).$(NEW_MINOR).0
-NEW_TAG_MAJOR := v$(NEW_MAJOR).0.0
-
-.PHONY: patch minor major build test publish keygen serve init initci moddownload migrate
-
 ##########################
-### Manage Commands
+### Version Commands
 ##########################
 
 patch:
-	$(eval NEW_TAG := $(NEW_TAG_PATCH))
-	$(call tag)
+	$(eval NEW_TAG := $(shell git semver patch --dryrun))
+	$(call update_file)
+	@git semver patch
 
 minor:
-	$(eval NEW_TAG := $(NEW_TAG_MINOR))
-	$(call tag)
+	$(eval NEW_TAG := $(shell git semver minor --dryrun))
+	$(call update_file)
+	@git semver minor
 
 major:
-	$(eval NEW_TAG := $(NEW_TAG_MAJOR))
-	$(call tag)
+	$(eval NEW_TAG := $(shell git semver major --dryrun))
+	$(call update_file)
+	@git semver major
 
 publish:
-	@git push origin $(VERSION)
+	@git push origin $(shell git semver get)
+
+
+##########################
+### Build Commands
+##########################
+BINARY_NAME=app
 
 build:
-	@go build .	
+	@go build -o ./out/$(BINARY_NAME) -v
+
+run: build
+	@go run . serve -p 8080
 
 test:
+	@go test ./... -coverprofile=coverage.out
+
+coverage:
 	@go test -v ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 testci:
 	@go test ./... -coverprofile=coverage.out
 
+clean:
+	@go clean
+	@rm -f ./out/$(BINARY_NAME)
+	@rm -f coverage.out
+	@rm -rf .keys
+	@rm -f auth_database.db
+
+deps:
+	@go mod download
+
+tidy:
+	@go mod tidy
+
+lint:
+	@golangci-lint run --enable-all
+
+vet:
+	@go vet
+
 clean-branch:
 	@git branch | egrep -v "(^\*|main|master)" | xargs git branch -D
-
-
-##########################
-### Execution
-##########################
-
-run:
-	@go run . serve -p 8080
 
 	
 ##########################
 ### Helpers
 ##########################
-
-define tag
-	@echo "current version is $(VERSION)"
-    $(eval EXISTING_TAG := $(shell git tag -l $(NEW_TAG) 2>/dev/null))
-    @if [ "$(EXISTING_TAG)" = "$(NEW_TAG)" ]; then \
-        echo "Tag $(NEW_TAG) already exists. reapplying the tag."; \
-        git tag -d $(NEW_TAG); \
-    fi
-    $(call update_file)
-    @git tag $(NEW_TAG)
-    @echo "created new version $(NEW_TAG)."
-endef
 
 define update_file
     @echo "updating files to version $(NEW_TAG)"
@@ -79,21 +80,14 @@ endef
 ### Setup Commands
 ##########################
 
-init: moddownload migrate keygen initgithooks
+init: deps migrate keygen initgithooks
 	@echo "Project initialized."
 
-initci: moddownload keygen
+initci: deps keygen
 	@echo "Project initialized for CI."
 
 initgithooks:
 	@git config core.hooksPath .githooks
-
-serve:
-	@go run . serve -p 8080
-
-moddownload:
-	@echo "initializing go module"
-	@go mod download > /dev/null
 
 migrate:
 	@go run . migrate
@@ -105,15 +99,10 @@ keygen:
 	@openssl rsa -pubout -in .keys/private_key.pem -out .keys/public_key.pem
 	@chmod 666 .keys/public_key.pem
 
-##########################
-### Clean up commands
-##########################
+mockgen:
+	@rm -rf ./mocks
+	@mockery --all	
 
-clean:
-	@rm -rf .keys
-	@rm -f auth_database.db
-	@rm -f coverage.out
-	
 ##########################
 ### STK Stuff
 ##########################

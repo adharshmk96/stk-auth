@@ -17,43 +17,33 @@ func (_m *AuthenticationHandler) ChangeCredentials(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// CreateGroup provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) CreateGroup(gc *gsk.Context) {
+// GetSessionAccount provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) GetSessionAccount(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// GetSessionUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetSessionUser(gc *gsk.Context) {
+// GetTokenAccount provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) GetTokenAccount(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// GetTokenUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetTokenUser(gc *gsk.Context) {
+// LoginAccountSession provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) LoginAccountSession(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// GetUserList provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) GetUserList(gc *gsk.Context) {
+// LoginAccountToken provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) LoginAccountToken(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// LoginUserSession provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LoginUserSession(gc *gsk.Context) {
+// LogoutAccount provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) LogoutAccount(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
-// LoginUserToken provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LoginUserToken(gc *gsk.Context) {
-	_m.Called(gc)
-}
-
-// LogoutUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) LogoutUser(gc *gsk.Context) {
-	_m.Called(gc)
-}
-
-// RegisterUser provides a mock function with given fields: gc
-func (_m *AuthenticationHandler) RegisterUser(gc *gsk.Context) {
+// RegisterAccount provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) RegisterAccount(gc *gsk.Context) {
 	_m.Called(gc)
 }
 

@@ -4,13 +4,13 @@ import (
 	"regexp"
 	"unicode"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 )
 
 const (
 	EmailIsRequired     = "Email is required"
 	PasswordRequired    = "Password is required"
-	EmailMustBeValid    = "Email must be a valid format user@email.com"
+	EmailMustBeValid    = "Email must be a valid format account@email.com"
 	UsernameMustBeValid = "Username must be at least 3 characters"
 	PasswordMustBeValid = "Password must have at least 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character"
 )
@@ -62,29 +62,29 @@ func registrationEmail(email string) error {
 	return nil
 }
 
-func ValidateRegistration(user *entities.Account) map[string]string {
+func ValidateRegistration(account *ds.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
-	if user.Email == "" {
+	if account.Email == "" {
 		errorMessages["email"] = EmailIsRequired
 	} else {
-		if user.Username != "" {
-			if err := registrationUsername(user.Username); err != nil {
+		if account.Username != "" {
+			if err := registrationUsername(account.Username); err != nil {
 				errorMessages["username"] = UsernameMustBeValid
 			}
 		}
 
-		if user.Email != "" {
-			if err := registrationEmail(user.Email); err != nil {
+		if account.Email != "" {
+			if err := registrationEmail(account.Email); err != nil {
 				errorMessages["email"] = EmailMustBeValid
 			}
 		}
 	}
 
-	if user.Password == "" {
+	if account.Password == "" {
 		errorMessages["password"] = PasswordRequired
 	} else {
-		if err := registrationPassword(user.Password); err != nil {
+		if err := registrationPassword(account.Password); err != nil {
 			errorMessages["password"] = PasswordMustBeValid
 		}
 	}

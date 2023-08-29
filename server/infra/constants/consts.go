@@ -41,27 +41,3 @@ const (
 	ENV_ROOT_ADMIN_PASSWORD = "server.root_admin.password"
 	ENV_ROOT_ADMIN_EMAIL    = "server.root_admin.email"
 )
-
-// config defaults
-const (
-	DEFAULT_SERVER_DOMAIN = "localhost"
-	// Session
-	DEFAULT_SESSION_COOKIE_NAME           = "stk_session"
-	DEFAULT_JWT_ACCESS_TOKEN_COOKIE_NAME  = "stk_access_token"
-	DEFAULT_JWT_REFRESH_TOKEN_COOKIE_NAME = "stk_refresh_token"
-
-	// Storage
-	DEFAULT_SQLITE_FILE = "auth_database.db"
-
-	// JWT
-	DEFAULT_ACCESS_JWT_EXPIRATION_DURATION  = 1440
-	DEFAULT_REFRESH_JWT_EXPIRATION_DURATION = 1440 * 30
-	DEFAULT_JWT_EDCA_PRIVATE_KEY_PATH       = ".keys/private_key.pem"
-	DEFAULT_JWT_EDCA_PUBLIC_KEY_PATH        = ".keys/public_key.pem"
-	DEFAULT_JWT_ISSUER                      = "stk-auth-server"
-	DEFAULT_JWT_SUBJECT                     = "authentication"
-
-	DEFAULT_ROOT_ADMIN_USERNAME = "root"
-	DEFAULT_ROOT_ADMIN_PASSWORD = "root"
-	DEFAULT_ROOT_ADMIN_EMAIL    = "root@localhost"
-)

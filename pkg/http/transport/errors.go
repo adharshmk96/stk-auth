@@ -22,7 +22,7 @@ func HandleJsonDecodeError(err error, ctx *gsk.Context) {
 func HandleRegistrationError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
-			"error": USER_EXISTS,
+			"error": ACCOUNT_EXISTS,
 		})
 	} else {
 		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
@@ -71,7 +71,7 @@ func HandleLogoutError(err error, ctx *gsk.Context) {
 	}
 }
 
-func HandleGetUserError(err error, ctx *gsk.Context) {
+func HandleGetAccountError(err error, ctx *gsk.Context) {
 	switch err {
 	case svrerr.ErrDBEntryNotFound, svrerr.ErrInvalidSession:
 		ctx.Status(http.StatusUnauthorized).JSONResponse(gsk.Map{
@@ -104,7 +104,7 @@ func HandleChangePasswordError(err error, ctx *gsk.Context) {
 func HandleCreateGroupError(err error, ctx *gsk.Context) {
 	if err == svrerr.ErrDBDuplicateEntry {
 		ctx.Status(http.StatusConflict).JSONResponse(gsk.Map{
-			"error": USER_EXISTS,
+			"error": ACCOUNT_EXISTS,
 		})
 	} else {
 		ctx.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{

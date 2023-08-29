@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 )
 
 const (
@@ -10,7 +10,7 @@ const (
 	EmailUserNameUsed       = "email cannot be used with username"
 )
 
-func ValidateLogin(login *entities.Account) map[string]string {
+func ValidateLogin(login *ds.Account) map[string]string {
 	errorMessages := make(map[string]string)
 
 	if login.Username == "" && login.Email == "" {

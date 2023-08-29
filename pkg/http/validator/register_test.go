@@ -3,28 +3,29 @@ package validator
 import (
 	"testing"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateUser(t *testing.T) {
+func TestValidateAccount(t *testing.T) {
 	tests := []struct {
 		name     string
-		user     *entities.Account
+		account  *ds.Account
 		expected map[string]string
 	}{
 		{
-			name: "Valid user",
-			user: &entities.Account{
-				Username: "TestUser",
-				Email:    "testuser@example.com",
+			name: "Valid account",
+			account: &ds.Account{
+				Username: "TestAccount",
+				Email:    "testaccount@example.com",
 				Password: "Test$123",
 			},
 			expected: map[string]string{},
 		},
 		{
 			name: "Empty username and email",
-			user: &entities.Account{
+			account: &ds.Account{
 				Password: "Test$123",
 			},
 			expected: map[string]string{
@@ -33,8 +34,8 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Invalid email",
-			user: &entities.Account{
-				Username: "TestUser",
+			account: &ds.Account{
+				Username: "TestAccount",
 				Email:    "invalid",
 				Password: "Test$123",
 			},
@@ -44,7 +45,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Invalid username",
-			user: &entities.Account{
+			account: &ds.Account{
 				Username: "a",
 				Email:    "test@email.com",
 				Password: "Test$123",
@@ -55,7 +56,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty password",
-			user: &entities.Account{
+			account: &ds.Account{
 				Email:    "test@email.com",
 				Password: "",
 			},
@@ -65,7 +66,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "invalid password",
-			user: &entities.Account{
+			account: &ds.Account{
 				Email:    "test@email.com",
 				Password: "test",
 			},
@@ -75,7 +76,7 @@ func TestValidateUser(t *testing.T) {
 		},
 		{
 			name: "Empty email",
-			user: &entities.Account{
+			account: &ds.Account{
 				Username: "test",
 				Password: "Test$123",
 			},
@@ -87,7 +88,7 @@ func TestValidateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			errors := ValidateRegistration(tt.user)
+			errors := ValidateRegistration(tt.account)
 
 			if len(errors) != len(tt.expected) {
 				t.Errorf("expected %d error(s), got %d: %v", len(tt.expected), len(errors), errors)
@@ -112,7 +113,7 @@ func TestValidationFuncitons(t *testing.T) {
 		}{
 			{
 				name:  "Valid email",
-				email: "user@email.com",
+				email: "account@email.com",
 				err:   false,
 			},
 			{
@@ -172,7 +173,7 @@ func TestValidationFuncitons(t *testing.T) {
 		}{
 			{
 				name:     "Valid username",
-				username: "TestUser",
+				username: "TestAccount",
 				err:      false,
 			},
 			{

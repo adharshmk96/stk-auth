@@ -3,52 +3,53 @@ package validator
 import (
 	"testing"
 
-	"github.com/adharshmk96/stk-auth/pkg/entities"
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateLogin(t *testing.T) {
 	tests := []struct {
 		name  string
-		login *entities.Account
+		login *ds.Account
 		err   bool
 	}{
 		{
 			name: "Username and password",
-			login: &entities.Account{
-				Username: "TestUser",
+			login: &ds.Account{
+				Username: "TestAccount",
 				Password: "Test$123",
 			},
 			err: false,
 		},
 		{
 			name: "Email and password",
-			login: &entities.Account{
-				Email:    "user@email.com",
+			login: &ds.Account{
+				Email:    "account@email.com",
 				Password: "Test$123",
 			},
 			err: false,
 		},
 		{
 			name: "Empty password",
-			login: &entities.Account{
-				Username: "TestUser",
-				Email:    "TestUser@email.com",
+			login: &ds.Account{
+				Username: "TestAccount",
+				Email:    "TestAccount@email.com",
 			},
 			err: true,
 		},
 		{
 			name: "Empty username and email",
-			login: &entities.Account{
+			login: &ds.Account{
 				Password: "Test$123",
 			},
 			err: true,
 		},
 		{
 			name: "Username and email used together",
-			login: &entities.Account{
-				Username: "TestUser",
-				Email:    "TestUser@email.com",
+			login: &ds.Account{
+				Username: "TestAccount",
+				Email:    "TestAccount@email.com",
 				Password: "Test$123",
 			},
 			err: true,
