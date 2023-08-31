@@ -1273,3 +1273,28 @@ func TestCommonErrors(t *testing.T) {
 	})
 
 }
+
+func TestResetPassword(t *testing.T) {
+
+	s := gsk.New()
+
+	infra.LoadDefaultConfig()
+
+	t.Run("returns 200 if reset password request is valid", func(t *testing.T) {
+
+		service := mocks.NewAuthenticationService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		s.Post("/reset", handler.ResetPassword)
+
+		reset := ds.Account{
+			Email: "user@email.com",
+		}
+
+		body, _ := json.Marshal(reset)
+		w, _ := s.Test("POST", "/reset/password", bytes.NewBuffer(body))
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		service.AssertExpectations(t)
+	})
+}

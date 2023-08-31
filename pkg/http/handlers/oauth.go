@@ -2,19 +2,23 @@ package handlers
 
 import (
 	"net/http"
+	"path"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/adharshmk96/stk/gsk"
+	"github.com/spf13/viper"
 )
 
 // update these with your own values
 var (
+	domain            = viper.GetString(constants.ENV_SERVER_DOMAIN)
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8080/auth/google/callback", // replace with your redirect URL
-		ClientID:     "your-google-client-id",                      // replace with your ClientID
-		ClientSecret: "your-google-client-secret",                  // replace with your ClientSecret
+		RedirectURL:  path.Join("https://", domain, "oauth/google/callback"),
+		ClientID:     "your-google-client-id",     // replace with your ClientID
+		ClientSecret: "your-google-client-secret", // replace with your ClientSecret
 		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"},
 		Endpoint:     google.Endpoint,
 	}

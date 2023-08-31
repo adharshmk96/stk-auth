@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
@@ -267,4 +268,57 @@ func (s *sqliteStorage) DeleteAccountByID(uid string) error {
 	}
 
 	return nil
+}
+
+// SavePasswordResetToken Stores PasswordResetToken in the db
+// ERRORS: ErrDBStoringData, ErrDBDuplicateEntry
+func (s *sqliteStorage) SavePasswordResetToken(id string, token string, expiry time.Time) error {
+
+	result, err := s.conn.Exec(
+		Q_InsertPasswordResetToken,
+		id,
+		token,
+		expiry,
+	)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			return svrerr.ErrDBDuplicateEntry
+		}
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil || rows != 1 {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	return nil
+}
+
+// GetPasswordResetToken Retrieves PasswordResetToken from the db
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound
+func (s *sqliteStorage) GetPasswordResetToken(token string) (*ds.PasswordResetToken, error) {
+
+	row := s.conn.QueryRow(Q_GetPasswordResetToken, token)
+
+	var passwordResetToken ds.PasswordResetToken
+	err := row.Scan(
+		&passwordResetToken.AccountID,
+		&passwordResetToken.Token,
+		&passwordResetToken.Expiry,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			logger.Error("record not found:", err)
+			return nil, svrerr.ErrDBEntryNotFound
+		}
+
+		logger.Error("error retrieving account from database: ", err)
+		return nil, svrerr.ErrDBStorageFailed
+	}
+
+	return &passwordResetToken, nil
 }

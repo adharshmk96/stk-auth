@@ -30,3 +30,9 @@ type Account struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type PasswordResetToken struct {
+	AccountID string
+	Token     string
+	Expiry    time.Time
+}

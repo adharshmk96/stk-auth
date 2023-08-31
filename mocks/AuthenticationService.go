@@ -378,6 +378,20 @@ func (_m *AuthenticationService) RemoveAccountFromGroup(accountId ds.AccountID, 
 	return r0
 }
 
+// SendPasswordResetEmail provides a mock function with given fields: email
+func (_m *AuthenticationService) SendPasswordResetEmail(email string) error {
+	ret := _m.Called(email)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateGroupByID provides a mock function with given fields: group
 func (_m *AuthenticationService) UpdateGroupByID(group *ds.Group) error {
 	ret := _m.Called(group)

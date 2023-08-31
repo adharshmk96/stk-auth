@@ -1,9 +1,9 @@
 CREATE TABLE auth_accounts (
-    id TEXT PRIMARY KEY UNIQUE,
-    username TEXT NULL UNIQUE,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    salt TEXT NOT NULL,
+    id varchar(40) PRIMARY KEY UNIQUE,
+    username varchar(255) NULL UNIQUE,
+    email varchar(255) NOT NULL UNIQUE,
+    password varchar(255) NOT NULL,
+    salt varchar(255) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

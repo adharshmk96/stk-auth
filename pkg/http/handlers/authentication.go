@@ -280,3 +280,37 @@ func (h *accountHandler) LogoutAccount(gc *gsk.Context) {
 		"message": transport.SUCCESS_LOGOUT,
 	})
 }
+
+// ResetPassword resets the password of the account
+// - Decodes and Validates the account information from body
+// - Calls the service layer to reset the password
+// - Returns the success message
+// ERRORS:
+// - handler: ErrJsonDecodeFailed, ErrValidationFailed
+// - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
+// - storage: ErrDBStorageFailed
+func (h *accountHandler) ResetPassword(gc *gsk.Context) {
+	var account *ds.Account
+
+	err := gc.DecodeJSONBody(&account)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_BODY,
+		})
+		return
+	}
+
+	email := account.Email
+
+	err = h.authService.SendPasswordResetEmail(email)
+	if err != nil {
+		gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"message": transport.INTERNAL_SERVER_ERROR,
+		})
+		return
+	}
+
+	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
+		"message": transport.SUCCESS_CHANGED_PASSWORD,
+	})
+}

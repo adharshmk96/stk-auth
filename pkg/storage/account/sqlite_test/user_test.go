@@ -404,3 +404,47 @@ func TestAccountStore_GetTotalAccountCount(t *testing.T) {
 		assert.Equal(t, int64(30), count)
 	})
 }
+
+func TestAccountStore_SavePasswordResetToken(t *testing.T) {
+	conn := setupDatabase()
+	defer tearDownDatabase()
+
+	accountStorage := sqlite.NewAccountStorage(conn)
+
+	t.Run("SavePasswordResetToken saves token to db", func(t *testing.T) {
+		id := uuid.New().String()
+		token := uuid.New().String()
+		expiry := time.Now().Add(time.Hour)
+
+		err := accountStorage.SavePasswordResetToken(id, token, expiry)
+		assert.NoError(t, err)
+
+		row := conn.QueryRow(sqlite.Q_GetPasswordResetToken, token)
+
+		var accountID string
+		var retrievedToken string
+		var retrievedExpiry time.Time
+
+		err = row.Scan(
+			&accountID,
+			&retrievedToken,
+			&retrievedExpiry,
+		)
+		assert.NoError(t, err)
+
+		assert.Equal(t, token, retrievedToken)
+		assert.Equal(t, expiry.Unix(), retrievedExpiry.Unix())
+	})
+
+	t.Run("SavePasswordResetToken returns error when token already exists", func(t *testing.T) {
+		id := uuid.New().String()
+		token := uuid.New().String()
+		expiry := time.Now().Add(time.Hour)
+
+		err := accountStorage.SavePasswordResetToken(id, token, expiry)
+		assert.NoError(t, err)
+
+		err = accountStorage.SavePasswordResetToken(id, token, expiry)
+		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
+	})
+}

@@ -597,3 +597,20 @@ func TestAuthenticationService_ValidateJWT(t *testing.T) {
 
 	})
 }
+
+func TestAuthenticationService_SendPasswordResetEmail(t *testing.T) {
+
+	t.Run("returns no error if email is sent", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewAuthenticationService(mockStore)
+
+		mockStore.On("SavePasswordResetToken", mock.AnythingOfType("*ds.PasswordResetToken")).Return(nil).Once()
+
+		email := "user@email.com"
+
+		err := service.SendPasswordResetEmail(email)
+
+		assert.NoError(t, err)
+		mockStore.AssertExpectations(t)
+	})
+}

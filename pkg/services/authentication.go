@@ -231,3 +231,28 @@ func (u *authenticationService) ValidateJWT(token string) (*entities.CustomClaim
 	}
 	return claims, nil
 }
+
+// SendPasswordResetEmail sends a password reset email to the user
+// - Generates a password reset token
+// - Sends the password reset email
+// ERRORS:
+// - service: ErrJWTPrivateKey
+func (u *authenticationService) SendPasswordResetEmail(email string) error {
+	account, err := u.storage.GetAccountByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	resetToken := uuid.New().String()
+	resetTokenExpiry := time.Now().Add(time.Minute * 30)
+
+	if err = u.storage.SavePasswordResetToken(account.ID.String(), resetToken, resetTokenExpiry); err != nil {
+		return err
+	}
+
+	if err = helpers.SendPasswordResetEmail(email, resetToken); err != nil {
+		return err
+	}
+
+	return nil
+}

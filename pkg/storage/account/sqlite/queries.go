@@ -9,6 +9,7 @@ const (
 	TableSession                 = "auth_sessions"
 	TableGroup                   = "auth_groups"
 	TableAccountGroupAssociation = "auth_accounts_groups_associations"
+	TablePasswordResetToken      = "auth_password_reset_tokens"
 )
 
 var (
@@ -45,6 +46,11 @@ var (
 var (
 	Q_GetAccountList       = ""
 	Q_GetTotalAccountCount = ""
+)
+
+var (
+	Q_InsertPasswordResetToken = ""
+	Q_GetPasswordResetToken    = ""
 )
 
 func init() {
@@ -152,5 +158,15 @@ func init() {
 
 	Q_GetTotalAccountCount = query.Select("count(id)").
 		From(TableAccount).
+		Build()
+
+	Q_InsertPasswordResetToken = query.InsertInto(TablePasswordResetToken).
+		Fields("account_id", "token", "expiry").
+		Values("?", "?", "?").
+		Build()
+
+	Q_GetPasswordResetToken = query.Select("account_id", "token", "expiry").
+		From(TablePasswordResetToken).
+		Where("token=?").
 		Build()
 }

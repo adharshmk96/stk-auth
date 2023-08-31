@@ -1,6 +1,10 @@
 package entities
 
-import "github.com/adharshmk96/stk-auth/pkg/entities/ds"
+import (
+	"time"
+
+	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
+)
 
 type accountStore interface {
 	// Create
@@ -42,8 +46,14 @@ type groupStore interface {
 	DeleteAccountGroupAssociation(accountID string, groupID string) error
 }
 
+type tokenStore interface {
+	SavePasswordResetToken(id string, token string, expiry time.Time) error
+	GetPasswordResetToken(token string) (*ds.PasswordResetToken, error)
+}
+
 type AuthenticationStore interface {
 	accountStore
 	sessionStore
 	groupStore
+	tokenStore
 }
