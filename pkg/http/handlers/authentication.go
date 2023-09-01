@@ -311,6 +311,6 @@ func (h *accountHandler) ResetPassword(gc *gsk.Context) {
 	}
 
 	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
-		"message": transport.SUCCESS_CHANGED_PASSWORD,
+		"message": transport.SUCCESS_RESET_PASSWORD_LINK,
 	})
 }

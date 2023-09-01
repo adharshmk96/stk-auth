@@ -70,3 +70,12 @@ Content-Type: application/json
     "name": "group1",
     "description": "group1 description"
 }
+
+###
+
+POST http://localhost:8080/api/auth/reset/password
+Content-Type: application/json
+
+{
+    "email": "user1234@gmail.com"
+}

@@ -3,6 +3,7 @@ package transport
 const SUCCESS_LOGIN = "login_successful"
 const SUCCESS_LOGOUT = "logout_successful"
 const SUCCESS_CHANGED_PASSWORD = "password_changed_successfully"
+const SUCCESS_RESET_PASSWORD_LINK = "password_reset_link_generated_successfully"
 
 // Error message
 // Account input
