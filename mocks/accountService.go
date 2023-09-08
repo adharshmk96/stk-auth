@@ -169,6 +169,20 @@ func (_m *accountService) GetTotalAccountsCount() (int64, error) {
 	return r0, r1
 }
 
+// ResetPassword provides a mock function with given fields: account, password
+func (_m *accountService) ResetPassword(account string, password string) error {
+	ret := _m.Called(account, password)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(account, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SendPasswordResetEmail provides a mock function with given fields: email
 func (_m *accountService) SendPasswordResetEmail(email string) error {
 	ret := _m.Called(email)

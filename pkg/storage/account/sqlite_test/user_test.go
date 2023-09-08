@@ -447,4 +447,35 @@ func TestAccountStore_SavePasswordResetToken(t *testing.T) {
 		err = accountStorage.SavePasswordResetToken(id, token, expiry)
 		assert.EqualError(t, err, svrerr.ErrDBDuplicateEntry.Error())
 	})
+
+	t.Run("GetAccountByPasswordResetToken returns error when token is not found", func(t *testing.T) {
+		_, err := accountStorage.GetAccountByPasswordResetToken(uuid.New().String())
+		assert.EqualError(t, err, svrerr.ErrDBEntryNotFound.Error())
+	})
+
+	t.Run("GetAccountByPasswordResetToken returns account when token is found", func(t *testing.T) {
+		id := uuid.New().String()
+		token := uuid.New().String()
+		expiry := time.Now().Add(time.Hour)
+
+		err := accountStorage.SavePasswordResetToken(id, token, expiry)
+		assert.NoError(t, err)
+
+		row := conn.QueryRow(sqlite.Q_GetPasswordResetToken, token)
+
+		var accountID string
+		var retrievedToken string
+		var retrievedExpiry time.Time
+
+		err = row.Scan(
+			&accountID,
+			&retrievedToken,
+			&retrievedExpiry,
+		)
+		assert.NoError(t, err)
+
+		account, err := accountStorage.GetAccountByPasswordResetToken(token)
+		assert.NoError(t, err)
+		assert.Equal(t, id, account.ID.String())
+	})
 }

@@ -19,6 +19,7 @@ type accountService interface {
 	Authenticate(login *ds.Account) error
 	ChangePassword(account *ds.Account) error
 	SendPasswordResetEmail(email string) error
+	ResetPassword(account string, password string) error
 	GetAccountByID(accountId string) (*ds.Account, error)
 	// GetAccountByEmail(email string) (*ds.Account, error)
 

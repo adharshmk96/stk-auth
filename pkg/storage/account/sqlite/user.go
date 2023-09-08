@@ -322,3 +322,62 @@ func (s *sqliteStorage) GetPasswordResetToken(token string) (*ds.PasswordResetTo
 
 	return &passwordResetToken, nil
 }
+
+// GetAccountByPasswordResetToken Retrieves Account from the db by password reset token
+// ERRORS: ErrDBRetrievingData, ErrDBEntryNotFound, ErrParsingAccountID
+func (s *sqliteStorage) GetAccountByPasswordResetToken(token string) (*ds.Account, error) {
+
+	row := s.conn.QueryRow(Q_GetAccountByPasswordResetToken, token)
+
+	var accountId string
+	var account ds.Account
+	var username sql.NullString
+	err := row.Scan(
+		&accountId,
+		&username,
+		&account.Email,
+		&account.CreatedAt,
+		&account.UpdatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			logger.Error("record not found:", err)
+			return nil, svrerr.ErrDBEntryNotFound
+		}
+
+		logger.Error("error retrieving account from database: ", err)
+		return nil, svrerr.ErrDBStorageFailed
+	}
+
+	account.Username = username.String
+	account.ID, err = ds.ParseAccountId(accountId)
+	if err != nil {
+		logger.Error("error parsing account id: ", err)
+		return nil, svrerr.ErrDBStorageFailed
+	}
+
+	return &account, nil
+}
+
+// InvalidateResetToken Invalidates PasswordResetToken in the db
+// ERRORS: ErrDBUpdatingData, ErrDBEntryNotFound
+func (s *sqliteStorage) InvalidateResetToken(token string) error {
+	result, err := s.conn.Exec(Q_InvalidateResetToken, token)
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	rows, err := result.RowsAffected()
+	if rows == 0 {
+		logger.Error("token not found")
+		return svrerr.ErrDBEntryNotFound
+	}
+	if err != nil {
+		logger.Error("storage_error:", err)
+		return svrerr.ErrDBStorageFailed
+	}
+
+	return nil
+}

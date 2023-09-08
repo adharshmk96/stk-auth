@@ -12,6 +12,7 @@ const (
 	TablePasswordResetToken      = "auth_password_reset_tokens"
 )
 
+// Account
 var (
 	Q_InsertAccountQuery   = ""
 	Q_GetAccountByID       = ""
@@ -19,18 +20,19 @@ var (
 	Q_GetAccountByUsername = ""
 	Q_UpdateAccountByID    = ""
 	Q_DeleteAccountByID    = ""
+	Q_GetAccountList       = ""
+	Q_GetTotalAccountCount = ""
 )
 
+// Session
 var (
-	Q_InsertSession     = ""
-	Q_GetSessionByID    = ""
-	Q_InvalidateSession = ""
-)
-
-var (
+	Q_InsertSession         = ""
+	Q_GetSessionByID        = ""
+	Q_InvalidateSession     = ""
 	Q_GetAccountBySessionID = ""
 )
 
+// Group
 var (
 	Q_InsertGroup  = ""
 	Q_UpdateGroup  = ""
@@ -43,14 +45,12 @@ var (
 	Q_DeleteAccountGroupAssociation = ""
 )
 
+// PasswordResetToken
 var (
-	Q_GetAccountList       = ""
-	Q_GetTotalAccountCount = ""
-)
-
-var (
-	Q_InsertPasswordResetToken = ""
-	Q_GetPasswordResetToken    = ""
+	Q_InsertPasswordResetToken       = ""
+	Q_GetPasswordResetToken          = ""
+	Q_GetAccountByPasswordResetToken = ""
+	Q_InvalidateResetToken           = ""
 )
 
 func init() {
@@ -167,6 +167,27 @@ func init() {
 
 	Q_GetPasswordResetToken = query.Select("account_id", "token", "expiry").
 		From(TablePasswordResetToken).
+		Where("token=?").
+		Build()
+
+	Q_GetAccountByPasswordResetToken = query.Select(
+		TableAccount+".id",
+		TableAccount+".username",
+		TableAccount+".email",
+		TableAccount+".created_at",
+		TableAccount+".updated_at").
+		From(TableAccount).
+		Join(TablePasswordResetToken).
+		On(TableAccount+".id = "+TablePasswordResetToken+".account_id").
+		Where(
+			TablePasswordResetToken+".token=?",
+			TablePasswordResetToken+".is_used=false",
+		// TablePasswordResetToken + ".expiry > ?",
+		).
+		Build()
+
+	Q_InvalidateResetToken = query.Update(TablePasswordResetToken).
+		Set("is_used=true").
 		Where("token=?").
 		Build()
 }

@@ -6,6 +6,7 @@ type accountHandler interface {
 	RegisterAccount(gc *gsk.Context)
 	ChangeCredentials(gc *gsk.Context)
 	ResetPassword(gc *gsk.Context)
+	ResetPasswordConfirm(gc *gsk.Context)
 }
 
 type sessionHandler interface {

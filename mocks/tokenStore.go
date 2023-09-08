@@ -15,6 +15,32 @@ type tokenStore struct {
 	mock.Mock
 }
 
+// GetAccountByPasswordResetToken provides a mock function with given fields: token
+func (_m *tokenStore) GetAccountByPasswordResetToken(token string) (*ds.Account, error) {
+	ret := _m.Called(token)
+
+	var r0 *ds.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
+		return rf(token)
+	}
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
+		r0 = rf(token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ds.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(token)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPasswordResetToken provides a mock function with given fields: token
 func (_m *tokenStore) GetPasswordResetToken(token string) (*ds.PasswordResetToken, error) {
 	ret := _m.Called(token)
@@ -39,6 +65,20 @@ func (_m *tokenStore) GetPasswordResetToken(token string) (*ds.PasswordResetToke
 	}
 
 	return r0, r1
+}
+
+// InvalidateResetToken provides a mock function with given fields: token
+func (_m *tokenStore) InvalidateResetToken(token string) error {
+	ret := _m.Called(token)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(token)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // SavePasswordResetToken provides a mock function with given fields: id, token, expiry

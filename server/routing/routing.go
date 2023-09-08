@@ -18,6 +18,7 @@ func SetupAccountRoutes(apiRoutes *gsk.RouteGroup, authHandler entities.Authenti
 
 	apiAuth.Post("/update/credentials", authHandler.ChangeCredentials)
 	apiAuth.Post("/reset/password", authHandler.ResetPassword)
+	apiAuth.Post("/reset/password/confirm", authHandler.ResetPasswordConfirm)
 
 	apiAuth.Post("/logout", authHandler.LogoutAccount)
 

@@ -52,6 +52,11 @@ func (_m *AuthenticationHandler) ResetPassword(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
+// ResetPasswordConfirm provides a mock function with given fields: gc
+func (_m *AuthenticationHandler) ResetPasswordConfirm(gc *gsk.Context) {
+	_m.Called(gc)
+}
+
 type mockConstructorTestingTNewAuthenticationHandler interface {
 	mock.TestingT
 	Cleanup(func())

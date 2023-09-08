@@ -58,6 +58,7 @@ func setupDatabase() *sql.DB {
 		account_id varchar(255) NOT NULL,
 		token varchar(255) UNIQUE NOT NULL,
 		expiry DATETIME NOT NULL,
+		is_used boolean DEFAULT FALSE,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (id)
 	);`)

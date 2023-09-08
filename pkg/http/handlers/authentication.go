@@ -314,3 +314,44 @@ func (h *accountHandler) ResetPassword(gc *gsk.Context) {
 		"message": transport.SUCCESS_RESET_PASSWORD_LINK,
 	})
 }
+
+// ResetPasswordConfirm resets the password of the account
+// - Decodes and Validates the account information from body
+// - Calls the service layer to reset the password
+// - Returns the success message
+// ERRORS:
+// - handler: ErrJsonDecodeFailed, ErrValidationFailed
+// - service: ErrHasingPassword, ErrInvalidCredentials, ErrDBEntryNotFound
+// - storage: ErrDBStorageFailed
+func (h *accountHandler) ResetPasswordConfirm(gc *gsk.Context) {
+	var account *ds.Account
+
+	err := gc.DecodeJSONBody(&account)
+	if err != nil {
+		gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+			"message": transport.INVALID_BODY,
+		})
+		return
+	}
+
+	resetToken := gc.QueryParam("token")
+	password := account.Password
+
+	err = h.authService.ResetPassword(resetToken, password)
+	if err != nil {
+		if errors.Is(err, svrerr.ErrInvalidToken) {
+			gc.Status(http.StatusBadRequest).JSONResponse(gsk.Map{
+				"message": transport.INVALID_CREDENTIALS,
+			})
+			return
+		}
+		gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
+			"message": transport.INTERNAL_SERVER_ERROR,
+		})
+		return
+	}
+
+	gc.Status(http.StatusOK).JSONResponse(gsk.Map{
+		"message": transport.SUCCESS_CHANGED_PASSWORD,
+	})
+}

@@ -15,6 +15,7 @@ type accountStore interface {
 	GetAccountByEmail(email string) (*ds.Account, error)
 	GetAccountByUsername(username string) (*ds.Account, error)
 	GetAccountList(limit int, offset int) ([]*ds.Account, error)
+
 	// Update
 	UpdateAccountByID(account *ds.Account) error
 	// Delete
@@ -47,8 +48,10 @@ type groupStore interface {
 }
 
 type tokenStore interface {
+	GetAccountByPasswordResetToken(token string) (*ds.Account, error)
 	SavePasswordResetToken(id string, token string, expiry time.Time) error
 	GetPasswordResetToken(token string) (*ds.PasswordResetToken, error)
+	InvalidateResetToken(token string) error
 }
 
 type AuthenticationStore interface {

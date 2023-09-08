@@ -614,3 +614,21 @@ func TestAuthenticationService_SendPasswordResetEmail(t *testing.T) {
 		mockStore.AssertExpectations(t)
 	})
 }
+
+func TestAuthenticationService_ResetPassword(t *testing.T) {
+	t.Run("returns no error if password is reset", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewAuthenticationService(mockStore)
+
+		token := uuid.NewString()
+		password := "newpassword"
+
+		mockStore.On("UpdateAccountByID", mock.AnythingOfType("*ds.Account")).Return(nil).Once()
+		mockStore.On("InvalidateResetToken", token).Return(nil).Once()
+
+		err := service.ResetPassword(token, password)
+
+		assert.NoError(t, err)
+		mockStore.AssertExpectations(t)
+	})
+}

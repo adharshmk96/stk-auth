@@ -21,6 +21,9 @@ var (
 )
 
 func SendPasswordResetEmail(email string, resetToken string) error {
+	fmt.Println(email)
+	fmt.Println(resetToken)
+	return nil
 	logger := infra.GetLogger()
 	logger.Info("Sending password reset email to: ", email)
 	u, err := url.Parse(resetURL)

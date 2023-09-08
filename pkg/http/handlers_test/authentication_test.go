@@ -1298,3 +1298,33 @@ func TestResetPassword(t *testing.T) {
 		service.AssertExpectations(t)
 	})
 }
+
+func TestResetPasswordConfirm(t *testing.T) {
+
+	s := gsk.New()
+
+	infra.LoadDefaultConfig()
+
+	t.Run("returns 200 if reset password request is valid", func(t *testing.T) {
+
+		service := mocks.NewAuthenticationService(t)
+		handler := handlers.NewAccountHandler(service)
+
+		token := "abcdefg"
+		password := "password"
+
+		service.On("ResetPassword", token, password).Return(nil)
+
+		s.Post("/reset/password/confirm", handler.ResetPasswordConfirm)
+
+		reset := ds.Account{
+			Password: password,
+		}
+
+		body, _ := json.Marshal(reset)
+		w, _ := s.Test("POST", "/reset/password/confirm?token="+token, bytes.NewBuffer(body))
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		service.AssertExpectations(t)
+	})
+}

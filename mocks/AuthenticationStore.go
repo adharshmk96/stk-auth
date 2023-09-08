@@ -133,6 +133,32 @@ func (_m *AuthenticationStore) GetAccountByEmail(email string) (*ds.Account, err
 	return r0, r1
 }
 
+// GetAccountByPasswordResetToken provides a mock function with given fields: token
+func (_m *AuthenticationStore) GetAccountByPasswordResetToken(token string) (*ds.Account, error) {
+	ret := _m.Called(token)
+
+	var r0 *ds.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*ds.Account, error)); ok {
+		return rf(token)
+	}
+	if rf, ok := ret.Get(0).(func(string) *ds.Account); ok {
+		r0 = rf(token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ds.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(token)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAccountBySessionID provides a mock function with given fields: sessionID
 func (_m *AuthenticationStore) GetAccountBySessionID(sessionID string) (*ds.Account, error) {
 	ret := _m.Called(sessionID)
@@ -337,6 +363,20 @@ func (_m *AuthenticationStore) GetTotalAccountsCount() (int64, error) {
 	}
 
 	return r0, r1
+}
+
+// InvalidateResetToken provides a mock function with given fields: token
+func (_m *AuthenticationStore) InvalidateResetToken(token string) error {
+	ret := _m.Called(token)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(token)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // InvalidateSessionByID provides a mock function with given fields: sessionID
