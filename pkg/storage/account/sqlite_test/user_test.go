@@ -454,24 +454,31 @@ func TestAccountStore_SavePasswordResetToken(t *testing.T) {
 	})
 
 	t.Run("GetAccountByPasswordResetToken returns account when token is found", func(t *testing.T) {
-		id := uuid.New().String()
+
+		accountId, _ := ds.ParseAccountId(uuid.New().String())
+		username := "test"
+		email := "user@email.com"
+		password := "test"
+		salt := "test"
+		time_now := time.Now()
+
+		savedAccount := &ds.Account{
+			ID:        accountId,
+			Username:  username,
+			Password:  password,
+			Salt:      salt,
+			Email:     email,
+			CreatedAt: time_now,
+			UpdatedAt: time_now,
+		}
+
+		accountStorage.SaveAccount(savedAccount)
+
+		id := savedAccount.ID.String()
 		token := uuid.New().String()
 		expiry := time.Now().Add(time.Hour)
 
 		err := accountStorage.SavePasswordResetToken(id, token, expiry)
-		assert.NoError(t, err)
-
-		row := conn.QueryRow(sqlite.Q_GetPasswordResetToken, token)
-
-		var accountID string
-		var retrievedToken string
-		var retrievedExpiry time.Time
-
-		err = row.Scan(
-			&accountID,
-			&retrievedToken,
-			&retrievedExpiry,
-		)
 		assert.NoError(t, err)
 
 		account, err := accountStorage.GetAccountByPasswordResetToken(token)
