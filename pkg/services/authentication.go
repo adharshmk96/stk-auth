@@ -231,3 +231,56 @@ func (u *authenticationService) ValidateJWT(token string) (*entities.CustomClaim
 	}
 	return claims, nil
 }
+
+// SendPasswordResetEmail sends a password reset email to the user
+// - Generates a password reset token
+// - Sends the password reset email
+func (u *authenticationService) SendPasswordResetEmail(
+	email string,
+	sender func(string, string) error,
+) error {
+	account, err := u.storage.GetAccountByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	resetToken := uuid.New().String()
+	resetTokenExpiry := time.Now().Add(time.Minute * 30)
+
+	if err = u.storage.SavePasswordResetToken(account.ID.String(), resetToken, resetTokenExpiry); err != nil {
+		return err
+	}
+
+	if err = sender(email, resetToken); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ResetPassword resets the password for the account
+// - Validates the reset token
+// - Resets the password
+func (u *authenticationService) ResetPassword(token string, password string) error {
+	account, err := u.storage.GetAccountByPasswordResetToken(token)
+	if err != nil {
+		if errors.Is(err, svrerr.ErrDBEntryNotFound) {
+			return svrerr.ErrInvalidToken
+		}
+		return err
+	}
+
+	account.Password = password
+
+	err = u.ChangePassword(account)
+	if err != nil {
+		return err
+	}
+
+	err = u.storage.InvalidateResetToken(token)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

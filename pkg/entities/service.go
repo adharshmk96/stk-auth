@@ -18,7 +18,10 @@ type accountService interface {
 	CreateAccount(account *ds.Account) (*ds.Account, error)
 	Authenticate(login *ds.Account) error
 	ChangePassword(account *ds.Account) error
+	SendPasswordResetEmail(email string, sender func(string, string) error) error
+	ResetPassword(account string, password string) error
 	GetAccountByID(accountId string) (*ds.Account, error)
+	// GetAccountByEmail(email string) (*ds.Account, error)
 
 	// Admin methods
 	GetAccountList(limit int, offset int) ([]*ds.Account, error)

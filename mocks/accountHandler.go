@@ -22,6 +22,16 @@ func (_m *accountHandler) RegisterAccount(gc *gsk.Context) {
 	_m.Called(gc)
 }
 
+// ResetPassword provides a mock function with given fields: gc
+func (_m *accountHandler) ResetPassword(gc *gsk.Context) {
+	_m.Called(gc)
+}
+
+// ResetPasswordConfirm provides a mock function with given fields: gc
+func (_m *accountHandler) ResetPasswordConfirm(gc *gsk.Context) {
+	_m.Called(gc)
+}
+
 type mockConstructorTestingTnewAccountHandler interface {
 	mock.TestingT
 	Cleanup(func())

@@ -43,7 +43,7 @@ func setupDatabase() *sql.DB {
 		PRIMARY KEY (id)
 	);`)
 
-	_, err := conn.Exec(`CREATE TABLE ` + sqlite.TableAccountGroupAssociation + ` (
+	conn.Exec(`CREATE TABLE ` + sqlite.TableAccountGroupAssociation + ` (
 		id INTEGER AUTO INCREMENT,
 		account_id TEXT NOT NULL,
 		group_id TEXT NOT NULL,
@@ -53,9 +53,15 @@ func setupDatabase() *sql.DB {
 		FOREIGN KEY(group_id) REFERENCES  auth_account_groups(id)
 	);`)
 
-	if err != nil {
-		panic(err)
-	}
+	conn.Exec(`CREATE TABLE ` + sqlite.TablePasswordResetToken + ` (
+		id INTEGER AUTO INCREMENT,
+		account_id varchar(255) NOT NULL,
+		token varchar(255) UNIQUE NOT NULL,
+		expiry DATETIME NOT NULL,
+		is_used boolean DEFAULT FALSE,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id)
+	);`)
 
 	return conn
 }

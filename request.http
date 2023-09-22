@@ -18,12 +18,22 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8080/api/auth/token/login
+POST http://localhost:8080/api/auth/session/login
 Content-Type: application/json
 
 {
     "email": "user1234@gmail.com",
     "password": "#Password123"
+}
+
+###
+
+POST http://localhost:8080/api/auth/token/login
+Content-Type: application/json
+
+{
+    "email": "user1234@gmail.com",
+    "password": "#Password1234"
 }
 
 ###
@@ -69,4 +79,22 @@ Content-Type: application/json
 {
     "name": "group1",
     "description": "group1 description"
+}
+
+###
+
+POST http://localhost:8080/api/auth/reset/password
+Content-Type: application/json
+
+{
+    "email": "user1234@gmail.com"
+}
+
+
+###
+
+POST http://localhost:8080/api/auth/reset/password/confirm?token=4a9248c9-5165-4648-ac8d-46129e0c618f
+
+{
+    "password": "#Password12345"
 }

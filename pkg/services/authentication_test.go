@@ -597,3 +597,64 @@ func TestAuthenticationService_ValidateJWT(t *testing.T) {
 
 	})
 }
+
+func TestAuthenticationService_SendPasswordResetEmail(t *testing.T) {
+
+	user := &ds.Account{
+		ID:        ds.AccountID(uuid.New()),
+		Username:  "testaccount",
+		Email:     "user@email.com",
+		Password:  "testpassword",
+		Salt:      "testsalt",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	t.Run("returns no error if email is sent", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewAuthenticationService(mockStore)
+		email := "user@email.com"
+
+		mockStore.On("GetAccountByEmail", email).Return(user, nil).Once()
+		mockStore.On("SavePasswordResetToken", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("time.Time")).Return(nil).Once()
+
+		mockSender := func(email string, token string) error {
+			return nil
+		}
+
+		err := service.SendPasswordResetEmail(email, mockSender)
+
+		assert.NoError(t, err)
+		mockStore.AssertExpectations(t)
+	})
+}
+
+func TestAuthenticationService_ResetPassword(t *testing.T) {
+
+	user := &ds.Account{
+		ID:        ds.AccountID(uuid.New()),
+		Username:  "testaccount",
+		Email:     "user@email.com",
+		Password:  "testpassword",
+		Salt:      "testsalt",
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	t.Run("returns no error if password is reset", func(t *testing.T) {
+		mockStore := mocks.NewAuthenticationStore(t)
+		service := services.NewAuthenticationService(mockStore)
+
+		token := uuid.NewString()
+		password := "newpassword"
+
+		mockStore.On("GetAccountByPasswordResetToken", token).Return(user, nil).Once()
+		mockStore.On("UpdateAccountByID", user).Return(nil).Once()
+		mockStore.On("InvalidateResetToken", token).Return(nil).Once()
+
+		err := service.ResetPassword(token, password)
+
+		assert.NoError(t, err)
+		mockStore.AssertExpectations(t)
+	})
+}
