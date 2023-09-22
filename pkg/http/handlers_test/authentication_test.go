@@ -1285,11 +1285,13 @@ func TestResetPassword(t *testing.T) {
 		service := mocks.NewAuthenticationService(t)
 		handler := handlers.NewAccountHandler(service)
 
-		s.Post("/reset", handler.ResetPassword)
+		s.Post("/reset/password", handler.ResetPassword)
 
 		reset := ds.Account{
 			Email: "user@email.com",
 		}
+
+		service.Mock.On("SendPasswordResetEmail", reset.Email, mock.Anything).Return(nil)
 
 		body, _ := json.Marshal(reset)
 		w, _ := s.Test("POST", "/reset/password", bytes.NewBuffer(body))

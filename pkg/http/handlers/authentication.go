@@ -6,6 +6,7 @@ import (
 
 	"github.com/adharshmk96/stk-auth/pkg/entities/ds"
 
+	"github.com/adharshmk96/stk-auth/pkg/http/helpers"
 	"github.com/adharshmk96/stk-auth/pkg/http/transport"
 	"github.com/adharshmk96/stk-auth/pkg/http/validator"
 	"github.com/adharshmk96/stk-auth/pkg/svrerr"
@@ -302,7 +303,7 @@ func (h *accountHandler) ResetPassword(gc *gsk.Context) {
 
 	email := account.Email
 
-	err = h.authService.SendPasswordResetEmail(email)
+	err = h.authService.SendPasswordResetEmail(email, helpers.SendPasswordResetEmail)
 	if err != nil {
 		gc.Status(http.StatusInternalServerError).JSONResponse(gsk.Map{
 			"message": transport.INTERNAL_SERVER_ERROR,

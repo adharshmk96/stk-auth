@@ -235,7 +235,10 @@ func (u *authenticationService) ValidateJWT(token string) (*entities.CustomClaim
 // SendPasswordResetEmail sends a password reset email to the user
 // - Generates a password reset token
 // - Sends the password reset email
-func (u *authenticationService) SendPasswordResetEmail(email string) error {
+func (u *authenticationService) SendPasswordResetEmail(
+	email string,
+	sender func(string, string) error,
+) error {
 	account, err := u.storage.GetAccountByEmail(email)
 	if err != nil {
 		return err
@@ -248,7 +251,7 @@ func (u *authenticationService) SendPasswordResetEmail(email string) error {
 		return err
 	}
 
-	if err = helpers.SendPasswordResetEmail(email, resetToken); err != nil {
+	if err = sender(email, resetToken); err != nil {
 		return err
 	}
 
