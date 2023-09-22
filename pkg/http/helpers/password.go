@@ -22,7 +22,7 @@ var (
 
 func SendPasswordResetEmail(email string, resetToken string) error {
 	logger := infra.GetLogger()
-	logger.Info("Sending password reset email to: ", email)
+	logger.Info("Sending password reset email to: " + email)
 	u, err := url.Parse(resetURL)
 	if err != nil {
 		logger.Error("error parsing url: ", err)
