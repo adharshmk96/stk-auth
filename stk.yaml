@@ -10,6 +10,8 @@ migrator:
         filepath: auth_database.db
     workdir: ./stk-migrations
 server:
+    mode: dev
+    domain: localhost
     cookie:
         jwt_access:
             name: stk_access_token
@@ -19,7 +21,6 @@ server:
             name: stk_session_token
         session:
             name: stk_session_id
-    domain: localhost
     jwt:
         access_expiry: 1440
         expiry: 1440
@@ -28,7 +29,13 @@ server:
         public_key_path: .keys/public_key.pem
         refresh_expiry: 43200
         subject: authentication
-    mode: dev
+    email:
+        from: stk-auth-server@localhost
+        host: localhost
+        password: password
+        port: 1025
+        username: stk-auth-server
+        reset_link: http://localhost:8080/reset/password/confirm
     root_admin:
         email: admin@local 
         password: Admin123#

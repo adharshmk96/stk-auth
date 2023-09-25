@@ -40,4 +40,12 @@ const (
 	ENV_ROOT_ADMIN_USERNAME = "server.root_admin.username"
 	ENV_ROOT_ADMIN_PASSWORD = "server.root_admin.password"
 	ENV_ROOT_ADMIN_EMAIL    = "server.root_admin.email"
+
+	// Email
+	ENV_SERVER_EMAIL_FROM      = "server.email.from"
+	ENV_SERVER_EMAIL_HOST      = "server.email.host"
+	ENV_SERVER_EMAIL_PORT      = "server.email.port"
+	ENV_SERVER_EMAIL_USER      = "server.email.user"
+	ENV_SERVER_EMAIL_PASS      = "server.email.pass"
+	ENV_SERVER_EMAIL_RESET_URL = "server.email.reset_url"
 )

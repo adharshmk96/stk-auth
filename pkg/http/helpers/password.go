@@ -6,18 +6,18 @@ import (
 	"net/url"
 
 	"github.com/adharshmk96/stk-auth/server/infra"
+	"github.com/adharshmk96/stk-auth/server/infra/constants"
 	"github.com/spf13/viper"
 )
 
 // email settings
 var (
-	EmailFrom = viper.GetString("email.from")
-	EmailHost = viper.GetString("email.host")
-	EmailPort = viper.GetString("email.port")
-	EmailUser = viper.GetString("email.user")
-	EmailPass = viper.GetString("email.pass")
-
-	resetURL = viper.GetString("email.reset_url")
+	EmailFrom = viper.GetString(constants.ENV_SERVER_EMAIL_FROM)
+	EmailHost = viper.GetString(constants.ENV_SERVER_EMAIL_HOST)
+	EmailPort = viper.GetString(constants.ENV_SERVER_EMAIL_PORT)
+	EmailUser = viper.GetString(constants.ENV_SERVER_EMAIL_USER)
+	EmailPass = viper.GetString(constants.ENV_SERVER_EMAIL_PASS)
+	resetURL  = viper.GetString(constants.ENV_SERVER_EMAIL_RESET_URL)
 )
 
 func SendPasswordResetEmail(email string, resetToken string) error {
