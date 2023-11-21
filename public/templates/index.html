@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>{{ .Var.Title }}</title>
+    <link rel="stylesheet" href="{{ .Config.Static }}/style.css">
+</head>
+<body>
+    <h1>{{ .Var.Title }}</h1>
+    <p>{{ .Var.Content }}</p>
+
+    <script src="{{ .Config.Static }}/script.js"></script>
+</body>
+</html>

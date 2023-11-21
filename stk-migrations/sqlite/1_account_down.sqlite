@@ -1,0 +1,4 @@
+DROP TABLE account;
+DROP TABLE account_role;
+DROP TABLE role;
+DROP TABLE session;
