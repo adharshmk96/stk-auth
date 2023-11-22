@@ -1,26 +1,74 @@
 package handler
 
-import "github.com/adharshmk96/stk/gsk"
+import (
+	"net/http"
+
+	"github.com/adharshmk96/stk-auth/internals/account/api/transport"
+	"github.com/adharshmk96/stk-auth/internals/account/domain"
+	"github.com/adharshmk96/stk/gsk"
+)
 
 func (h *accountHandler) AccountDetails(gc *gsk.Context) {
 
-	cookie, err := gc.GetCookie("session")
-	if err != nil {
+	isAuth := gc.Get("is_authenticated")
+	if isAuth == nil {
 		gc.Status(401).JSONResponse(gsk.Map{
-			"message": "Unauthorized",
+			"error":   "unauthorized",
+			"message": "user is not authenticated",
 		})
 		return
 	}
 
-	account, err := h.service.GetSessionAccount(cookie.Value)
-	if err != nil {
+	account := gc.Get("account").(*domain.Account)
+	if account == nil {
 		gc.Status(401).JSONResponse(gsk.Map{
-			"message": "Unauthorized",
+			"error":   "unauthorized",
+			"message": "error getting account",
 		})
 		return
+	}
+
+	responseData := transport.AccountData{
+		ID:        account.ID.String(),
+		Email:     account.Email,
+		FirstName: account.FirstName,
+		LastName:  account.LastName,
 	}
 
 	gc.Status(200).JSONResponse(gsk.Map{
-		"user": account,
+		"user": responseData,
+	})
+}
+
+func (h *accountHandler) Logout(gc *gsk.Context) {
+	_, err := gc.GetCookie(transport.SESSION_COOKIE_NAME)
+	if err != nil {
+		gc.Status(401).JSONResponse(gsk.Map{
+			"message": "unauthorized",
+		})
+		return
+	}
+
+	// sessionToken := cookie.Value
+
+	// err = h.service.DeleteSession(sessionToken)
+	// if err != nil {
+	// 	gc.Status(500).JSONResponse(gsk.Map{
+	// 		"message": "error deleting session",
+	// 	})
+	// 	return
+	// }
+
+	sessionCookie := &http.Cookie{
+		Name:     transport.SESSION_COOKIE_NAME,
+		Value:    "",
+		HttpOnly: true,
+		Path:     "/",
+	}
+
+	gc.SetCookie(sessionCookie)
+
+	gc.Status(200).JSONResponse(gsk.Map{
+		"message": "success",
 	})
 }

@@ -10,4 +10,5 @@ type AccountHandlers interface {
 
 	// account
 	AccountDetails(gc *gsk.Context)
+	Logout(gc *gsk.Context)
 }

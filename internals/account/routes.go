@@ -40,6 +40,7 @@ func SetupApiRoutes(rg *gsk.RouteGroup) {
 	accountRoutes.Use(middleware.IsAuthenticatedMiddleware(accountService))
 
 	accountRoutes.Get("/me", accountHandler.AccountDetails)
+	accountRoutes.Get("/logout", accountHandler.Logout)
 
 }
 
