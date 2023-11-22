@@ -31,11 +31,10 @@ func (s *accountService) StartSession(account *domain.Account) (*domain.Session,
 	return session, nil
 }
 
-func (s *accountService) EndSession(session *domain.Session) error {
+func (s *accountService) EndSession(session string) error {
 	logger := infra.GetLogger()
 
-	session.Active = false
-	err := s.storage.UpdateSession(session)
+	err := s.storage.DeactivateSession(session)
 	if err != nil {
 		logger.Error("error updating session: ", err)
 		return serr.ErrEndingSession

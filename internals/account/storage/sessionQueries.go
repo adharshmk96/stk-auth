@@ -40,4 +40,10 @@ var (
 		On("s.account_id = a.id").
 		Where("s.id = ?", "s.active = true").
 		Build()
+
+	DEACTIVATE_SESSION = sqlBuilder.NewSqlQuery().
+				Update(SESSION_TABLE).
+				Set("active = false").
+				Where("id = ?").
+				Build()
 )

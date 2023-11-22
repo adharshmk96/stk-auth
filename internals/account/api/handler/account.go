@@ -41,7 +41,7 @@ func (h *accountHandler) AccountDetails(gc *gsk.Context) {
 }
 
 func (h *accountHandler) Logout(gc *gsk.Context) {
-	_, err := gc.GetCookie(transport.SESSION_COOKIE_NAME)
+	cookie, err := gc.GetCookie(transport.SESSION_COOKIE_NAME)
 	if err != nil {
 		gc.Status(401).JSONResponse(gsk.Map{
 			"message": "unauthorized",
@@ -49,15 +49,15 @@ func (h *accountHandler) Logout(gc *gsk.Context) {
 		return
 	}
 
-	// sessionToken := cookie.Value
+	sessionToken := cookie.Value
 
-	// err = h.service.DeleteSession(sessionToken)
-	// if err != nil {
-	// 	gc.Status(500).JSONResponse(gsk.Map{
-	// 		"message": "error deleting session",
-	// 	})
-	// 	return
-	// }
+	err = h.service.EndSession(sessionToken)
+	if err != nil {
+		gc.Status(500).JSONResponse(gsk.Map{
+			"message": "error deleting session",
+		})
+		return
+	}
 
 	sessionCookie := &http.Cookie{
 		Name:     transport.SESSION_COOKIE_NAME,

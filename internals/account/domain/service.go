@@ -7,6 +7,6 @@ type AccountService interface {
 
 	// Session
 	StartSession(account *Account) (*Session, error)
-	EndSession(session *Session) error
+	EndSession(session string) error
 	GetSessionAccount(sessionId string) (*Account, error)
 }

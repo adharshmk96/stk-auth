@@ -103,3 +103,21 @@ func (s *sqliteRepo) UpdateSession(session *domain.Session) error {
 
 	return nil
 }
+
+func (s *sqliteRepo) DeactivateSession(id string) error {
+	logger := infra.GetLogger()
+
+	stmt, err := s.conn.Prepare(DEACTIVATE_SESSION)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}

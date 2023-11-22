@@ -39,3 +39,21 @@ func TestCreateAccount(t *testing.T) {
 		assert.NotEmpty(t, newAccount.UpdatedAt)
 	})
 }
+
+func TestGetAccount(t *testing.T) {
+	t.Run("GetAccountByEmail gets account", func(t *testing.T) {
+
+		// Arrange
+		storage := mocks.NewAccountStorage(t)
+		storage.On("GetAccountByEmail", "email").Return(&domain.Account{Email: "email"}, nil)
+
+		svc := service.NewAccountService(storage)
+
+		// Act
+		account, err := svc.GetAccountByEmail("email")
+
+		// Assert
+		assert.NoError(t, err)
+		assert.Equal(t, account.Email, "email")
+	})
+}

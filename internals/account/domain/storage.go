@@ -10,5 +10,6 @@ type AccountStorage interface {
 	StoreSession(session *Session) error
 	GetSessionByID(id string) (*Session, error)
 	UpdateSession(session *Session) error
+	DeactivateSession(id string) error
 	GetAccountBySessionID(id string) (*Account, error)
 }

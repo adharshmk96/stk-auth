@@ -34,3 +34,20 @@ func TestStartSession(t *testing.T) {
 		assert.True(t, session.Active)
 	})
 }
+
+func TestEndSession(t *testing.T) {
+	t.Run("EndSession ends session", func(t *testing.T) {
+
+		// Arrange
+		storage := mocks.NewAccountStorage(t)
+		storage.On("DeactivateSession", mock.AnythingOfType("string")).Return(nil)
+
+		svc := service.NewAccountService(storage)
+
+		// Act
+		err := svc.EndSession("session")
+
+		// Assert
+		assert.NoError(t, err)
+	})
+}
